@@ -1,6 +1,7 @@
 var Events = (function(){
 
 
+var slice = [].slice;
 var eventSplitter = /\s+/;
 
 // Implement fancy features of the Events API such as multiple event
@@ -44,10 +45,12 @@ function triggerEvents(events, args){
 
 var Events = {
 
+    // Bind an event to a `callback` function. Passing `"all"` will bind
+    // the callback to all events fired.
     on: function(name, callback, context){
         if(!eventsApi(this, 'on', name, [callback, context]) || !callback) return this;
         this._events || (this._events = {});
-        var events = this._events[name] || (this._events = []);
+        var events = this._events[name] || (this._events[name] = []);
         events.push({callback: callback, context: context, ctx: context || this});
         return this;
     }
@@ -79,7 +82,7 @@ var Events = {
             return this;
         }
         
-        var names = name ? [name] : utils.keys(this._events);
+        var names = name ? [name] : Utils.keys(this._events);
         for(var i=0, length = names.length; i<length; i++){
             name = names[i];
             
@@ -138,7 +141,7 @@ var Events = {
     // listening to. 
     , listenTo: function(obj, name, callback){
         var listeningTo = this._listeningTo || (this._listeningTo = {});
-        var id = obj._listenId || (obj._listenId = utils.uniqueId('l'));
+        var id = obj._listenId || (obj._listenId = Utils.uniqueId('l'));
         listeningTo[id] = obj;
         if(!callback && typeof name === 'object') callback = this;
         obj.on(name, callback, this);
@@ -168,9 +171,9 @@ var Events = {
         if(!callback && typeof name === 'object') callback = this;
         if(obj) (listeningTo = {})[obj._listenId] = obj;
         for(var id in listeningTo){
-            obj = linsteningTo[id];
+            obj = listeningTo[id];
             obj.off(name, callback, this);
-            if(remove || utils.isEmpty(obj._events)) delete this._listeningTo[id];
+            if(remove || Utils.isEmpty(obj._events)) delete this._listeningTo[id];
         }
         return this;
     }
@@ -187,24 +190,4 @@ return Events;
 
 
 })();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
