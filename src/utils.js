@@ -1,0 +1,299 @@
+var Utils = (function(){
+
+var toString = Object.prototype.toString;
+
+function isObject(obj){
+    var type = typeof obj;
+    return type === 'function'
+        || type === 'object'
+            // typeof null == 'object'
+            && !!obj;
+}
+
+function isArray(obj){
+    if(Array.isArray){
+        return Array.isArray(obj);
+    }
+    return toString.call(obj) === '[object Array]';
+}
+
+
+function isFunction(obj){
+    return toString.call(obj) === '[object Function]';
+}
+
+function isString(obj){
+    return toString.call(obj) === '[object String]';
+}
+
+function isArguments(obj){
+    return toString.call(obj) === '[object Arguments]';
+}
+
+function isRegExp(obj){
+    return toString.call(obj) === '[object RegExp]';
+}
+
+function isNumber(obj){
+    return toString.call(obj) === '[object Number]';
+}
+
+function isDate(obj){
+    return toString.call(obj) === '[object Date]';
+}
+
+function isError(obj){
+    return toString.call(obj) === '[object Error]';
+}
+
+// Is a given array, string, or object empty?
+// An "empty" object has no enumerable own-properties.
+function isEmpty(obj){
+    if(obj == null) return true;
+    if(isArray(obj) || isString(obj) || isArguments(obj)) return obj.length === 0;
+    for(var key in obj) if(has(obj, key)) return false;
+    return true;
+}
+
+
+// Internal recursive comparison function for `isEqual`.
+function eq(a, b, aStack, bStack) {
+  // Identical objects are equal. `0 === -0`, but they aren't identical.
+  // See the [Harmony `egal` proposal](http://wiki.ecmascript.org/doku.php?id=harmony:egal).
+  if (a === b) return a !== 0 || 1 / a === 1 / b;
+  // A strict comparison is necessary because `null == undefined`.
+  if (a == null || b == null) return a === b;
+  // Unwrap any wrapped objects.
+  // if (a instanceof _) a = a._wrapped;
+  // if (b instanceof _) b = b._wrapped;
+  // Compare `[[Class]]` names.
+  var className = toString.call(a);
+  if (className !== toString.call(b)) return false;
+  switch (className) {
+    // Strings, numbers, regular expressions, dates, and booleans are compared by value.
+    case '[object RegExp]':
+    // RegExps are coerced to strings for comparison (Note: '' + /a/i === '/a/i')
+    case '[object String]':
+      // Primitives and their corresponding object wrappers are equivalent; thus, `"5"` is
+      // equivalent to `new String("5")`.
+      return '' + a === '' + b;
+    case '[object Number]':
+      // `NaN`s are equivalent, but non-reflexive.
+      // Object(NaN) is equivalent to NaN
+      if (+a !== +a) return +b !== +b;
+      // An `egal` comparison is performed for other numeric values.
+      return +a === 0 ? 1 / +a === 1 / b : +a === +b;
+    case '[object Date]':
+    case '[object Boolean]':
+      // Coerce dates and booleans to numeric primitive values. Dates are compared by their
+      // millisecond representations. Note that invalid dates with millisecond representations
+      // of `NaN` are not equivalent.
+      return +a === +b;
+  }
+
+  var areArrays = className === '[object Array]';
+  if (!areArrays) {
+    if (typeof a != 'object' || typeof b != 'object') return false;
+
+    // Objects with different constructors are not equivalent, but `Object`s or `Array`s
+    // from different frames are.
+    var aCtor = a.constructor, bCtor = b.constructor;
+    if (aCtor !== bCtor && !(isFunction(aCtor) && aCtor instanceof aCtor &&
+                             isFunction(bCtor) && bCtor instanceof bCtor)
+                        && ('constructor' in a && 'constructor' in b)) {
+      return false;
+    }
+  }
+  // Assume equality for cyclic structures. The algorithm for detecting cyclic
+  // structures is adapted from ES 5.1 section 15.12.3, abstract operation `JO`.
+  var length = aStack.length;
+  while (length--) {
+    // Linear search. Performance is inversely proportional to the number of
+    // unique nested structures.
+    if (aStack[length] === a) return bStack[length] === b;
+  }
+
+  // Add the first object to the stack of traversed objects.
+  aStack.push(a);
+  bStack.push(b);
+
+  // Recursively compare objects and arrays.
+  if (areArrays) {
+    // Compare array lengths to determine if a deep comparison is necessary.
+    length = a.length;
+    if (length !== b.length) return false;
+    // Deep compare the contents, ignoring non-numeric properties.
+    while (length--) {
+      if (!(eq(a[length], b[length], aStack, bStack))) return false;
+    }
+  } else {
+    // Deep compare objects.
+    var keys = _keys(a), key;
+    length = keys.length;
+    // Ensure that both objects contain the same number of properties before comparing deep equality.
+    if (_keys(b).length !== length) return false;
+    while (length--) {
+      // Deep compare each member
+      key = keys[length];
+      if (!(has(b, key) && eq(a[key], b[key], aStack, bStack))) return false;
+    }
+  }
+  // Remove the first object from the stack of traversed objects.
+  aStack.pop();
+  bStack.pop();
+  return true;
+};
+
+
+function isEqual(a, b){
+    return eq(a, b, [], []);
+}
+
+
+
+
+
+function each(obj, iteratee, context){
+    if(obj == null) return obj;
+    iteratee = optimizeCb(iteratee, context);
+    var i, length = obj.length;
+    if(length === +length){
+        for(i=0; i<length; i++){
+            iteratee(obj[i], i, obj);
+        }
+    }
+    else{
+        var keys = _keys(obj);
+        for(i=0, length=keys.length; i<length; i++){
+            iteratee(obj[keys[i]], keys[i], obj);
+        }
+    }
+    return obj;
+}
+
+
+// Internal function that returns an efficient (for current engines) version
+// of the passed-in callback, to be repeatedly applied in other Underscore
+// functions.
+var optimizeCb = function(func, context, argCount) {
+    if (context === void 0) return func;
+    switch (argCount == null ? 3 : argCount) {
+        case 1: return function(value) {
+            return func.call(context, value);
+        };
+        case 2: return function(value, other) {
+            return func.call(context, value, other);
+        };
+        case 3: return function(value, index, collection) {
+            return func.call(context, value, index, collection);
+        };
+        case 4: return function(accumulator, value, index, collection) {
+            return func.call(context, accumulator, value, index, collection);
+        };
+    }
+    return function() {
+        return func.apply(context, arguments);
+    };
+};
+
+
+// create a (shallow-cloned) duplicate of an object.
+function clone(obj){
+    if(!isObject(obj)) return obj;
+    return isArray(obj) ? obj.slice() : extend({}, obj);
+}
+
+
+function defaults(obj){
+    if (!isObject(obj)) return obj;
+    for (var i = 1, length = arguments.length; i < length; i++) {
+      var source = arguments[i];
+      for (var prop in source) {
+        if (obj[prop] === void 0) obj[prop] = source[prop];
+      }
+    }
+    return obj;
+}
+
+function has(obj, key){
+    return obj != null && Object.prototype.hasOwnProperty.call(obj, key);
+}
+
+function _keys(obj){
+    if(!isObject(obj)) return [];
+    if(Object.keys) return Object.keys(obj);
+    var keys = [];
+    for(var key in obj) {
+        if(has(obj, key)){
+            keys.push(key);
+        }
+    }
+    return keys;
+}
+
+function keysIn(obj){
+    if (!isObject(obj)) return [];
+    var keys = [];
+    for(var key in obj) keys.push(key);
+    return keys;
+}
+
+function createAssigner(keysFunc){
+    return function(obj){
+        var length = arguments.length;
+        if(length < 2 || obj == null) return obj;
+        for(var index = 0; index < length; index++){
+            var source = arguments[index],
+                keys = keysFunc(source),
+                len = keys.length;
+            for(var i=0; i<len; i++){
+                var key = keys[i];
+                obj[key] = source[key];
+            }
+        }
+        return obj;
+    };
+}
+
+var extend = createAssigner(keysIn);
+
+
+
+
+// If the value of the named `property` is a function then invoke it with the
+// `object` as context; otherwise, return it.
+function result(object, property, fallback){
+    var value = object == null ? void 0 : object[property];
+    if(value === void 0){
+        value = fallback;
+    }
+
+    return isFunction(value) ? value.call(object) : value;
+}
+
+
+var idCounter = 0;
+function uniqueId(prefix){
+    var id = ++idCounter + '';
+    return prefix ? prefix + id : id;
+}
+
+
+return {
+    isObject: isObject
+    , isFunction: isFunction
+    , isArray: isArray
+    , isEqual: isEqual
+    , isEmpty: isEmpty
+    , keys: _keys
+    , defaults: defaults
+    , extend: extend
+    , result: result
+    , each: each
+    , clone: clone
+    , has: has
+    , uniqueId: uniqueId
+};
+
+
+})();
