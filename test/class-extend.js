@@ -56,4 +56,10 @@ test('extend', function(){
     ok(master instanceof Student, 'master is an instance of Student');
     ok(master instanceof Master, 'master is an instance of Master');
 
+    equal(
+        master.sayHello()
+        , 'Hello, my name is Obama. I am 45 years old. I am in grade 2. I major in history.'
+        , 'master.sayHello test passes'
+    );
+
 });

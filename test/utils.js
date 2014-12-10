@@ -244,7 +244,7 @@ test('isEqual', function(){
 
 test('defaults', function(){
 
-    var a = {name: 'a'},
+    var a = {name: 'a', color: void 0},
         b = {name: 'b', color: 'red'}, 
         c = {age: 11, color: 'green'}; 
 
@@ -394,6 +394,98 @@ test('uniqueId', function(){
     equal(firstKey - 0 + 1, secondKey, 'uniqueId passes');
     equal('kk' + ( firstKey - 0 + 2 ), thirdKey, 'prefix test passes');
 
+});
+
+
+test('sync', function(){
+
+    var oldAjax = Utils.ajax;
+    var options = {
+            error: function(xhr, textStatus, errorThrown){
+                equal(xhr.desc, 'a faked xhr', 'async param xhr passes');
+                equal(textStatus, 200, 'param textStatus passes');
+                equal(errorThrown, '', 'param errorThrown passes');
+            } 
+        };
+    var model = {
+        url: '/258i.com/dataapi'
+        , toJSON: function(){
+            return {
+                "name": "Michael"
+                , "age": 11
+            };
+        }
+        , trigger: function(event, model, xhr, options){
+            equal(event, 'request', 'param event passes');
+            equal(model.url, '/258i.com/dataapi', 'param model passes');
+            equal(xhr.desc, 'a faked xhr', 'param xhr passes');
+        }
+    };
+    var xhr = {"desc": "a faked xhr"};
+
+    expect(8);
+
+    Utils.ajax = function(params){
+        equal(params.contentType, void 0, 'params.contentType passes');
+        equal(params.processData, void 0, 'params.processData passes');
+        return xhr;
+    };
+
+    Utils.sync('read', model, {dataType: 'json'});
+    Utils.ajax = oldAjax;
+
+    setTimeout(function(){
+        options.error.call(this, xhr, 200, ''); 
+        start();
+    }, 100);
+
+    stop();
+});
+
+
+test('sync-error', function(){
+
+    var oldAjax = Utils.ajax;
+    var options = {
+            error: function(xhr, textStatus, errorThrown){
+                equal(xhr.desc, 'a faked xhr', 'async param xhr passes');
+                equal(textStatus, 200, 'param textStatus passes');
+                equal(errorThrown, '', 'param errorThrown passes');
+            } 
+        };
+    var model = {
+        url: '/258i.com/dataapi'
+        , toJSON: function(){
+            return {
+                "name": "Michael"
+                , "age": 11
+            };
+        }
+        , trigger: function(event, model, xhr, options){
+            equal(event, 'request', 'param event passes');
+            equal(model.url, '/258i.com/dataapi', 'param model passes');
+            equal(xhr.desc, 'a faked xhr', 'param xhr passes');
+        }
+    };
+    var xhr = {"desc": "a faked xhr"};
+
+    expect(8);
+
+    Utils.ajax = function(params){
+        equal(params.contentType, 'application/json', 'params.contentType passes');
+        equal(params.processData, false, 'params.processData passes');
+        return xhr;
+    };
+
+    Utils.sync('update', model, {dataType: 'json'});
+    Utils.ajax = oldAjax;
+
+    setTimeout(function(){
+        options.error.call(this, xhr, 200, ''); 
+        start();
+    }, 100);
+
+    stop();
 });
 
 

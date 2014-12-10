@@ -4,6 +4,7 @@ var Model = function(attributes, options){
         var attrs = attributes || {};
         options || (options = {});
         this.attributes = {};
+        if(options.parse) attrs = this.parse(attrs, options) || {};
         attrs = Utils.defaults({}, attrs, Utils.result(this, 'defaults'));
         this.set(attrs, options);
         this.changed = {};
@@ -32,8 +33,10 @@ Utils.extend(Model.prototype, Events, {
         return Utils.clone(this.attributes);
     }
 
-    // todo
-    , sync: function(){}
+    // Proxy `Utils.sync` by default
+    , sync: function(){
+        return Utils.sync.apply(this, arguments);
+    }
 
     // todo
     , escape: function(attr){}
@@ -65,9 +68,9 @@ Utils.extend(Model.prototype, Events, {
         options || (options = {});
 
         // Run validation
-        // if(!this._validate(attrs, options)) return false;
-        
-    
+        if(!this._validate(attrs, options)) return false;
+
+
         // Extract attributes and options. 
         unset = options.unset;
         silent = options.silent;
@@ -238,7 +241,7 @@ Utils.extend(Model.prototype, Events, {
         options.success = function(resp) {
             // Ensure attributes are restored during synchronous saves.
             model.attributes = attributes;
-            var serverAttr = model.parse(resp, options);
+            var serverAttrs = model.parse(resp, options);
             // merge server into local when wait flag is on
             if(options.wait) serverAttrs = Utils.extend(attrs || {}, serverAttrs);
             if(Utils.isObject(serverAttrs) && !model.set(serverAttrs, options)){
@@ -250,7 +253,8 @@ Utils.extend(Model.prototype, Events, {
         wrapError(this, options);
 
 
-        method = this.isNew() ? 'create' : (options.patsh ? 'patch' : 'update');
+
+        method = this.isNew() ? 'create' : (options.patch ? 'patch' : 'update');
         if(method === 'patch' && !options.attrs) options.attrs = attrs;
     
         xhr = this.sync(method, this, options);
@@ -337,7 +341,7 @@ Utils.extend(Model.prototype, Events, {
         attrs = Utils.extend({}, this.attributes, attrs);
         var error = this.validationError = this.validate(attrs, options) || null;
         if(!error) return true;
-        this.trigger('invalide', this, error, Utils.extend(options, {validationError: error}));
+        this.trigger('invalid', this, error, Utils.extend(options, {validationError: error}));
         return false;
     }
 
@@ -353,6 +357,7 @@ function wrapError(model, options){
     }
 }
 
+Model.extend = classExtend;
 
 return Model;
 
