@@ -604,6 +604,865 @@ test("save with PATCH and different attrs", function() {
 });
 
 
+test("save in positional style", 1, function() {
+    var model = new Model();
+
+    model.sync = function(method, model, options) {
+        options.success();
+    };
+
+    model.save('title', 'Twelfth Night');
+    equal(model.get('title'), 'Twelfth Night');
+});
+
+
+test("save with non-object success response", 2, function () {
+    var model = new Model();
+
+    model.sync = function(method, model, options) {
+        options.success('', options);
+        options.success(null, options);
+    };
+
+    /**
+     * "save" method will rewrite options.success
+     * in sync, options.success(resp)
+     * for input params' success, success(model, resp, options)
+     */
+    model.save({testing:'empty'}, {
+        success: function (model) {
+            deepEqual(model.attributes, {testing:'empty'});
+        }
+    });
+
+});
+
+
+test("fetch", 2, function() {
+    doc.fetch();
+
+    equal(Utils.syncArgs.method, 'read');
+    deepEqual(Utils.syncArgs.model, doc);
+});
+
+
+test("destroy", 3, function() {
+    doc.destroy();
+
+    equal(Utils.syncArgs.method, 'delete');
+    deepEqual(Utils.syncArgs.model, doc);
+
+    var newModel = new Model;
+    // New model has no need to sync with server
+    equal(newModel.destroy(), false);
+});
+
+test("non-persisted destroy", 1, function() {
+    var a = new Model({ 'foo': 1, 'bar': 2, 'baz': 3});
+
+    a.sync = function() { throw "should not be called"; };
+    a.destroy();
+
+    ok(true, "non-persisted model should not call sync");
+});
+
+
+test("validate", function() {
+    var lastError;
+    var model = new Model();
+
+    model.validate = function(attrs) {
+      if (attrs.admin != this.get('admin')) return "Can't change admin status.";
+    };
+
+    model.on('invalid', function(model, error) {
+        lastError = error;
+    });
+
+    var result = model.set({a: 100});
+
+    // set will "return this"
+    equal(result, model);
+    equal(model.get('a'), 100);
+    equal(lastError, undefined);
+
+    result = model.set({admin: true});
+    equal(model.get('admin'), true);
+
+    result = model.set({a: 200, admin: false}, {validate:true});
+    equal(lastError, "Can't change admin status.");
+    equal(result, false);
+    equal(model.get('a'), 100);
+});
+
+
+test("validate on unset and clear", 6, function() {
+    var error;
+    var model = new Model({name: "One"});
+
+    model.validate = function(attrs) {
+        if (!attrs.name) {
+            error = true;
+            return "No thanks.";
+        }
+    };
+
+    model.set({name: "Two"});
+    equal(model.get('name'), 'Two');
+    equal(error, undefined);
+
+    model.unset('name', {validate: true});
+    equal(error, true);
+    equal(model.get('name'), 'Two');
+
+    model.clear({validate:true});
+    equal(model.get('name'), 'Two');
+
+    delete model.validate;
+    model.clear();
+    equal(model.get('name'), undefined);
+});
+
+
+test("validate with error callback", 8, function() {
+    var lastError, boundError;
+    var model = new Model();
+
+    model.validate = function(attrs) {
+        if (attrs.admin) return "Can't change admin status.";
+    };
+
+    model.on('invalid', function(model, error) {
+        boundError = true;
+    });
+
+    var result = model.set({a: 100}, {validate:true});
+    equal(result, model);
+    equal(model.get('a'), 100);
+    equal(model.validationError, null);
+    equal(boundError, undefined);
+
+    result = model.set({a: 200, admin: true}, {validate:true});
+    equal(result, false);
+    equal(model.get('a'), 100);
+    equal(model.validationError, "Can't change admin status.");
+    equal(boundError, true);
+});
+
+
+test("defaults always extend attrs (#459)", 2, function() {
+    var Defaulted = Model.extend({
+            defaults: {one: 1},
+            initialize : function(attrs, opts) {
+                equal(this.attributes.one, 1);
+            }
+        });
+    var providedattrs = new Defaulted({});
+    var emptyattrs = new Defaulted();
+});
+
+
+test("Inherit class properties", 6, function() {
+    var Parent = Model.extend(
+            {
+                instancePropSame: function() {},
+                instancePropDiff: function() {}
+            }, 
+            {
+                classProp: function() {}
+            }
+        );
+
+    var Child = Parent.extend({
+            instancePropDiff: function() {}
+        });
+
+    var adult = new Parent;
+    var kid   = new Child;
+
+    equal(Child.classProp, Parent.classProp);
+    notEqual(Child.classProp, undefined);
+
+    equal(kid.instancePropSame, adult.instancePropSame);
+    notEqual(kid.instancePropSame, undefined);
+
+    notEqual(Child.prototype.instancePropDiff, Parent.prototype.instancePropDiff);
+    notEqual(Child.prototype.instancePropDiff, undefined);
+});
+
+test("Nested change events don't clobber previous attributes", 4, function() {
+    new Model()
+        .on('change:state', function(model, newState) {
+            equal(model.previous('state'), undefined);
+            equal(newState, 'hello');
+            // Fire a nested change event.
+            model.set({other: 'whatever'});
+        })
+        .on('change:state', function(model, newState) {
+            equal(model.previous('state'), undefined);
+            equal(newState, 'hello');
+        })
+        .set({state: 'hello'});
+});
+
+
+test("hasChanged/set should use same comparison", 4, function() {
+    var changed = 0, model = new Model({a: null});
+
+    model.on('change', function() {
+        ok(this.hasChanged('a'));
+        equal(changed, 1);
+    })
+    .on('change:a', function() {
+        equal(changed, 0);
+        changed++;
+    })
+    .set({a: undefined});
+
+    equal(changed, 1);
+});
+
+
+test("#582, #425, change:attribute callbacks should fire after all changes have occurred", 9, function() {
+    var model = new Model;
+
+    var assertion = function() {
+        equal(model.get('a'), 'a');
+        equal(model.get('b'), 'b');
+        equal(model.get('c'), 'c');
+    };
+
+    model.on('change:a', assertion);
+    model.on('change:b', assertion);
+    model.on('change:c', assertion);
+
+    model.set({a: 'a', b: 'b', c: 'c'});
+});
+
+
+test("#871, set with attributes property", 1, function() {
+    var model = new Model();
+
+    model.set({attributes: true});
+    ok(model.has('attributes'));
+});
+
+
+test("set value regardless of equality/change", 1, function() {
+    var model = new Model({x: []});
+    var a = [];
+
+    model.set({x: a});
+    ok(model.get('x') === a);
+});
+
+test("set same value does not trigger change", 0, function() {
+    var model = new Model({x: 1});
+
+    model.on('change change:x', function() { ok(false); });
+    model.set({x: 1});
+    model.set({x: 1});
+});
+
+test("unset does not fire a change for undefined attributes", 0, function() {
+    var model = new Model({x: undefined});
+
+    model.on('change:x', function(){ ok(false); });
+    model.unset('x');
+});
+
+
+test("set: undefined values", 1, function() {
+    var model = new Model({x: undefined});
+    ok('x' in model.attributes);
+});
+
+
+test("hasChanged works outside of change events, and true within", 6, function() {
+    var model = new Model({x: 1});
+
+    model.on('change:x', function() {
+        ok(model.hasChanged('x'));
+        equal(model.get('x'), 1);
+    });
+
+    model.set({x: 2}, {silent: true});
+    ok(model.hasChanged());
+    equal(model.hasChanged('x'), true);
+
+    model.set({x: 1});
+    ok(model.hasChanged());
+    equal(model.hasChanged('x'), true);
+});
+
+
+test("hasChanged gets cleared on the following set", 4, function() {
+    var model = new Model;
+
+    model.set({x: 1});
+    ok(model.hasChanged());
+
+    model.set({x: 1});
+    ok(!model.hasChanged());
+
+    model.set({x: 2});
+    ok(model.hasChanged());
+
+    model.set({});
+    ok(!model.hasChanged());
+});
+
+
+test("save with `wait` succeeds without `validate`", 1, function() {
+    var model = new Model();
+
+    model.url = '/test';
+    model.save({x: 1}, {wait: true});
+    ok(Utils.syncArgs.model === model);
+});
+
+
+test("save without `wait` doesn't set invalid attributes", function () {
+    var model = new Model();
+
+    model.validate = function () { return 1; }
+    model.save({a: 1});
+    equal(model.get('a'), void 0);
+});
+
+test("save doesn't validate twice", function () {
+    var model = new Model();
+    var times = 0;
+
+    model.sync = function () {};
+    model.validate = function () { ++times; }
+    model.save({});
+    equal(times, 1);
+});
+
+
+test("`hasChanged` for falsey keys", 9, function() {
+    var model = new Model();
+
+    model.set({x: true}, {silent: true});
+    ok(!model.hasChanged(0));
+    ok(!model.hasChanged(''));
+    ok(!model.hasChanged(false));
+
+    model.set({'': 1, 0: 2, false: 'abc'});
+    ok(model.hasChanged(0));
+    ok(model.hasChanged(''));
+    ok(model.hasChanged(false));
+
+    deepEqual(model.get(''), 1);
+    deepEqual(model.get(0), 2);
+    deepEqual(model.get(false), 'abc');
+});
+
+
+test("`previous` for falsey keys", 2, function() {
+    var model = new Model({0: true, '': true});
+
+    model.set({0: false, '': false}, {silent: true});
+    equal(model.previous(0), true);
+    equal(model.previous(''), true);
+});
+
+
+test("`save` with `wait` sends correct attributes", 5, function() {
+    var changed = 0;
+    var model = new Model({x: 1, y: 2});
+
+    model.url = '/test';
+    model.on('change:x', function() { changed++; });
+
+    model.save({x: 3}, {wait: true});
+    deepEqual(JSON.parse(Utils.syncArgs.ajaxData), {x: 3, y: 2});
+    equal(model.get('x'), 1);
+    equal(changed, 0);
+
+    Utils.syncArgs.options.success({});
+    equal(model.get('x'), 3);
+    equal(changed, 1);
+});
+
+
+test("a failed `save` with `wait` doesn't leave attributes behind", 1, function() {
+    var model = new Model;
+
+    model.url = '/test';
+    model.save({x: 1}, {wait: true});
+    equal(model.get('x'), void 0);
+});
+
+
+test("#1030 - `save` with `wait` results in correct attributes if success is called during sync", 2, function() {
+    var model = new Model({x: 1, y: 2});
+
+    model.sync = function(method, model, options) {
+        options.success();
+    };
+    model.on("change:x", function() { ok(true); });
+
+    model.save({x: 3}, {wait: true});
+    equal(model.get('x'), 3);
+});
+
+
+test("save with wait validates attributes", 1, function() {
+    var model = new Model();
+
+    model.url = '/test';
+    model.validate = function() { ok(true); };
+    model.save({x: 1}, {wait: true});
+});
+
+
+test("save turns on parse flag", function () {
+    var newModel = Model.extend({
+            sync: function(method, model, options) { ok(options.parse); }
+        });
+
+    new newModel().save();
+});
+
+test("fetch turns on parse flag", function () {
+    var newModel = Model.extend({
+            sync: function(method, model, options) { ok(options.parse); }
+        });
+
+    new newModel().fetch();
+});
+
+
+test("nested `set` during `'change:attr'`", 3, function() {
+    var events = [];
+    var model = new Model();
+
+    model.on('all', function(event) { events.push(event); });
+    model.on('change', function() {
+        model.set({z: true}, {silent:true});
+    });
+    model.on('change:x', function() {
+        model.set({y: true});
+    });
+
+
+    model.set({x: true});
+    deepEqual(events, ['change:y', 'change:x', 'change']);
+
+    events = [];
+    model.set({z: true});
+    deepEqual(events, []);
+
+    model.set({z: false});
+    deepEqual(events, ['change:z', 'change']);
+});
+
+
+test("nested `change` only fires once", 1, function() {
+    var model = new Model();
+
+    model.on('change', function() {
+        ok(true);
+        model.set({x: true});
+    });
+    model.set({x: true});
+});
+
+
+test("nested `set` during `'change'`", 6, function() {
+    var count = 0;
+    var model = new Model();
+
+    model.on('change', function() {
+        switch(count++) {
+            case 0:
+                deepEqual(this.changedAttributes(), {x: true});
+                equal(model.previous('x'), undefined);
+                model.set({y: true});
+                break;
+            case 1:
+                deepEqual(this.changedAttributes(), {x: true, y: true});
+                equal(model.previous('x'), undefined);
+                model.set({z: true});
+                break;
+            case 2:
+                deepEqual(this.changedAttributes(), {x: true, y: true, z: true});
+                equal(model.previous('y'), undefined);
+                break;
+            default:
+                ok(false);
+        }
+    });
+
+    model.set({x: true});
+
+});
+
+
+test("nested `change` with silent", 3, function() {
+    var count = 0;
+    var model = new Model();
+
+    model.on('change:y', function() { ok(false); });
+    model.on('change', function() {
+        switch(count++) {
+            case 0:
+                deepEqual(this.changedAttributes(), {x: true});
+                model.set({y: true}, {silent: true});
+                model.set({z: true});
+                break;
+            case 1:
+                deepEqual(this.changedAttributes(), {x: true, y: true, z: true});
+                break;
+            case 2:
+                deepEqual(this.changedAttributes(), {z: false});
+                break;
+            default:
+                ok(false);
+        }
+    });
+
+    model.set({x: true});
+    model.set({z: false});
+});
+
+
+test("nested `change:attr` with silent", 0, function() {
+    var model = new Model();
+
+    model.on('change:y', function(){ ok(false); });
+    model.on('change', function() {
+        model.set({y: true}, {silent: true});
+        model.set({z: true});
+    });
+
+    model.set({x: true});
+});
+
+
+test("multiple nested changes with silent", 1, function() {
+    var model = new Model();
+
+    model.on('change:x', function() {
+        model.set({y: 1}, {silent: true});
+        model.set({y: 2});
+    });
+    model.on('change:y', function(model, val) {
+        equal(val, 2);
+    });
+
+    model.set({x: true});
+});
+
+
+test("multiple nested changes with silent", 1, function() {
+    var changes = [];
+    var model = new Model();
+
+    model.on('change:b', function(model, val) { changes.push(val); });
+    model.on('change', function() {
+        model.set({b: 1});
+    });
+
+    model.set({b: 0});
+    deepEqual(changes, [0, 1]);
+});
+
+
+test("basic silent change semantics", 1, function() {
+    var model = new Model;
+
+    model.set({x: 1});
+
+    model.on('change', function(){ ok(true); });
+    model.set({x: 2}, {silent: true});
+    model.set({x: 1});
+});
+
+
+test("nested set multiple times", 1, function() {
+    var model = new Model();
+
+    model.on('change:b', function() {
+        ok(true);
+    });
+    model.on('change:a', function() {
+        model.set({b: true});
+        model.set({b: true});
+    });
+
+    model.set({a: true});
+});
+
+
+test("#1122 - clear does not alter options.", 1, function() {
+    var model = new Model();
+    var options = {};
+
+    model.clear(options);
+    ok(!options.unset);
+});
+
+
+test("#1122 - unset does not alter options.", 1, function() {
+    var model = new Model();
+    var options = {};
+
+    model.unset('x', options);
+    ok(!options.unset);
+});
+
+
+test("#1355 - `options` is passed to success callbacks", 3, function() {
+    var model = new Model();
+    var opts = {
+            success: function( model, resp, options ) {
+                ok(options.success);
+            }
+        };
+
+    model.sync = function(method, model, options) {
+        options.success();
+    };
+
+    model.save({id: 1}, opts);
+    model.fetch(opts);
+    model.destroy(opts);
+});
+
+
+test("#1412 - Trigger 'sync' event.", 3, function() {
+    var model = new Model({id: 1});
+
+    model.sync = function (method, model, options) { options.success(); };
+    model.on('sync', function(){ ok(true); });
+
+    model.fetch();
+    model.save();
+    model.destroy();
+});
+
+
+test("#1365 - Destroy: New models execute success callback.", 2, function() {
+    new Model()
+        // isNew, no sync
+        .on('sync', function() { ok(false); })
+        .on('destroy', function(){ ok(true); })
+        .destroy({ success: function(){ ok(true); }});
+});
+
+
+test("#1433 - Save: An invalid model cannot be persisted.", 1, function() {
+    var model = new Model;
+
+    model.validate = function(){ return 'invalid'; };
+    model.sync = function(){ ok(false); };
+    strictEqual(model.save(), false);
+});
+
+
+test("#1377 - Save without attrs triggers 'error'.", 1, function() {
+    var newModel = Model.extend({
+            url: '/test/',
+            sync: function(method, model, options){ options.success(); },
+            validate: function(){ return 'invalid'; }
+        });
+    var model = new newModel({id: 1});
+
+    model.on('invalid', function(){ ok(true); });
+    model.save();
+});
+
+
+test("#1545 - `undefined` can be passed to a model constructor without coersion", function() {
+    var newModel = Model.extend({
+            defaults: { one: 1 },
+            initialize : function(attrs, opts) {
+                equal(attrs, undefined);
+            }
+        });
+    var emptyattrs = new newModel();
+    var undefinedattrs = new newModel(undefined);
+});
+
+
+asyncTest("#1478 - Model `save` does not trigger change on unchanged attributes", 0, function() {
+    var newModel = Model.extend({
+            sync: function(method, model, options) {
+                setTimeout(function(){
+                    options.success();
+                    start();
+                }, 0);
+            }
+        });
+
+    new newModel({x: true})
+        .on('change:x', function(){ ok(false); })
+        .save(null, {wait: true});
+});
+
+
+test("#1664 - Changing from one value, silently to another, back to original triggers a change.", 1, function() {
+    var model = new Model({x:1});
+
+    model.on('change:x', function() { ok(true); });
+
+    model.set({x:2},{silent:true});
+    model.set({x:3},{silent:true});
+    model.set({x:1});
+});
+
+
+test("#1664 - multiple silent changes nested inside a change event", 2, function() {
+    var changes = [];
+    var model = new Model();
+
+    model.on('change', function() {
+        model.set({a:'c'}, {silent:true});
+        model.set({b:2}, {silent:true});
+        model.unset('c', {silent:true});
+    });
+    model.on('change:a change:b change:c', function(model, val) { changes.push(val); });
+
+    model.set({a:'a', b:1, c:'item'});
+    deepEqual(changes, ['a',1,'item']);
+    deepEqual(model.attributes, {a: 'c', b: 2});
+});
+
+
+test("#1791 - `attributes` is available for `parse`", function() {
+    var newModel = Model.extend({
+            parse: function() { this.has('a'); } // shouldn't throw an error
+        });
+    var model = new newModel(null, {parse: true});
+
+    expect(0);
+});
+
+
+test("silent changes in last `change` event back to original triggers change", 2, function() {
+    var changes = [];
+    var model = new Model();
+
+    model.on('change:a change:b change:c', function(model, val) { changes.push(val); });
+    model.on('change', function() {
+        model.set({a:'c'}, {silent:true});
+    });
+
+    model.set({a:'a'});
+    deepEqual(changes, ['a']);
+
+    model.set({a:'a'});
+    deepEqual(changes, ['a', 'a']);
+});
+
+
+test("#1943 change calculations should use Utils.isEqual", function() {
+    var model = new Model({a: {key: 'value'}});
+
+    model.set('a', {key:'value'}, {silent:true});
+    equal(model.changedAttributes(), false);
+});
+
+
+test("#1964 - final `change` event is always fired, regardless of interim changes", 1, function () {
+    var model = new Model();
+
+    model.on('change:property', function() {
+        model.set('property', 'bar');
+    });
+    model.on('change', function() {
+        ok(true);
+    });
+
+    model.set('property', 'foo');
+});
+
+
+test("isValid", function() {
+    var model = new Model({valid: true});
+
+    model.validate = function(attrs) {
+        if (!attrs.valid) return "invalid";
+    };
+
+    equal(model.isValid(), true);
+    equal(model.set({valid: false}, {validate:true}), false);
+    equal(model.isValid(), true);
+
+    // no validate
+    model.set({valid:false});
+    equal(model.isValid(), false);
+
+    ok(!model.set('valid', false, {validate: true}));
+});
+
+
+test("#1179 - isValid returns true in the absence of validate.", 1, function() {
+    var model = new Model();
+
+    model.validate = null;
+    ok(model.isValid());
+});
+
+
+test("#1961 - Creating a model with {validate:true} will call validate and use the error callback", function () {
+    var newModel = Model.extend({
+            validate: function (attrs) {
+                if (attrs.id === 1) return "This shouldn't happen";
+            }
+        });
+    var model = new newModel({id: 1}, {validate: true});
+
+    equal(model.validationError, "This shouldn't happen");
+});
+
+
+test("toJSON receives attrs during save(..., {wait: true})", 1, function() {
+    var newModel = Model.extend({
+            url: '/test',
+            toJSON: function() {
+                strictEqual(this.attributes.x, 1);
+                return Utils.clone(this.attributes);
+            }
+        });
+    var model = new newModel;
+
+    model.save({x: 1}, {wait: true});
+});
+
+test("#2034 - nested set with silent only triggers one change", 1, function() {
+    var model = new Model();
+
+    model.on('change', function() {
+        model.set({b: true}, {silent: true});
+        ok(true);
+    });
+
+    model.set({a: true});
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

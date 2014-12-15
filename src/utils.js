@@ -359,6 +359,8 @@ function sync(method, model, options){
         if(error) error.apply(this, arguments);
     };
 
+    syncArgs.ajaxData = params.data;
+
     var xhr = options.xhr 
         = Utils.ajax(extend(params, options));
     model.trigger('request', model, xhr, options);
