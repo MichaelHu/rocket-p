@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>QUnit Test Suite</title>
+    <title>Rocket-p - QUnit Test Suite</title>
     <link rel="stylesheet" href="./vendor/qunit.css" type="text/css" media="screen">
     <script type="text/javascript" src="./vendor/qunit.js"></script>
     <script type="text/javascript" src="./vendor/jquery.js"></script>
@@ -11,17 +11,30 @@
     <script type="text/javascript" src="../src/events.js"></script>
     <script type="text/javascript" src="../src/class-extend.js"></script>
     <script type="text/javascript" src="../src/model.js"></script>
+    <script type="text/javascript" src="../src/view.js"></script>
+    <script type="text/javascript" src="../src/history.js"></script>
+    <script type="text/javascript" src="../src/router.js"></script>
     <!-- Your tests file goes here -->
     <script type="text/javascript" src="./utils.js"></script>
     <script type="text/javascript" src="./events.js"></script>
     <script type="text/javascript" src="./class-extend.js"></script>
     <script type="text/javascript" src="./model.js"></script>
+    <script type="text/javascript" src="./view.js"></script>
+    <script type="text/javascript" src="./router.js"></script>
 </head>
 <body>
-    <h1 id="qunit-header">Rocket-p - QUnit Test Suite</h1>
+    <!--h1 id="qunit-header">Rocket-p - QUnit Test Suite</h1>
     <h2 id="qunit-banner"></h2>
     <div id="qunit-testrunner-toolbar"></div>
     <h2 id="qunit-userAgent"></h2>
-    <ol id="qunit-tests"></ol>
+    <ol id="qunit-tests"></ol-->
+
+    <div id="qunit"></div>
+
+    <div id="qunit-fixture">
+        <div id='testElement'>
+            <h1>Test</h1>
+        </div>
+    </div>
 </body>
 </html> 

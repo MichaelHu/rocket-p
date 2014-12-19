@@ -489,3 +489,151 @@ test('sync-error', function(){
 });
 
 
+test('flatten', function(){
+
+    deepEqual(Utils.flatten({}), []);
+    deepEqual(Utils.flatten(void 0), []);
+    deepEqual(Utils.flatten(null), []);
+    deepEqual(Utils.flatten(false), []);
+    deepEqual(Utils.flatten(1), []);
+
+    deepEqual(Utils.flatten('string'), ['s', 't', 'r', 'i', 'n', 'g']);
+    deepEqual(Utils.flatten('string', true), ['s', 't', 'r', 'i', 'n', 'g']);
+
+    deepEqual(Utils.flatten([1, 2, 3, 4]), [1, 2, 3, 4]);
+    deepEqual(Utils.flatten([1, [2.1, 2.2, 2.3], 3, 4]), [1, 2.1, 2.2, 2.3, 3, 4]);
+    deepEqual(
+        Utils.flatten(
+            [1, [2.1, ['2.2.1', '2.2.2'], 2.3], 3, 4]
+        ) 
+        , [1, 2.1, '2.2.1', '2.2.2', 2.3, 3, 4]
+    );
+    deepEqual(Utils.flatten([1, {a:1, b:2}, 3, 4]), [1, {a:1, b:2}, 3, 4]);
+
+    deepEqual(Utils.flatten([1, 2, 3, 4], true), [1, 2, 3, 4]);
+    deepEqual(Utils.flatten([1, [2.1, 2.2, 2.3], 3, 4], true), [1, 2.1, 2.2, 2.3, 3, 4]);
+    deepEqual(
+        Utils.flatten(
+            [1, [2.1, ['2.2.1', '2.2.2'], 2.3], 3, 4]
+            , true
+        ) 
+        , [1, 2.1, ['2.2.1', '2.2.2'], 2.3, 3, 4]
+    );
+    deepEqual(Utils.flatten([1, {a:1, b:2}, 3, 4], true), [1, {a:1, b:2}, 3, 4]);
+
+});
+
+
+test('pick', function(){
+
+    var a = {
+            a: 1
+            , b: 2
+            , c: [1, 2, 3]
+            , d: {
+                d1: 1
+                , d2: 2
+            }
+        };
+
+    deepEqual(Utils.pick(a, void 0), {});
+
+    deepEqual(Utils.pick(a, ['a', 'b']), {a: 1, b:2});
+    deepEqual(Utils.pick(a, ['a', 'b'], 'c'), {a: 1, b:2, c: [1, 2, 3]});
+    deepEqual(Utils.pick(a, ['a', 'b'], 'c', 'd'), {a: 1, b:2, c: [1, 2, 3], d: {d1: 1, d2: 2}});
+
+    deepEqual(
+        Utils.pick(a, function(value, key, obj){
+            return value == 2;
+        })
+        , {b: 2}
+    );
+
+});
+
+
+test('map', function(){
+
+    var obj = {a: 1, b: 2, c: 'hello'}; 
+   
+    deepEqual(
+        Utils.map(null) 
+        , []
+    );
+
+    // get output of function
+    deepEqual(
+        Utils.map(obj, function(item, index, obj){
+            return ':' + item;
+        }) 
+        , [':1', ':2', ':hello']
+    );
+
+    // get output of function
+    deepEqual(
+        Utils.map(obj) 
+        , [1, 2, 'hello']
+    );
+
+    // get matches
+    deepEqual(
+        Utils.map(obj, {a:1, c:'hello'}) 
+        , [false, false, false]
+    );
+
+    // get matches
+    var obj2 = {a: obj, b: 234};
+    deepEqual(
+        Utils.map(obj2, {a:1, c:'hello'}) 
+        , [true, false]
+    );
+
+    // get property
+    deepEqual(
+        Utils.map(obj, 'a') 
+        , [void 0, void 0, void 0]
+    );
+
+});
+
+
+test('any', function(){
+
+    var obj = {a: 1, b: 2, c: 'hello'};
+
+    strictEqual(
+        Utils.any(null) 
+        , false
+    );
+
+    strictEqual(
+        Utils.any(obj, function(item, index, obj){
+            return item == 1;
+        }) 
+        , true
+    );
+
+    strictEqual(
+        Utils.any(obj, 'a') 
+        , false
+    );
+
+    // get matches
+    var obj2 = {a: obj, b: 234};
+    strictEqual(
+        Utils.any(obj2, {a:1, c:'hello'}) 
+        , true
+    );
+
+    // get property
+    strictEqual(
+        Utils.any(obj2, 'a') 
+        , true 
+    );
+    
+});
+
+
+
+
+

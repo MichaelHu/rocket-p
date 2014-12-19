@@ -152,6 +152,56 @@ function isEqual(a, b){
 
 
 
+function pick(obj, iteratee, context){
+    var result = {}, key;
+
+    if(obj == null) return result;
+    if(isFunction(iteratee)){
+        iteratee = optimizeCb(iteratee, context);
+        for(key in obj){
+            var value = obj[key];
+            if(iteratee(value, key, obj)) result[key] = value;
+        }
+    }
+    else{
+        var keys = _flatten(arguments, false, false, 1);
+        obj = new Object(obj);
+        for(var i=0, length = keys.length; i<length; i++){
+            key = keys[i];
+            if(key in obj) result[key] = obj[key];
+        }
+    }
+    return result;
+}
+
+// Internal implementation of a recursive `flatten` function.
+function _flatten(input, shallow, strict, startIndex) {
+    var output = [], idx = 0, value;
+    for (var i = startIndex || 0, length = input && input.length; i < length; i++) {
+        value = input[i];
+        if (value && value.length >= 0 && (isArray(value) || isArguments(value))) {
+            //flatten current level of array or arguments object
+            if (!shallow) value = _flatten(value, shallow, strict);
+            var j = 0, len = value.length;
+            output.length += len;
+            while (j < len) {
+                output[idx++] = value[j++];
+            }
+        } else if (!strict) {
+            output[idx++] = value;
+        }
+    }
+    return output;
+};
+
+function flatten(array, shallow){
+    return _flatten(array, shallow, false);
+}
+
+
+
+
+
 
 function each(obj, iteratee, context){
     if(obj == null) return obj;
@@ -170,6 +220,78 @@ function each(obj, iteratee, context){
     }
     return obj;
 }
+
+
+// Convert an object into a list of `[key, value]` pairs.
+function _pairs(obj) {
+    var keys = _keys(obj);
+    var length = keys.length;
+    var pairs = Array(length);
+    for (var i = 0; i < length; i++) {
+        pairs[i] = [keys[i], obj[keys[i]]];
+    }
+    return pairs;
+};
+
+
+var _identity = function(value) {return value};
+var _matches = function(attrs){
+    var pairs = _pairs(attrs), length = pairs.length;
+    return function(obj) {
+        if (obj == null) return !length;
+        obj = new Object(obj);
+        for (var i = 0; i < length; i++) {
+            var pair = pairs[i], key = pair[0];
+            if (pair[1] !== obj[key] || !(key in obj)) return false;
+        }
+        return true;
+    };
+};
+var _property = function(key){
+    return function(obj){
+        return obj == null ? void 0 : obj[key];
+    };
+};
+
+
+function _cb(value, context, argCount){
+    if(value == null) return _identity;
+    if(isFunction(value)) return optimizeCb(value, context, argCount);
+    if(isObject(value)) return _matches(value);
+    return _property(value);
+}
+
+
+function map(obj, iteratee, context){
+    if(obj == null) return [];
+    iteratee = _cb(iteratee, context); 
+    var keys = obj.length !== +obj.length && _keys(obj),
+        length = (keys || obj).length,
+        results = Array(length),
+        currentKey;
+
+    for(var index=0; index<length; index++){
+        currentKey = keys ? keys[index] : index;
+        results[index] = iteratee(obj[currentKey], currentKey, obj);
+    }
+    return results;
+}
+
+
+function any(obj, predicate, context) {
+    if (obj == null) return false;
+    predicate = _cb(predicate, context);
+    var keys = obj.length !== +obj.length && _keys(obj),
+        length = (keys || obj).length,
+        index, currentKey;
+    for (index = 0; index < length; index++) {
+        currentKey = keys ? keys[index] : index;
+        if (predicate(obj[currentKey], currentKey, obj)) return true;
+    }
+    return false;
+}
+
+
 
 
 // Internal function that returns an efficient (for current engines) version
@@ -378,11 +500,16 @@ return {
     , isArray: isArray
     , isEqual: isEqual
     , isEmpty: isEmpty
+    , isRegExp: isRegExp
     , keys: _keys
     , defaults: defaults
     , extend: extend
     , result: result
+    , pick: pick
+    , flatten: flatten
     , each: each
+    , map: map
+    , any: any
     , clone: clone
     , has: has
     , uniqueId: uniqueId
