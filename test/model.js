@@ -506,6 +506,10 @@ test("save within change event", 4, function () {
 
     model.url = '/test/server/person.json';
 
+    model.sync = function(method, model, options){
+        options.success();
+    };
+
     model.on('change', function () {
         flag++;
         ok(flag == 1);
@@ -515,14 +519,12 @@ test("save within change event", 4, function () {
     });
 
     model.on('sync', function(){
-        start();
         flag++; 
         ok(flag == 2);
         deepEqual(model.toJSON(), {firstName: "Taylor", lastName: "Hicks"});
     });
 
     model.set({lastName: 'Hicks'});
-    stop();
 });
 
 
@@ -532,17 +534,21 @@ test("save", 4, function() {
     ok(!doc.isNew());
     ok(doc.url(), '/test/server/docs/1-the-tempest.json');
 
+    var bakSync = doc.sync;
+    doc.sync = function(method, model, options){
+        options.success();
+    };
+
     doc.on('change:title', function(model, value, options){
         equal(value, "Henry V");
     });
 
     doc.on('sync', function(model, resp, options){
-        start();
         equal(doc.get('title'), "Henry V");
     });
 
     doc.save({title : "Henry V"}, {emulateHTTP: true});
-    stop();
+    doc.sync = bakSync;
 });
 
 
@@ -585,17 +591,27 @@ test("save with PATCH", function() {
 
 
 test("save with PATCH and different attrs", function() {
+
+    var bakSync = doc.sync;
+
+    doc.sync = function(method, model, options){
+        Utils.sync(method, model, options);
+        setTimeout(function(){
+            start();
+            options.success();
+            doc.sync = bakSync;
+        }, 10);
+    };
+
+    doc.on('sync', function(model){
+        equal(doc.attributes['b'], 2);
+    });
+
     doc.clear()
         .save(
             {id: "1-the-tempest.json", b: 2, d: 4}
             , {patch: true, attrs: {B: 1, D: 3}, emulateHTTP: true}
         );
-
-    doc.on('sync', function(model){
-        start();
-        ok(Utils.has(doc.attributes, 'title'));
-        equal(doc.attributes['author'], "Bill Shakespeare");
-    });
 
     equal(Utils.syncArgs.options.attrs.D, 3);
     equal(Utils.syncArgs.options.attrs.d, undefined);
@@ -672,7 +688,7 @@ test("validate", function() {
     var model = new Model();
 
     model.validate = function(attrs) {
-      if (attrs.admin != this.get('admin')) return "Can't change admin status.";
+        if (attrs.admin != this.get('admin')) return "Can't change admin status.";
     };
 
     model.on('invalid', function(model, error) {

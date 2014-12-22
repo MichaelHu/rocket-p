@@ -90,6 +90,7 @@ Utils.extend(Router.prototype, Events, {
     , _extractParameters: function(route, fragment){
         var params = route.exec(fragment).slice(1);
         return Utils.map(params, function(param, i){
+            // Query params should not be decoded
             if(i === params.length - 1) return param || null;
             return param ? decodeURIComponent(param) : null;
         });
