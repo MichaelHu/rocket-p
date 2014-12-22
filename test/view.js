@@ -1,5 +1,8 @@
 (function(){
 
+var View = Rocket.View;
+var Model = Rocket.Model;
+
 var view;
 
 module('View', {

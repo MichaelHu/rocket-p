@@ -1,4 +1,12 @@
-module('classExtend');
+(function(){
+
+var classExtend = null;
+
+module('classExtend', {
+    setup: function(){
+        classExtend = Rocket.extend;
+    }
+});
 
 test('extend', function(){
     
@@ -63,3 +71,8 @@ test('extend', function(){
     );
 
 });
+
+
+
+
+})();

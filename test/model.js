@@ -1,5 +1,8 @@
 (function(){
 
+var Model = Rocket.Model;
+var Utils = Rocket.Utils;
+
 var proxy = Model.extend();
 var doc;
 

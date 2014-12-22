@@ -1,4 +1,8 @@
+(function(){
+
 module('Events');
+
+var Events = Rocket.Events;
 
 var E = function(){};
 
@@ -414,3 +418,8 @@ test('listenToOnce-stopListening', function(){
 
 });
 
+
+
+
+
+})();

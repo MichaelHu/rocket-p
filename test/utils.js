@@ -1,4 +1,13 @@
-module('Utils');
+(function(){
+
+var Utils = null;
+
+module('Utils', {
+    setup: function(){
+        Utils = Rocket.Utils;
+    }
+});
+
 
 test('isObject', function(){
     ok(!Utils.isObject(null), 'null is not an Object');
@@ -635,5 +644,6 @@ test('any', function(){
 
 
 
+})();
 
 

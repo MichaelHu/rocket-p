@@ -1,5 +1,9 @@
 (function(){
 
+var History = Rocket.History;
+var Router = Rocket.Router;
+var Utils = Rocket.Utils;
+
 var router = null;
 var location = null;
 var lastRoute = null;
@@ -896,9 +900,8 @@ test('#2656 - No trailing slash on root.', 1, function() {
 
 test('#2765 - Fragment matching sans query/hash.', 2, function() {
     History.stop();
-    var bakHistory = History;
     
-    History = Utils.extend(new History.constructor, {
+    var history = Utils.extend(new History.constructor, {
             location: location,
             history: {
                 pushState: function(state, title, url) {
@@ -912,16 +915,16 @@ test('#2765 - Fragment matching sans query/hash.', 2, function() {
                 path: function() { ok(true); }
             }
         });
-    var router = new newRouter;
+    var router = new newRouter({history: history});
 
     location.replace('http://example.com/');
-    History.start({pushState: true, hashChange: false});
-    History.navigate('path?query#hash', true);
-    History.stop();
+    history.start({pushState: true, hashChange: false});
+    history.navigate('path?query#hash', true);
+    history.stop();
 
-    History = bakHistory;
     History.start();
 });
+
 
 test('Do not decode the search params.', function() {
     var newRouter = Router.extend({
@@ -938,32 +941,31 @@ test('Do not decode the search params.', function() {
 test('Navigate to a hash url.', function() {
     History.stop();
 
-    var bakHistory = History; 
-
-    History = Utils.extend(new History.constructor, {location: location});
-    History.start({pushState: true});
+    var history = Utils.extend(new History.constructor, {location: location});
+    history.start({pushState: true});
     var newRouter = Router.extend({
             routes: {
                 path: function(params) {
                     strictEqual(params, 'x=y');
                 }
             }
+            
+            , history: function(){
+                return history;
+            }
         });
     var router = new newRouter;
     location.replace('http://example.com/path?x=y#hash');
-    History.checkUrl();
-    History.stop();
+    history.checkUrl();
+    history.stop();
 
-    History = bakHistory;
     History.start();
 });
 
 test('#navigate to a hash url.', function() {
     History.stop();
 
-    var bakHistory = History; 
-
-    History = Utils.extend(
+    var history = Utils.extend(
         new History.constructor
         , {
             location: location
@@ -975,19 +977,21 @@ test('#navigate to a hash url.', function() {
             }
         }
     );
-    History.start({pushState: true});
+    history.start({pushState: true});
+
     var newRouter = Router.extend({
             routes: {
                 path: function(params) {
                     strictEqual(params, 'x=y');
                 }
             }
+
+            , history: history
         });
     var router = new newRouter;
-    History.navigate('path?x=y#hash', true);
-    History.stop();
+    history.navigate('path?x=y#hash', true);
+    history.stop();
 
-    History = bakHistory;
     History.start();
 });
 
@@ -995,21 +999,20 @@ test('unicode pathname', 1, function() {
     location.replace('http://example.com/myyjä');
     History.stop();
 
-    var bakHistory = History; 
-
-    History = Utils.extend(new History.constructor, {location: location});
+    var history = Utils.extend(new History.constructor, {location: location});
     var newRouter = Router.extend({
             routes: {
-                myyjä: function() {
+                'myyjä': function() {
                     ok(true);
                 }
             }
+
+            , history: history
         });
     new newRouter;
-    History.start({pushState: true});
-    History.stop();
+    history.start({pushState: true});
+    history.stop();
 
-    History = bakHistory;
     History.start();
 });
 
@@ -1017,9 +1020,7 @@ test('newline in route', 1, function() {
     location.replace('http://example.com/stuff%0Anonsense?param=foo%0Abar');
     History.stop();
 
-    var bakHistory = History; 
-
-    History = Utils.extend(new History.constructor, {location: location});
+    var history = Utils.extend(new History.constructor, {location: location});
     var newRouter = Router.extend({
             routes: {
                 'stuff\nnonsense': function() {
@@ -1027,20 +1028,18 @@ test('newline in route', 1, function() {
                 }
             }
         });
-    new newRouter;
-    History.start({pushState: true});
-    History.stop();
+    new newRouter({history: history});
+    history.start({pushState: true});
+    history.stop();
 
-    History = bakHistory;
     History.start();
 });
 
 test('Router#execute receives callback, args, name.', 3, function() {
     location.replace('http://example.com#foo/123/bar?x=y');
     History.stop();
-    var bakHistory = History; 
 
-    History = Utils.extend(new History.constructor, {location: location});
+    var history = Utils.extend(new History.constructor, {location: location});
     var newRouter = Router.extend({
             routes: {'foo/:id/bar': 'foo'},
             foo: function(){},
@@ -1048,13 +1047,13 @@ test('Router#execute receives callback, args, name.', 3, function() {
                 strictEqual(callback, this.foo);
                 deepEqual(args, ['123', 'x=y']);
                 strictEqual(name, 'foo');
-            }
+            },
+            history: history
         });
     var router = new newRouter;
-    History.start();
-    History.stop();
+    history.start();
+    history.stop();
 
-    History = bakHistory;
     History.start();
 });
 
@@ -1066,17 +1065,15 @@ test("pushState to hashChange with only search params.", 1, function() {
     location.replace = function(url) {
         strictEqual(url, '/#?a=b');
     };
-    var bakHistory = History; 
 
-    History = Utils.extend(new History.constructor, {
+    var history = Utils.extend(new History.constructor, {
         location: location,
         // no pushState support
         history: null
     });
-    History.start({pushState: true});
-    History.stop();
+    history.start({pushState: true});
+    history.stop();
 
-    History = bakHistory;
     location.replace = bakReplace;
     History.start();
 });
@@ -1103,17 +1100,15 @@ test("#3123 - History#navigate decodes before comparison.", 1, function() {
 test('#3175 - Urls in the params', 1, function() {
     History.stop();
     location.replace('http://example.com#login?a=value&backUrl=https%3A%2F%2Fwww.msn.com%2Fidp%2Fidpdemo%3Fspid%3Dspdemo%26target%3Db');
-    var bakHistory = History; 
 
-    History = Utils.extend(new History.constructor, {location: location});
-    var router = new Router;
+    var history = Utils.extend(new History.constructor, {location: location});
+    var router = new Router({history: history});
     router.route('login', function(params) {
         strictEqual(params, 'a=value&backUrl=https%3A%2F%2Fwww.msn.com%2Fidp%2Fidpdemo%3Fspid%3Dspdemo%26target%3Db');
     });
-    History.start();
-    History.stop();
+    history.start();
+    history.stop();
 
-    History = bakHistory;
     History.start();
 });
 

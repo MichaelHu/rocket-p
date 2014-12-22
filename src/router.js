@@ -4,6 +4,8 @@ var Router = (function(){
 var Router = function(options){
     options || (options = {});
     if(options.routes) this.routes = options.routes;
+
+    this.history = options.history || this.history || History;
     this._bindRoutes();
     this.initialize.apply(this, arguments);
 };
@@ -44,13 +46,13 @@ Utils.extend(Router.prototype, Events, {
             name = '';
         }
         if(!callback) callback = this[name];
-        var router = this;
-        History.route(route, function(fragment){
+        var router = this, history = Utils.result(this, 'history');
+        history.route(route, function(fragment){
             var args = router._extractParameters(route, fragment);
             if(router.execute(callback, args, name) !== false){
                 router.trigger.apply(router, ['route:' + name].concat(args));
                 router.trigger('route', name, args);
-                History.trigger('route', router, name, args);
+                history.trigger('route', router, name, args);
             }
         });
         return this;
@@ -63,7 +65,8 @@ Utils.extend(Router.prototype, Events, {
     }
 
     , navigate: function(fragment, options){
-        History.navigate(fragment, options);
+        Utils.result(this, 'history')
+            .navigate(fragment, options);
         return this;
     }
 
