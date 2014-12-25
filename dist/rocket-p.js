@@ -12,7 +12,8 @@ else{
 
 
 })(this, function(root, Rocket, $) {
-;var Utils = (function(){
+
+;var _Utils = (function(){
 
 var toString = Object.prototype.toString;
 
@@ -278,7 +279,7 @@ function _cb(value, context, argCount){
 
 function map(obj, iteratee, context){
     if(obj == null) return [];
-    iteratee = _cb(iteratee, context); 
+    iteratee = _cb(iteratee, context);
     var keys = obj.length !== +obj.length && _keys(obj),
         length = (keys || obj).length,
         results = Array(length),
@@ -422,7 +423,7 @@ var methodMap = {
     , 'patch': 'PATCH'
     , 'delete': 'DELETE'
     , 'read': 'GET'
-}; 
+};
 
 function ajax(){
     return $.ajax.apply($, arguments);
@@ -497,7 +498,7 @@ function sync(method, model, options){
 
     syncArgs.ajaxData = params.data;
 
-    var xhr = options.xhr 
+    var xhr = options.xhr
         = Utils.ajax(extend(params, options));
     model.trigger('request', model, xhr, options);
     return xhr;
@@ -508,6 +509,115 @@ function urlError(){
 }
 
 
+function getRealDisplayInfo(el){
+    var $el = $(el), el = $el.get(0);
+    if($el.css('display') == 'none'){
+        return 'none';
+    }
+
+    var c = el, p = c.parentNode;
+    while(p && p.nodeType == 1){
+        if(p.style.display == 'none'){
+            return 'none';
+        }
+        c = p;
+        p = c.parentNode;
+    }
+    return $el.css('display');
+}
+
+function isReallyDisplay(el){
+    return getRealDisplayInfo(el) != 'none';
+}
+
+
+
+
+var tip = (function(){
+
+    var tipTimer, tipBusy;
+
+    /**
+     * @param {string} text
+     * @param {0=2} xpos: 0-center, 1-left, 2-right 
+     * @param {0=2} ypos: 0-middle, 1-top, 2-bottom 
+     * @param {number} duration: time(ms) to show
+     */
+    function _tip(text, xpos, ypos, duration/*ms*/){
+
+        var $tip = $(".global-tip"),
+            contHeight = $(window).height();
+
+        duration = duration || 1500;
+        
+        if($tip.length == 0){
+            $tip = $('<div class="global-tip"><span></span></div>');
+            $('body').prepend($tip);
+        }
+
+        // New tip is always processed
+        if(tipBusy){
+            if(tipTimer){
+                clearTimeout(tipTimer);
+            }
+        }
+
+        tipBusy = true;
+
+        $tip.find("span").text(text);
+
+        switch(xpos){
+            case 0:
+                $tip.css('text-align', 'center');
+                break;
+            case 1:
+                $tip.css('text-align', 'left');
+                break;
+            case 2:
+                $tip.css('text-align', 'right');
+                break;
+        }
+
+        switch(ypos){
+            case 0:
+                $tip.css('top', contHeight / 2 + 'px');
+                break;
+            case 1:
+                $tip.css('top', '10px');
+                break;
+            case 2:
+                $tip.css('bottom', '10px');
+                break;
+        }
+
+        // Stop the animation and restore to the initial state
+        $tip.css({"-webkit-transition": "none", "opacity":1});
+        $tip.show();
+
+        tipTimer = setTimeout(function(){
+            /**
+             * When several tips need to show at almost the same time,  
+             * the previous animation will be stopped and a new one be started,
+             * then the animation callback may not be invoked to restore to initial
+             * state.     
+             */
+            $tip.animate({"opacity":0}, 300, "", function(){
+                $tip.hide();
+                $tip.css({"-webkit-transition": "none", "opacity":1});
+                tipBusy = false;
+            });
+        }, duration);
+
+    }
+
+    return _tip;
+
+})();
+
+
+
+
+
 return {
     isObject: isObject
     , isFunction: isFunction
@@ -515,6 +625,7 @@ return {
     , isEqual: isEqual
     , isEmpty: isEmpty
     , isRegExp: isRegExp
+
     , keys: _keys
     , defaults: defaults
     , extend: extend
@@ -531,10 +642,16 @@ return {
     , ajax: ajax
     , sync: sync
     , syncArgs: syncArgs
+
+    , tip: tip
+    , isReallyDisplay: isReallyDisplay
 };
 
 
 })();
+
+Utils = _Utils.extend(_, _Utils);
+
 ;function classExtend(protoProps, staticProps){
 
     var parentClass = this;
@@ -591,6 +708,7 @@ return {
     
     return subClass;
 }
+
 ;var Events = (function(){
 
 
@@ -783,6 +901,7 @@ return Events;
 
 
 })();
+
 
 ;var History = (function(){
 
@@ -1056,6 +1175,7 @@ Utils.extend(History.prototype, Events, {
 return new History();
 
 })(); 
+
 ;var Model = (function(){
 
 var Model = function(attributes, options){
@@ -1420,6 +1540,7 @@ Model.extend = classExtend;
 return Model;
 
 })();
+
 ;var Router = (function(){
 
 
@@ -1451,9 +1572,26 @@ var namedParam = /(\(\?)?:\w+/g;
 var splatParam = /\*\w+/g;
 var escapeRegExp = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 
+var rParamName = /[:*](\w+)/g;
+var rDefaultHandler = /^(_defaultHandler):(\w+)$/;
+
 Utils.extend(Router.prototype, Events, {
 
-    initialize: function(){}
+    initialize: function(){
+        // References to Classes of Pageview
+        this.viewClasses = {};
+
+        // References to instances of Pageview
+        this.views = {};
+
+        // Trace pageviews involved in page switch
+        this.currentView = null;
+        this.previousView = null;
+    }
+
+    , getHistory: function(){
+        return Utils.result(this, 'history');
+    }
 
     // Manually bind a single named route to a callback. For example:
     //
@@ -1467,14 +1605,16 @@ Utils.extend(Router.prototype, Events, {
             callback = name;
             name = '';
         }
-        if(!callback) callback = this[name];
-        var router = this, history = Utils.result(this, 'history');
+        var special = this._parseSpecialHandler(name);
+        if(!callback) callback = this[special.handler || name];
+        var router = this, history = router.getHistory();
         history.route(route, function(fragment){
             var args = router._extractParameters(route, fragment);
-            if(router.execute(callback, args, name) !== false){
-                router.trigger.apply(router, ['route:' + name].concat(args));
-                router.trigger('route', name, args);
-                history.trigger('route', router, name, args);
+            var action = special.action || name;
+            if(router.execute(callback, args, action) !== false){
+                router.trigger.apply(router, ['route:' + action].concat(args));
+                router.trigger('route', action, args);
+                history.trigger('route', router, action, args);
             }
         });
         return this;
@@ -1483,20 +1623,59 @@ Utils.extend(Router.prototype, Events, {
     // Execute a route handler with the provided parameters.  This is an
     // excellent place to do pre-route setup or post-route cleanup.
     , execute: function(callback, args, name){
-        if(callback) callback.apply(this, args);
+        if(callback) callback.apply(this, [ name ].concat(args));
     }
 
     , navigate: function(fragment, options){
-        Utils.result(this, 'history')
+        this.getHistory()
             .navigate(fragment, options);
         return this;
+    }
+
+    , start: function(){
+        this.history.start.apply(this.history, arguments);
+        return this;
+    }
+
+    /**
+     * Parse route config as below:
+     *   routes: {
+     *       "index/:type" : "_defaultHandler:index"
+     *   }
+     *
+     * Returns: { handler: "_defaultHandler", action: "index" }
+     */
+    , _parseSpecialHandler: function(handler){
+        var a, b;
+        if(!Utils.isFunction(handler) 
+            && rDefaultHandler.test(handler)){
+            a = RegExp.$1; 
+            b = RegExp.$2; 
+        }
+
+        return {
+            handler: a
+            , action: b
+        };
     }
 
     , _bindRoutes: function(){
         if(!this.routes) return;
         this.routes = Utils.result(this, 'routes');
+        this.paramNames = {};
         var route, routes = Utils.keys(this.routes);
         while((route = routes.pop()) != null){
+            var names = [];
+            route.replace(rParamName, function($0, $1){
+                names.push($1); 
+            });
+            var action = this.routes[route];
+            if(Utils.isFunction(action)) action = '';
+            var special = this._parseSpecialHandler(action);
+            action = special.action || action;
+            // There may be more than one routes mapping to the same action
+            this.paramNames[action] || (this.paramNames[action] = []);
+            this.paramNames[action].push(names);
             this.route(route, this.routes[route]);
         }
     }
@@ -1521,6 +1700,164 @@ Utils.extend(Router.prototype, Events, {
         });
     }
 
+    , _getViewClass: function(action){
+        return this.viewClasses[action];
+    }
+
+    , registerViewClass: function(action, viewClass){
+        if(Utils.isEmpty(action) || !Utils.isFunction(viewClass)) return;
+        this.viewClasses[action] = viewClass;
+        return this;
+    }
+
+    , pageOrder: []
+
+    /**
+     * Config of page transition
+     * 
+     * The config is a list of key-value, which the key is pattern `"action-action"` and
+     * the value is the name of animation to be taken. 
+     *      pageTransition: {
+     *          'index-search': 'fade'
+     *          , 'index-page': 'slide'
+     *      } 
+     */
+    , pageTransition: {}
+
+    , defaultPageTransition: 'simple'
+
+    , registerPageTransition: function(pattern, animate){
+    }
+
+    , _selectParamNames: function(action, args){
+        var arr = this.paramNames[action], i = 0, names = [];
+        while(i < arr.length){
+            if(arr[i].length + 1 == args.length){
+                names = arr[i];
+                break;
+            }
+            i++;
+        } 
+        return names;
+    }
+
+    , _defaultHandler: function(){
+        var args = Utils.map(arguments, function(item){
+                return item;
+            });
+        var action = args.shift();
+        var params = {}, names = this._selectParamNames(action, args); 
+        if(names.length + 1 == args.length){
+            for(var i=0; i < names.length; i++){
+                params[names[i]] = args[i];
+            } 
+            params['_query_'] = args[i];
+        }
+        this.doAction(action, params);
+    }
+
+    , doAction: function(action, params){
+        var me = this, view = me.views[action];
+
+        if(!view){
+            var cls = me._getViewClass(action);
+            view = me.views[action]
+                = new cls(params, action, me);
+        }
+
+        me.previousView = me.currentView;
+        me.currentView = view;
+
+        me.trigger('routechange', {
+            from: me.previousView
+            , to: me.currentView
+        });
+
+        me.switchPage(me.previousView, me.currentView, params);
+    }
+
+    , switchPage: function(from, to, params){
+        var me = this,
+            dir = 0, order = me.pageOrder,
+            fromAction = from && from.action || null,
+            toAction = to && to.action || null,
+            fromIndex, toIndex;
+
+        // Get direction of page switch
+        //    0 - no direction
+        //    1 - left
+        //    2 - right
+        if(fromAction !== null && null !== toAction && fromAction !== toAction){
+            if(-1 != ( fromIndex = order.indexOf( fromAction ) )
+                && -1 != ( toIndex = order.indexOf( toAction ) ) ){
+                dir = fromIndex > toIndex ? 2 : 1;
+            }
+        }
+
+        // Save page position when `"enablePositionRestore"` is on
+        me.enablePositionRestore && from && from.savePos();
+
+        $.each(from == to ? [from] : [from, to], function(key, item){
+            item && item.trigger('pagebeforechange', {
+                from: me.previousView, 
+                to: me.currentView,
+                params: params 
+            });
+        });        
+
+        me.doAnimation(
+            from,
+            to,
+            dir,
+            function(){
+                // Restore page position when `"enablePositionRestore"` is on
+                me.enablePositionRestore && to && (to.restorePos(params));
+
+                $.each(from == to ? [from] : [from, to], function(key, item){
+                    item && item.trigger(
+                        'pageafterchange', {
+                            from: me.previousView, 
+                            to: me.currentView,
+                            params: params 
+                        });
+                });
+            }
+        );
+
+    }
+
+    , doAnimation: function(fromView, toView, direction, callback){
+        var animate, me = this;
+        
+        animate = me._selectAnimation(
+                fromView && fromView.action || null, 
+                toView && toView.action || null
+            ) || Animation.get(me.defaultPageTransition);
+
+        animate(
+            fromView && fromView.el, 
+            toView && toView.el, 
+            direction,
+            callback
+        );
+    }
+
+    , _selectAnimation: function(fromAction, toAction){
+
+        if(null == fromAction || null == toAction){
+            return;
+        }
+
+        var me = this,
+            animateName;
+
+        animateName = me.pageTransition[fromAction + '-' + toAction]
+            || me.pageTransition[toAction + '-' + fromAction];
+
+        return Animation.get(animateName); 
+    }
+
+
 
 });
 
@@ -1530,6 +1867,7 @@ return Router;
 
 
 })();
+
 ;var View = (function(){
 
 var viewOptions = [
@@ -1660,6 +1998,798 @@ return View;
 
 
 })();
+
+;var BaseView = View.extend({
+    
+    initialize: function(options, _parent){
+        var me = this;
+
+        me.options = $.extend({}, options);
+
+        me._parent = _parent || null;
+        me._children = {};
+        me._length = 0;
+
+        me.ec = me.getRoot();
+        me.gec = me.ec._router;
+        me.subec = me.getSubEC();
+        me.featureString = me.getFeatureString();
+
+        me.init(options);
+
+        me._registerEvents();
+        me.registerEvents();
+    }
+
+    // Implemented in sub classes
+    , init: function(){}
+
+    , getRoot: function(){
+        var me = this, p, c;
+        p = c = me;
+
+        while(p){
+            c = p;
+            p = p._parent;
+        }
+        return c;
+    }
+
+    , getSubEC: function(){
+        var me = this, p, c;
+        p = c = me;
+
+        while(p){
+            if(p instanceof SubpageView){
+                return p;
+            }
+            c = p;
+            p = p._parent;
+        }
+        return c;
+    }
+    
+    , getFeatureString: function(options){
+        var me = this,
+            opt = options || me.options,
+            ft = '';
+
+        /**
+         * @note: 使用浅层序列化(shallow serialization)即可，避免
+         *   options参数含有非常大的子对象，带来性能消耗，甚至堆栈溢出
+         */
+        ft = $.param(opt, true);
+
+        options || (me.featureString = ft);
+        return ft;
+    }
+
+    , append: function(view, isShow) {
+        this._addSubview(view, 'APPEND', isShow);
+    }
+
+    /**
+     * Append a subview without appending DOM immediately under current view 
+     * @param: {string or Zepto Object} container DOM container to be appended to  
+     */
+    , appendTo: function(view, container, isShow){
+        this._addSubview(view, 'APPENDTO', isShow, container);
+    }
+
+    , prepend: function(view, isShow) {
+        this._addSubview(view, 'PREPEND', isShow);
+    }
+
+    , prependTo: function(view, container, isShow) {
+        this._addSubview(view, 'PREPENDTO', isShow, container);
+    }
+
+    , setup: function(view, isShow) {
+        this._addSubview(view, 'SETUP', isShow);
+    }
+
+    /**
+     * Add subviews to current view by various types 
+     * @param {string} APPEND, PREPEND, SETUP, APPENDTO, PREPENDTO. default: APPEND
+     */
+    , _addSubview: function(view, type, isShow, container) {
+        var me = this;
+        if(view instanceof BaseView) {
+            me._children[view.cid] = view;
+            me._length++;
+            view._parent = me;
+
+            switch(type){
+                case 'SETUP':
+                    break;
+                case 'PREPEND':
+                    me.$el.prepend(view.$el);
+                    break;
+                case 'APPENDTO':
+                    $(container).append(view.$el);
+                    break;
+                case 'PREPENDTO':
+                    $(container).prepend(view.$el);
+                    break;
+                default:
+                    me.$el.append(view.$el);
+                    break;
+            }
+
+            // Hidden default 
+            !isShow && view.$el.hide();
+        }
+        else {
+            throw new Error("BaseView._addSubview: arguments must be an instance of BaseView");
+        }
+    }
+
+    , remove: function(view){
+        var me = this;
+
+        if(view instanceof BaseView) {
+            delete me._children[view.cid];
+            me._length--;
+            view._parent = null;
+            view.$el.remove();
+        }
+        // 移除自身
+        else{
+            me._parent && 
+                me._parent.remove(me);
+        } 
+    }
+
+    , firstChild: function(){
+        var me = this;
+
+        for(var i in me._children){
+            return me._children[i];
+        }
+        return null;
+    } 
+
+    , nextSibling: function(){
+        var me = this,
+            p = me._parent,
+            prev = null,
+            current = null;
+
+        if(!p) return null;
+
+        for(var i in p._children){
+
+            prev = current;
+            current = p._children[i];
+
+            if(prev == me){
+                return current;
+            }
+        }
+
+        return null;
+    }
+
+    , prevSibling: function(){
+        var me = this,
+            p = me._parent,
+            prev = null,
+            current = null;
+
+        if(!p) return null;
+
+        for(var i in p._children){
+
+            prev = current;
+            current = p._children[i];
+
+            if(current == me){
+                return prev;
+            }
+        }
+
+        return null;
+    }
+
+    , destroy: function() {
+
+        var me = this;
+        for(var key in me._children) {
+            me._children[key].destroy();
+        }
+
+        me._unregisterEvents();
+        me.unregisterEvents();
+        me.undelegateEvents();
+
+        this.$el.remove();
+
+        me.el = me.$el = null;
+
+        if(me._parent) {
+            delete me._parent._children[me.cid];
+            // @todo: subpages 
+        }
+    }
+
+    , registerEvents: function(){}
+
+    , unregisterEvents: function(){}
+
+    /**
+     * @param {0|90|-90|180} from: orientation before
+     * @param {0|90|-90|180} to: orientation after
+     */
+    , onorientationchange: function(from, to){}
+
+    , _registerEvents: function(){
+        var me = this, ec = me.ec;
+
+        me._onorientationchange = function(e){
+            me.pageOrientationToBe = window.orientation;
+            /**
+             * Response directly when within an active page, delay otherwise.
+             * 1. Prevents multi-page response even if it's not an active page
+             * 2. Because inactive pages are hidden, computings of dom pixel sizes are
+             *    often unexpected.  
+             */
+            if(ec.isActivePage()){
+                if(me.pageOrientation != me.pageOrientationToBe){
+                    me.onorientationchange(
+                        me.pageOrientation
+                        , me.pageOrientationToBe
+                    ); 
+                    me.pageOrientation = me.pageOrientationToBe;
+                }
+            }
+
+        };
+
+        $(window).on('orientationchange', me._onorientationchange);
+        ec.on('pagebeforechange', me._onpagebeforechange, me);
+        ec.on('pageafterchange', me._onpageafterchange, me);
+    }
+
+    , _unregisterEvents: function(){
+        var me = this, ec = me.ec;
+
+        $(window).off('orientationchange', me._onorientationchange);
+        /**
+         * @note: 需要置空该函数，避免页面recycle以后仍然调用该函数，导致报错
+         * 原因还不是很清楚，但有几个线索可以参考：
+         * 1. 该函数没有直接通过off卸载掉
+         * 2. 同样响应pagebeforechange事件的onpagebeforechange先于_onpagebeforechange执行，而前者调用了recycleSubpage
+         * 目前证明可靠的方式是将onorientationchange函数置为空函数
+         */
+        me.onorientationchange
+            = me.onsubpagebeforechange
+            = me.onsubpageafterchange = function(){};
+
+        ec.off('pagebeforechange', me._onpagebeforechange, me);
+        ec.off('pageafterchange', me._onpageafterchange, me);
+    }
+
+    , _onpagebeforechange: function(options){
+        var me = this, 
+            from = options.from,
+            to = options.to,
+            param = options.params,
+            featureString = me.getFeatureString(param),
+            spm = me.subpageManager;
+
+        // Response to orientationchange when there is something inconsistent 
+        if(me.pageOrientation != me.pageOrientationToBe){
+            me.onorientationchange(
+                me.pageOrientation
+                , me.pageOrientationToBe
+            ); 
+            me.pageOrientation = me.pageOrientationToBe;
+        }
+
+        if(spm && spm._subpages.length){
+
+            // If current subpage is not an target while switching between two different pages
+            // subpage, the current subpage should be hidden in advance to ensure the quality
+            // of switching 
+            if(to == me.ec && from != to){
+                if(spm._currentSubpage
+                    && spm._currentSubpage.featureString
+                        != featureString){
+                    spm._currentSubpage.$el.hide();
+                }
+            }
+
+        }
+
+    } 
+
+    ,_onpageafterchange: function(options){
+
+        var me = this, 
+            from = options.from,
+            to = options.to,
+            param = options.params,
+            featureString = me.getFeatureString(param),
+            fromSubpage, 
+            toSubpage,
+            spm = me.subpageManager;
+
+
+        // Subpage related processing 
+        if(to == me.ec && spm && spm._subpages.length){
+            if(!spm.getSubpage(featureString)){
+                // @todo: this._subpageClass validation
+                var subView = new spm._subpageClass(
+                        $.extend({}, param)
+                        ,me
+                    );
+                me.append(subView);
+                spm.registerSubpage(featureString, subView);
+            }
+
+            spm.setCurrentSubpage(spm.getSubpage(featureString));  
+            fromSubpage = spm._previousSubpage;
+            toSubpage = spm._currentSubpage;
+
+            // Switch between subpages 
+            if(from == to){
+                spm.switchSubpage(
+                    fromSubpage 
+                    ,toSubpage
+                    ,options
+                );
+            }
+
+            /** 
+             * Switch between different pages
+             *
+             * @note: Only response when it's itself a target page. Because
+             * a subpage which is not a target subpage is hidden in advance when 
+             * pagebeforechange occurs, `"switchSubpage"` should not be invoked
+             * to prevent twinkling.  
+             */
+            else if(to == me.ec){
+                $.each(fromSubpage == toSubpage 
+                    ? [fromSubpage] : [fromSubpage, toSubpage], 
+                    function(key, item){
+                        item && item.onsubpagebeforechange
+                             && item.onsubpagebeforechange(options);
+
+                        item && item.onsubpageafterchange
+                             && item.onsubpageafterchange(options);
+
+                    }
+                );
+
+                spm.recycleSubpage();
+            }
+        }
+
+        // Update pageview's options for use of position restore.
+        if(to == me.ec && me == me.ec){
+            me._dynamicOptions = $({}, param); 
+        }
+
+    }
+
+    , getSubpageManager: function(options){
+        var me = this,
+            spm;
+
+        if(spm = me.subpageManager){
+            return spm;
+        }
+
+        spm = me.subpageManager 
+            = new SubpageManager(options, me);
+
+        return spm;
+    }
+
+    , getSubpageSwitchDir: function(fromSubpage, toSubpage){}
+
+    /**
+     * @param {string} text
+     * @param {0=2} xpos: 0-center, 1-left, 2-right 
+     * @param {0=2} ypos: 0-middle, 1-top, 2-bottom 
+     * @param {number} duration: time(ms) to show
+     */
+    , tip: function(text, xpos, ypos, duration/*ms*/){
+        Utils.tip.apply(window, arguments);
+    }
+    
+    , show: function(){
+        var me = this;
+        setTimeout(function(){
+            me.$el.show();
+        }, 0);
+    }
+
+    , hide: function(){
+        this.$el.hide();
+    }
+
+    , navigate: function(route){
+        this.gec.history.navigate(route, {trigger:true});
+    }
+
+
+
+
+});
+
+;var PageView = BaseView.extend({
+
+    /**
+     * @param {json} options: construct options 
+     * @param {string} action: action name  
+     */
+    initialize: function(options, action, router){
+        var me = this;
+
+        if(!action || !Utils.isString(action)){
+            throw Error('PageView initialize: action must be an non-empty string'); 
+        }
+
+        if(!router instanceof Router){
+            throw Error('PageView initialize: router must be an instance of Router'); 
+        }
+
+        me.action = action;
+        me._router = router;
+        me._tops = {};
+
+        // PageView has no `"_parent"`
+        me._super(options, null); 
+    }
+
+    , isActivePage: function(){
+        return this.$el.css('display') == 'block';
+    }
+
+    , _getDynamicFeatureString: function(params){
+        var me = this;
+        return $.param(
+                params 
+                // _dynamicOptions is set within BaseView._onpageafterchange
+                || me._dynamicOptions 
+                || me.options
+                , true
+            );
+    }    
+
+    ,savePos: function(){
+        var me = this;
+        me._tops[me._getDynamicFeatureString()] = window.scrollY;
+    }
+
+    ,restorePos: function(params, defaultTop){
+        var me = this,
+            cls =  me._getDynamicFeatureString(params);
+
+        // Delay for iOS4
+        setTimeout(function(){
+            window.scrollTo(0, me._tops[cls] || defaultTop || 0);
+        }, 0);
+    }
+
+});
+
+;var SubView = BaseView.extend({
+
+    /**
+     * @param {json} options: construct options 
+     * @param {string} action: action name  
+     */
+    initialize: function(options, parent){
+        var me = this;
+
+        if(!parent instanceof BaseView){
+            throw Error('SubView initialize: parent must be an instance of class BaseView'); 
+        }
+
+        me._super(options, parent); 
+    }
+
+});
+
+
+;var GlobalView = BaseView.extend({
+
+
+    initialize: function(options, router){
+        var me = this;
+
+        if(!router instanceof Router){
+            throw Error('GlobalView initialize: router must be an instance of Router');
+        }
+        
+        me.router = router;
+        router.on('routechange', me._onroutechange, me);
+        
+        // No parent view
+        me._super.call(me, options, null);
+    }
+
+    // @note: just a placeholder
+    , isActivePage: function(){
+        return false;
+    }
+
+    /**
+     * Subview under GlobalView has a reference to event center 
+     * which is GlobalView itself. As belows:
+     *      subview.ec == globalview
+     */
+    , _onroutechange: function(params){
+        this.trigger('routechange', $.extend({}, params));
+    }
+
+    /**
+     * @param {string} action: page action name, may be a comma-splitted list 
+     * @param {string} eventName
+     * @params {json} params
+     */
+    , triggerPageEvent: function(action, eventName, params){
+        var me = this,
+            actions = action.split(/\s*,\s*/),
+            pageView;
+
+        $.each(actions, function(index, item){
+            pageView = me.router.views[item];
+            pageView && (pageView.trigger(eventName, params));
+        });
+
+    }
+
+    , getCurrentAction: function(){
+        return this.router && this.router.currentView.action || '';        
+    }
+
+
+});
+
+;var SubpageView = SubView.extend({
+
+    /**
+     * @param {json} options: construct options 
+     * @param {string} action: action name  
+     */
+    initialize: function(options, parent){
+        var me = this;
+
+        if(!parent instanceof BaseView){
+            throw Error('SubpageView initialize: parent must be an instance of class BaseView'); 
+        }
+        
+        me._super(options, parent);
+    }
+
+    , isActiveSubpage: function(){
+        return Utils.isReallyDisplay(me.el);
+    }
+
+
+});
+
+;var SubpageManager = function(options, subpageManagerView){
+    
+    var me = this,
+        opt = $.extend({}, options);
+
+    if(!subpageManagerView instanceof BaseView){
+        throw Error('SubPageManager constructor: subPageManagerView must be an instance of class BaseView'); 
+    }
+
+    me._subpageClass = opt.subpageClass || null;
+    me.MAX_SUBPAGES = opt.maxSubpages || 1;
+    me.subpageTransition = opt.subpageTransition || 'slide';
+    me.subpageManagerView = subpageManagerView;
+
+    me._subpages = [];
+    me._currentSubpage = null;
+    me._previousSubpage = null;
+
+    me.defaultSubpageTransition = 'simple';
+}; 
+
+SubpageManager.prototype = {
+
+    switchSubpage: function(from, to, params){
+        var me = this,
+            dir = 0;
+
+        dir = me.subpageManagerView.getSubpageSwitchDir
+            ? me.subpageManagerView.getSubpageSwitchDir(from, to)
+                : me.getSubpageSwitchDir(from, to); 
+
+        $.each(from == to ? [from] : [from, to], function(key, item){
+            item.trigger('subpagebeforechange', params);
+        });
+
+        me.doSubpageAnimation(
+            from,
+            to,
+            dir,
+            function(){
+                $.each(from == to ? [from] : [from, to], function(key, item){
+                    item && item.onsubpageafterchange
+                         && item.onsubpageafterchange(params);
+                });
+
+                me.recycleSubpage();
+            }
+        );
+    }
+
+    /**
+     * Get direction of subpage switch
+     *    0 - no direction
+     *    1 - left
+     *    2 - right
+     */
+    , getSubpageSwitchDir: function(fromSubpage, toSubpage){
+        var me = this,
+            dir = 0,
+            subpages = me._subpages,
+            fromFeatureString = fromSubpage 
+                && fromSubpage.getFeatureString() || null,
+            toFeatureString = toSubpage 
+                && toSubpage.getFeatureString() || null,
+            fromIndex = -1, toIndex = -1;
+        
+        for(var i=0; i<subpages.length; i++){
+            if(subpages[i].name == fromFeatureString){
+                fromIndex = i;
+            }
+            if(subpages[i].name == toFeatureString){
+                toIndex = i;
+            }
+        }
+
+        if(fromFeatureString !== null 
+            && null !== toFeatureString && fromFeatureString !== toFeatureString){
+            if(-1 != fromIndex && -1 != toIndex ){
+                dir = fromIndex > toIndex ? 2 : 1;
+            }
+        }
+
+        return dir;
+    }
+
+    , doSubpageAnimation: function(fromView, toView, direction, callback){
+
+        var animate, me = this;
+
+        animate = Animation.get(
+                me.subpageTransition || 'simple'
+            );
+
+        animate(
+            fromView && fromView.el, 
+            toView && toView.el, 
+            direction,
+            callback
+        );
+    }
+
+    /**
+     * @param {string} name: unique ID of subpage 
+     * @param {SubpageView} subpage: instance of SubpageView
+     */
+    , registerSubpage: function(name, subpage){
+        var me = this;
+        if(!me.getSubpage(name)){
+            me._subpages.push({
+                name: name,
+                subpage: subpage
+            });
+        }
+    }
+
+    /**
+     * @param {string} name: unique ID of subpage 
+     * @return {SubpageView or undefined} 
+     */
+    , getSubpage: function(name){
+        var me = this, 
+            p = me._subpages;
+
+        for(var i=0, len=p.length; i<len; i++){
+            if(p[i].name == name){
+                return p[i].subpage;
+            }
+        }
+        return;
+    }
+
+    , setCurrentSubpage: function(subpage){
+        var me = this;
+        if(subpage instanceof rocket.baseview){
+            if(subpage != me._currentSubpage){
+                me._previousSubpage = me._currentSubpage;
+                me._currentSubpage = subpage;
+            }
+        }
+        else{
+            throw Error('error in method setCurrentSubpage: '
+                + 'subpage is not an instance of rocket.baseview');
+        }
+    }
+
+    , recycleSubpage: function(){
+        var me = this, 
+            p = me._subpages,
+            item;
+
+        while(p.length > me.MAX_SUBPAGES){
+            item = p.shift();
+
+            // Current active subpage will be skipped and pushed back
+            if(item.subpage == me._currentSubpage){
+                me._subpages.push(item); 
+            }
+            else{
+                item.subpage.destroy();
+            }
+        }
+
+    }
+
+
+
+};
+
+SubpageManager.extend = classExtend;
+
+;var Animation = (function(){
+
+var animations = {};
+
+function register(name, func){
+    if(!Utils.isString(name) || name.length == 0){
+        throw Error('registerAnimation: name must be non-empty string');
+    }
+
+    if(!Utils.isFunction(func)){
+        throw Error('registerAnimation: func must be function');
+    }
+
+    animations[name] = func;
+}
+
+function get(name){
+    return animations[name];
+}
+
+return {
+    register: register
+    , get: get
+};
+
+
+})();
+
+;(function(){
+
+function simple(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(currentEle != nextEle){
+        currentEle && $currentEle.hide();
+        setTimeout(function(){
+            nextEle && $nextEle.show();
+        }, 0);
+    }
+
+    callback && callback();
+};
+
+Animation.register('simple', simple);
+
+})();
+
 ;
 Utils.extend(
     Rocket
@@ -1671,6 +2801,12 @@ Utils.extend(
         , Router: Router
         , Utils: Utils
         , extend: classExtend
+        , PageView: PageView
+        , SubView: SubView
+        , GlobalView: GlobalView
+        , SubpageView: SubpageView
+        , SubpageManager: SubpageManager
+        , Animation: Animation
     }
 );
 

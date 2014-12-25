@@ -14,7 +14,7 @@ module.exports = function(grunt) {
         }
         , concat: {
             options: {
-                separator: ';'
+                separator: grunt.util.linefeed + ';'
             },
             dist: {
                 src: [
@@ -26,6 +26,17 @@ module.exports = function(grunt) {
                     , 'src/model.js'
                     , 'src/router.js'
                     , 'src/view.js'
+
+                    , 'src/baseview.js'
+                    , 'src/pageview.js'
+                    , 'src/subview.js'
+                    , 'src/globalview.js'
+                    , 'src/subpageview.js'
+                    , 'src/subpagemanager.js'
+
+                    , 'src/animation.js'
+                    , 'src/animation/simple.js'
+
                     , 'src/amd-footer.js'
                 ]
                 , dest: 'dist/<%= pkg.name %>.js'

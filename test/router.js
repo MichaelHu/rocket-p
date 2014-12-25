@@ -77,7 +77,7 @@ module('Router', {
 
 var ExternalObject = {
     value: 'unset'
-    , routingFunction: function(value){
+    , routingFunction: function(route, value){
         this.value = value;
     }
 };
@@ -112,6 +112,12 @@ var newRouter = Router.extend({
         "*first/complex-*part/*rest": "complex",
         "query/:entity":              "query",
         "function/:value":            ExternalObject.routingFunction,
+
+        "index":                      "_defaultHandler:index",
+        "index/:type":                "_defaultHandler:index",
+        "index/:type/p:page":         "_defaultHandler:index",
+        "index/:type/p:page/:order":  "_defaultHandler:",
+
         "*anything":                  "anything"
     }
 
@@ -134,7 +140,7 @@ var newRouter = Router.extend({
         this.count++;
     }
 
-    , search: function(query, page) {
+    , search: function(route, query, page) {
         this.query = query;
         this.page = page;
     }
@@ -159,40 +165,40 @@ var newRouter = Router.extend({
         this.contact = 'load';
     }
 
-    , optionalItem: function(arg){
+    , optionalItem: function(route, arg){
         this.arg = arg != void 0 ? arg : null;
     }
 
-    , splat: function(args) {
+    , splat: function(route, args) {
         this.args = args;
     }
 
-    , github: function(repo, from, to) {
+    , github: function(route, repo, from, to) {
         this.repo = repo;
         this.from = from;
         this.to = to;
     }
 
-    , complex: function(first, part, rest) {
+    , complex: function(route, first, part, rest) {
         this.first = first;
         this.part = part;
         this.rest = rest;
     }
 
-    , query: function(entity, args) {
+    , query: function(route, entity, args) {
         this.entity    = entity;
         this.queryArgs = args;
     }
 
-    , anything: function(whatever) {
+    , anything: function(route, whatever) {
         this.anything = whatever;
     }
 
-    , namedOptional: function(z) {
+    , namedOptional: function(route, z) {
         this.z = z;
     }
 
-    , decode: function(named, path) {
+    , decode: function(route, named, path) {
         this.named = named;
         this.path = path;
     }
@@ -296,12 +302,10 @@ test("use implicit callback if none provided", 1, function() {
 test("routes via navigate with {replace: true}", 1, function() {
     location.replace('http://example.com#start_here');
     History.checkUrl();
-    var bakReplace = location.replace;
     location.replace = function(href) {
         strictEqual(href, new Location('http://example.com#end_here').href);
     };
     History.navigate('end_here', {replace: true});
-    location.replace = bakReplace;
 });
 
 
@@ -356,7 +360,6 @@ test("routes (anything)", 1, function() {
 });
 
 test("routes (function)", function() {
-    // Note: need to off?
     router.on('route', function(name) {
         ok(name === '');
     });
@@ -427,7 +430,6 @@ test("#933, #908 - leading slash", 2, function() {
     strictEqual(history.getFragment(), 'foo');
 
     history.stop();
-    History.start();
 });
 
 test("#967 - Route callback gets passed encoded values.", 3, function() {
@@ -437,7 +439,6 @@ test("#967 - Route callback gets passed encoded values.", 3, function() {
     strictEqual(router.part, 'has#hash');
     strictEqual(router.rest, 'has space');
 });
-
 
 test("correctly handles URLs with % (#868)", 3, function() {
     location.replace('http://example.com#search/fat%3A1.5%25');
@@ -465,8 +466,6 @@ test("#1185 - Use pathname when hashChange is not wanted.", 1, function() {
     var fragment = history.getFragment();
     strictEqual(fragment, location.pathname.replace(/^\//, ''));
     history.stop();
-
-    History.start();
 });
 
 test("#1206 - Strip leading slash before location.assign.", 1, function() {
@@ -483,8 +482,6 @@ test("#1206 - Strip leading slash before location.assign.", 1, function() {
     history.navigate('/fragment');
     location.assign = bakAssign;
     history.stop();
-
-    History.start();
 });
 
 test("#1387 - Root fragment without trailing slash.", 1, function() {
@@ -495,8 +492,6 @@ test("#1387 - Root fragment without trailing slash.", 1, function() {
     history.start({hashChange: false, root: '/root/', silent: true});
     strictEqual(history.getFragment(), '');
     history.stop();
-
-    History.start();
 });
 
 test("#1366 - History does not prepend root to fragment.", 2, function() {
@@ -521,8 +516,6 @@ test("#1366 - History does not prepend root to fragment.", 2, function() {
     strictEqual(history.fragment, 'x');
 
     history.stop();
-
-    History.start();
 });
 
 test("Normalize root.", 1, function() {
@@ -545,8 +538,6 @@ test("Normalize root.", 1, function() {
     });
     history.navigate('fragment');
     history.stop();
-
-    History.start();
 });
 
 test("Normalize root.", 1, function() {
@@ -567,8 +558,6 @@ test("Normalize root.", 1, function() {
         root: '/root'
     });
     history.stop();
-
-    History.start();
 });
 
 test("Normalize root.", 1, function() {
@@ -589,8 +578,6 @@ test("Normalize root.", 1, function() {
         root: '/root'
     });
     history.stop();
-
-    History.start();
 });
 
 test("Normalize root - leading slash.", 1, function() {
@@ -607,8 +594,6 @@ test("Normalize root - leading slash.", 1, function() {
     history.start({root: 'root'});
     strictEqual(history.root, '/root/');
     history.stop();
-
-    History.start();
 });
 
 test("Transition from hashChange to pushState.", 1, function() {
@@ -629,8 +614,6 @@ test("Transition from hashChange to pushState.", 1, function() {
         pushState: true
     });
     history.stop();
-
-    History.start();
 });
 
 test("#1619: Router: Normalize empty root", 1, function() {
@@ -647,8 +630,6 @@ test("#1619: Router: Normalize empty root", 1, function() {
     history.start({root: ''});
     strictEqual(history.root, '/');
     history.stop();
-
-    History.start();
 });
 
 test("#1619: Router: nagivate with empty root", 1, function() {
@@ -670,15 +651,12 @@ test("#1619: Router: nagivate with empty root", 1, function() {
     });
     history.navigate('fragment');
     history.stop();
-
-    History.start();
 });
 
 test("Transition from pushState to hashChange.", 1, function() {
     History.stop();
 
     location.replace('http://example.com/root/x/y?a=b');
-    var bakReplace = location.replace;
     location.replace = function(url) {
         strictEqual(url, '/root#x/y?a=b');
     };
@@ -695,10 +673,7 @@ test("Transition from pushState to hashChange.", 1, function() {
         root: 'root',
         pushState: true
     });
-    location.replace = bakReplace;
     history.stop();
-
-    History.start();
 });
 
 test("#1695 - hashChange to pushState with search.", 1, function() {
@@ -719,8 +694,6 @@ test("#1695 - hashChange to pushState with search.", 1, function() {
         pushState: true
     });
     history.stop();
-
-    History.start();
 });
 
 test("#1746 - Router allows empty route.", 2, function() {
@@ -809,8 +782,6 @@ test("#2538 - hashChange to pushState only if both requested.", 0, function() {
     location.replace('http://example.com/root?a=b#x/abc');
 
     history.stop();
-
-    History.start();
 });
 
 test('No hash fallback.', 0, function() {
@@ -858,8 +829,6 @@ test('#2656 - No trailing slash on root.', 1, function() {
     history.start({pushState: true, hashChange: false, root: 'root'});
     history.navigate('');
     history.stop();
-
-    History.start();
 });
 
 test('#2656 - No trailing slash on root.', 1, function() {
@@ -876,8 +845,6 @@ test('#2656 - No trailing slash on root.', 1, function() {
     history.start({pushState: true, hashChange: false});
     history.navigate('');
     history.stop();
-
-    History.start();
 });
 
 test('#2656 - No trailing slash on root.', 1, function() {
@@ -894,8 +861,6 @@ test('#2656 - No trailing slash on root.', 1, function() {
     history.start({pushState: true, hashChange: false, root: 'root'});
     history.navigate('?x=1');
     history.stop();
-
-    History.start();
 });
 
 test('#2765 - Fragment matching sans query/hash.', 2, function() {
@@ -921,15 +886,14 @@ test('#2765 - Fragment matching sans query/hash.', 2, function() {
     history.start({pushState: true, hashChange: false});
     history.navigate('path?query#hash', true);
     history.stop();
-
-    History.start();
 });
 
 
 test('Do not decode the search params.', function() {
     var newRouter = Router.extend({
             routes: {
-                path: function(params){
+                path: function(route, params){
+                    equal(route, '');
                     strictEqual(params, 'x=y z');
                 }
             }
@@ -945,7 +909,7 @@ test('Navigate to a hash url.', function() {
     history.start({pushState: true});
     var newRouter = Router.extend({
             routes: {
-                path: function(params) {
+                path: function(route, params) {
                     strictEqual(params, 'x=y');
                 }
             }
@@ -958,8 +922,6 @@ test('Navigate to a hash url.', function() {
     location.replace('http://example.com/path?x=y#hash');
     history.checkUrl();
     history.stop();
-
-    History.start();
 });
 
 test('#navigate to a hash url.', function() {
@@ -981,7 +943,7 @@ test('#navigate to a hash url.', function() {
 
     var newRouter = Router.extend({
             routes: {
-                path: function(params) {
+                path: function(route, params) {
                     strictEqual(params, 'x=y');
                 }
             }
@@ -991,8 +953,6 @@ test('#navigate to a hash url.', function() {
     var router = new newRouter;
     history.navigate('path?x=y#hash', true);
     history.stop();
-
-    History.start();
 });
 
 test('unicode pathname', 1, function() {
@@ -1012,8 +972,6 @@ test('unicode pathname', 1, function() {
     new newRouter;
     history.start({pushState: true});
     history.stop();
-
-    History.start();
 });
 
 test('newline in route', 1, function() {
@@ -1031,8 +989,6 @@ test('newline in route', 1, function() {
     new newRouter({history: history});
     history.start({pushState: true});
     history.stop();
-
-    History.start();
 });
 
 test('Router#execute receives callback, args, name.', 3, function() {
@@ -1053,15 +1009,12 @@ test('Router#execute receives callback, args, name.', 3, function() {
     var router = new newRouter;
     history.start();
     history.stop();
-
-    History.start();
 });
 
 test("pushState to hashChange with only search params.", 1, function() {
     History.stop();
     location.replace('http://example.com?a=b');
     
-    var bakReplace = location.replace;
     location.replace = function(url) {
         strictEqual(url, '/#?a=b');
     };
@@ -1073,9 +1026,6 @@ test("pushState to hashChange with only search params.", 1, function() {
     });
     history.start({pushState: true});
     history.stop();
-
-    location.replace = bakReplace;
-    History.start();
 });
 
 test("#3123 - History#navigate decodes before comparison.", 1, function() {
@@ -1093,8 +1043,6 @@ test("#3123 - History#navigate decodes before comparison.", 1, function() {
     history.navigate('shop/search?keyword=short%20dress', true);
     strictEqual(history.fragment, 'shop/search?keyword=short dress');
     history.stop();
-
-    History.start();
 });
 
 test('#3175 - Urls in the params', 1, function() {
@@ -1103,20 +1051,16 @@ test('#3175 - Urls in the params', 1, function() {
 
     var history = Utils.extend(new History.constructor, {location: location});
     var router = new Router({history: history});
-    router.route('login', function(params) {
+    router.route('login', function(route, params) {
         strictEqual(params, 'a=value&backUrl=https%3A%2F%2Fwww.msn.com%2Fidp%2Fidpdemo%3Fspid%3Dspdemo%26target%3Db');
     });
     history.start();
     history.stop();
-
-    History.start();
 });
 
 test('#3358 - pushState to hashChange transition with search params', 1, function() {
     History.stop();
     location.replace('/root?foo=bar');
-
-    var bakReplace = location.replace;
     location.replace = function(url) {
         strictEqual(url, '/root#?foo=bar');
     };
@@ -1129,13 +1073,102 @@ test('#3358 - pushState to hashChange transition with search params', 1, functio
         });
     history.start({root: '/root', pushState: true});
     history.stop();
-    location.replace = bakReplace;
-
-    History.start();
 });
 
+test('doAction', 12, function(){
 
+    History.stop();
 
+    var history = Utils.extend(new History.constructor, {
+            location: location
+        });
+
+    var appRouter = Router.extend({
+            routes: {
+                'index': 'index'      
+                , 'list/:type': 'list'
+            }
+
+            , history: history
+    
+            , index: function(action){
+                this.doAction(
+                    action
+                    , {}
+                )
+            }
+
+            , list: function(action, type, query){
+                this.doAction(
+                    action 
+                    , {
+                        type: type
+                        , query: query
+                    }
+                )
+            }
+        });
+
+    var IndexPageView = function(params, action){
+            equal(action, 'index'); 
+            this.action = action;
+        };
+
+    IndexPageView.prototype.trigger = function(event){
+        ok(/^page/.test(event));
+    };
+
+    var ListPageView = function(params, action){
+            equal(action, 'list'); 
+            this.action = action;
+        };
+
+    ListPageView.prototype.trigger = function(event){
+        ok(/^page/.test(event));
+    };
+
+    var router = new appRouter();
+    router.registerViewClass('index', IndexPageView);
+    router.registerViewClass('list', ListPageView);
+
+    location.replace('http://example.com#index');
+    history.start();
+    ok(router.currentView instanceof IndexPageView);
+    ok(router.previousView === null);
+
+    location.replace('http://example.com#list/music?a=b');
+    history.checkUrl();
+    ok(router.currentView instanceof ListPageView);
+    ok(router.previousView instanceof IndexPageView);
+    history.stop();
+});
+
+test("default handler _defaultHandler", 3, function() {
+    location.replace('http://example.com#index/music');
+    router.doAction = function(action, params){
+        deepEqual(params, {type: 'music', _query_: null});
+    };
+    History.checkUrl();
+
+    location.replace('http://example.com#index');
+    router.doAction = function(action, params){
+        deepEqual(params, {_query_: null});
+    };
+    History.checkUrl();
+
+    location.replace('http://example.com#index/basketball/p10');
+    router.doAction = function(action, params){
+        deepEqual(params, {type: 'basketball', page: "10",  _query_: null});
+    };
+    History.checkUrl();
+
+    // no callback
+    location.replace('http://example.com#index/basketball/p10/asc');
+    router.doAction = function(action, params){
+        ok(false);
+    };
+    History.checkUrl();
+});
 
 
 

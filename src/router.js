@@ -29,9 +29,26 @@ var namedParam = /(\(\?)?:\w+/g;
 var splatParam = /\*\w+/g;
 var escapeRegExp = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 
+var rParamName = /[:*](\w+)/g;
+var rDefaultHandler = /^(_defaultHandler):(\w+)$/;
+
 Utils.extend(Router.prototype, Events, {
 
-    initialize: function(){}
+    initialize: function(){
+        // References to Classes of Pageview
+        this.viewClasses = {};
+
+        // References to instances of Pageview
+        this.views = {};
+
+        // Trace pageviews involved in page switch
+        this.currentView = null;
+        this.previousView = null;
+    }
+
+    , getHistory: function(){
+        return Utils.result(this, 'history');
+    }
 
     // Manually bind a single named route to a callback. For example:
     //
@@ -45,14 +62,16 @@ Utils.extend(Router.prototype, Events, {
             callback = name;
             name = '';
         }
-        if(!callback) callback = this[name];
-        var router = this, history = Utils.result(this, 'history');
+        var special = this._parseSpecialHandler(name);
+        if(!callback) callback = this[special.handler || name];
+        var router = this, history = router.getHistory();
         history.route(route, function(fragment){
             var args = router._extractParameters(route, fragment);
-            if(router.execute(callback, args, name) !== false){
-                router.trigger.apply(router, ['route:' + name].concat(args));
-                router.trigger('route', name, args);
-                history.trigger('route', router, name, args);
+            var action = special.action || name;
+            if(router.execute(callback, args, action) !== false){
+                router.trigger.apply(router, ['route:' + action].concat(args));
+                router.trigger('route', action, args);
+                history.trigger('route', router, action, args);
             }
         });
         return this;
@@ -61,20 +80,59 @@ Utils.extend(Router.prototype, Events, {
     // Execute a route handler with the provided parameters.  This is an
     // excellent place to do pre-route setup or post-route cleanup.
     , execute: function(callback, args, name){
-        if(callback) callback.apply(this, args);
+        if(callback) callback.apply(this, [ name ].concat(args));
     }
 
     , navigate: function(fragment, options){
-        Utils.result(this, 'history')
+        this.getHistory()
             .navigate(fragment, options);
         return this;
+    }
+
+    , start: function(){
+        this.history.start.apply(this.history, arguments);
+        return this;
+    }
+
+    /**
+     * Parse route config as below:
+     *   routes: {
+     *       "index/:type" : "_defaultHandler:index"
+     *   }
+     *
+     * Returns: { handler: "_defaultHandler", action: "index" }
+     */
+    , _parseSpecialHandler: function(handler){
+        var a, b;
+        if(!Utils.isFunction(handler) 
+            && rDefaultHandler.test(handler)){
+            a = RegExp.$1; 
+            b = RegExp.$2; 
+        }
+
+        return {
+            handler: a
+            , action: b
+        };
     }
 
     , _bindRoutes: function(){
         if(!this.routes) return;
         this.routes = Utils.result(this, 'routes');
+        this.paramNames = {};
         var route, routes = Utils.keys(this.routes);
         while((route = routes.pop()) != null){
+            var names = [];
+            route.replace(rParamName, function($0, $1){
+                names.push($1); 
+            });
+            var action = this.routes[route];
+            if(Utils.isFunction(action)) action = '';
+            var special = this._parseSpecialHandler(action);
+            action = special.action || action;
+            // There may be more than one routes mapping to the same action
+            this.paramNames[action] || (this.paramNames[action] = []);
+            this.paramNames[action].push(names);
             this.route(route, this.routes[route]);
         }
     }
@@ -98,6 +156,164 @@ Utils.extend(Router.prototype, Events, {
             return param ? decodeURIComponent(param) : null;
         });
     }
+
+    , _getViewClass: function(action){
+        return this.viewClasses[action];
+    }
+
+    , registerViewClass: function(action, viewClass){
+        if(Utils.isEmpty(action) || !Utils.isFunction(viewClass)) return;
+        this.viewClasses[action] = viewClass;
+        return this;
+    }
+
+    , pageOrder: []
+
+    /**
+     * Config of page transition
+     * 
+     * The config is a list of key-value, which the key is pattern `"action-action"` and
+     * the value is the name of animation to be taken. 
+     *      pageTransition: {
+     *          'index-search': 'fade'
+     *          , 'index-page': 'slide'
+     *      } 
+     */
+    , pageTransition: {}
+
+    , defaultPageTransition: 'simple'
+
+    , registerPageTransition: function(pattern, animate){
+    }
+
+    , _selectParamNames: function(action, args){
+        var arr = this.paramNames[action], i = 0, names = [];
+        while(i < arr.length){
+            if(arr[i].length + 1 == args.length){
+                names = arr[i];
+                break;
+            }
+            i++;
+        } 
+        return names;
+    }
+
+    , _defaultHandler: function(){
+        var args = Utils.map(arguments, function(item){
+                return item;
+            });
+        var action = args.shift();
+        var params = {}, names = this._selectParamNames(action, args); 
+        if(names.length + 1 == args.length){
+            for(var i=0; i < names.length; i++){
+                params[names[i]] = args[i];
+            } 
+            params['_query_'] = args[i];
+        }
+        this.doAction(action, params);
+    }
+
+    , doAction: function(action, params){
+        var me = this, view = me.views[action];
+
+        if(!view){
+            var cls = me._getViewClass(action);
+            view = me.views[action]
+                = new cls(params, action, me);
+        }
+
+        me.previousView = me.currentView;
+        me.currentView = view;
+
+        me.trigger('routechange', {
+            from: me.previousView
+            , to: me.currentView
+        });
+
+        me.switchPage(me.previousView, me.currentView, params);
+    }
+
+    , switchPage: function(from, to, params){
+        var me = this,
+            dir = 0, order = me.pageOrder,
+            fromAction = from && from.action || null,
+            toAction = to && to.action || null,
+            fromIndex, toIndex;
+
+        // Get direction of page switch
+        //    0 - no direction
+        //    1 - left
+        //    2 - right
+        if(fromAction !== null && null !== toAction && fromAction !== toAction){
+            if(-1 != ( fromIndex = order.indexOf( fromAction ) )
+                && -1 != ( toIndex = order.indexOf( toAction ) ) ){
+                dir = fromIndex > toIndex ? 2 : 1;
+            }
+        }
+
+        // Save page position when `"enablePositionRestore"` is on
+        me.enablePositionRestore && from && from.savePos();
+
+        $.each(from == to ? [from] : [from, to], function(key, item){
+            item && item.trigger('pagebeforechange', {
+                from: me.previousView, 
+                to: me.currentView,
+                params: params 
+            });
+        });        
+
+        me.doAnimation(
+            from,
+            to,
+            dir,
+            function(){
+                // Restore page position when `"enablePositionRestore"` is on
+                me.enablePositionRestore && to && (to.restorePos(params));
+
+                $.each(from == to ? [from] : [from, to], function(key, item){
+                    item && item.trigger(
+                        'pageafterchange', {
+                            from: me.previousView, 
+                            to: me.currentView,
+                            params: params 
+                        });
+                });
+            }
+        );
+
+    }
+
+    , doAnimation: function(fromView, toView, direction, callback){
+        var animate, me = this;
+        
+        animate = me._selectAnimation(
+                fromView && fromView.action || null, 
+                toView && toView.action || null
+            ) || Animation.get(me.defaultPageTransition);
+
+        animate(
+            fromView && fromView.el, 
+            toView && toView.el, 
+            direction,
+            callback
+        );
+    }
+
+    , _selectAnimation: function(fromAction, toAction){
+
+        if(null == fromAction || null == toAction){
+            return;
+        }
+
+        var me = this,
+            animateName;
+
+        animateName = me.pageTransition[fromAction + '-' + toAction]
+            || me.pageTransition[toAction + '-' + fromAction];
+
+        return Animation.get(animateName); 
+    }
+
 
 
 });

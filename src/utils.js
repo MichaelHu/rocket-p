@@ -1,4 +1,4 @@
-var Utils = (function(){
+var _Utils = (function(){
 
 var toString = Object.prototype.toString;
 
@@ -264,7 +264,7 @@ function _cb(value, context, argCount){
 
 function map(obj, iteratee, context){
     if(obj == null) return [];
-    iteratee = _cb(iteratee, context); 
+    iteratee = _cb(iteratee, context);
     var keys = obj.length !== +obj.length && _keys(obj),
         length = (keys || obj).length,
         results = Array(length),
@@ -408,7 +408,7 @@ var methodMap = {
     , 'patch': 'PATCH'
     , 'delete': 'DELETE'
     , 'read': 'GET'
-}; 
+};
 
 function ajax(){
     return $.ajax.apply($, arguments);
@@ -483,7 +483,7 @@ function sync(method, model, options){
 
     syncArgs.ajaxData = params.data;
 
-    var xhr = options.xhr 
+    var xhr = options.xhr
         = Utils.ajax(extend(params, options));
     model.trigger('request', model, xhr, options);
     return xhr;
@@ -494,6 +494,115 @@ function urlError(){
 }
 
 
+function getRealDisplayInfo(el){
+    var $el = $(el), el = $el.get(0);
+    if($el.css('display') == 'none'){
+        return 'none';
+    }
+
+    var c = el, p = c.parentNode;
+    while(p && p.nodeType == 1){
+        if(p.style.display == 'none'){
+            return 'none';
+        }
+        c = p;
+        p = c.parentNode;
+    }
+    return $el.css('display');
+}
+
+function isReallyDisplay(el){
+    return getRealDisplayInfo(el) != 'none';
+}
+
+
+
+
+var tip = (function(){
+
+    var tipTimer, tipBusy;
+
+    /**
+     * @param {string} text
+     * @param {0=2} xpos: 0-center, 1-left, 2-right 
+     * @param {0=2} ypos: 0-middle, 1-top, 2-bottom 
+     * @param {number} duration: time(ms) to show
+     */
+    function _tip(text, xpos, ypos, duration/*ms*/){
+
+        var $tip = $(".global-tip"),
+            contHeight = $(window).height();
+
+        duration = duration || 1500;
+        
+        if($tip.length == 0){
+            $tip = $('<div class="global-tip"><span></span></div>');
+            $('body').prepend($tip);
+        }
+
+        // New tip is always processed
+        if(tipBusy){
+            if(tipTimer){
+                clearTimeout(tipTimer);
+            }
+        }
+
+        tipBusy = true;
+
+        $tip.find("span").text(text);
+
+        switch(xpos){
+            case 0:
+                $tip.css('text-align', 'center');
+                break;
+            case 1:
+                $tip.css('text-align', 'left');
+                break;
+            case 2:
+                $tip.css('text-align', 'right');
+                break;
+        }
+
+        switch(ypos){
+            case 0:
+                $tip.css('top', contHeight / 2 + 'px');
+                break;
+            case 1:
+                $tip.css('top', '10px');
+                break;
+            case 2:
+                $tip.css('bottom', '10px');
+                break;
+        }
+
+        // Stop the animation and restore to the initial state
+        $tip.css({"-webkit-transition": "none", "opacity":1});
+        $tip.show();
+
+        tipTimer = setTimeout(function(){
+            /**
+             * When several tips need to show at almost the same time,  
+             * the previous animation will be stopped and a new one be started,
+             * then the animation callback may not be invoked to restore to initial
+             * state.     
+             */
+            $tip.animate({"opacity":0}, 300, "", function(){
+                $tip.hide();
+                $tip.css({"-webkit-transition": "none", "opacity":1});
+                tipBusy = false;
+            });
+        }, duration);
+
+    }
+
+    return _tip;
+
+})();
+
+
+
+
+
 return {
     isObject: isObject
     , isFunction: isFunction
@@ -501,6 +610,7 @@ return {
     , isEqual: isEqual
     , isEmpty: isEmpty
     , isRegExp: isRegExp
+
     , keys: _keys
     , defaults: defaults
     , extend: extend
@@ -517,7 +627,12 @@ return {
     , ajax: ajax
     , sync: sync
     , syncArgs: syncArgs
+
+    , tip: tip
+    , isReallyDisplay: isReallyDisplay
 };
 
 
 })();
+
+Utils = _Utils.extend(_, _Utils);

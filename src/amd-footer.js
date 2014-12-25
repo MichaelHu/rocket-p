@@ -9,6 +9,12 @@ Utils.extend(
         , Router: Router
         , Utils: Utils
         , extend: classExtend
+        , PageView: PageView
+        , SubView: SubView
+        , GlobalView: GlobalView
+        , SubpageView: SubpageView
+        , SubpageManager: SubpageManager
+        , Animation: Animation
     }
 );
 
