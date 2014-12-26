@@ -9,6 +9,12 @@ var AppRouter = Rocket.Router.extend({
         , 'sayhello': '_defaultHandler:sayhello'
     }
 
+    , pageOrder: ['index', 'sayhello']
+
+    , pageTransition: {
+        'index-sayhello': 'slideeasingLR'
+    }
+
 });
 
 

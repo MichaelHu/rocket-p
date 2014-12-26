@@ -2745,6 +2745,7 @@ SubpageManager.extend = classExtend;
 ;var Animation = (function(){
 
 var animations = {};
+var isAnimating = false;
 
 function register(name, func){
     if(!Utils.isString(name) || name.length == 0){
@@ -2762,9 +2763,77 @@ function get(name){
     return animations[name];
 }
 
+function pageTransition(inPage, outPage, inClass, outClass){
+
+    var outPageEnd,
+        inPageEnd,
+        animationComplete,
+        $inPage = $(inPage),
+        $outPage = $(outPage)
+        ;
+
+    if(isAnimating){
+        return;
+    }
+    isAnimating = true;
+
+    outPageEnd = inPageEnd = false;
+    animationComplete = false;
+
+    $outPage
+        .data('original-classes', $outPage.attr('class'))
+        .addClass(outClass)
+        .on('webkitAnimationEnd', function(e){
+            outPageEnd = true;
+            if(inPageEnd){
+                afterAnimation();
+            }   
+        }); 
+
+    $inPage
+        .show()
+        .data('original-classes', $inPage.attr('class'))
+        .addClass(inClass)
+        .on('webkitAnimationEnd', function(e){
+            inPageEnd = true;
+            if(outPageEnd){
+                afterAnimation();
+            }   
+        }); 
+
+
+    // afterAnimation may not be called in case of fast swipe
+    setTimeout(function(){
+        if(!animationComplete){
+            afterAnimation();
+        }
+    }, 2000);
+
+
+    function beforeAnimation(){
+    }
+
+
+    function afterAnimation(){
+        animationComplete = true;
+
+        $outPage.hide()
+            .attr('class', $outPage.data('original-classes') || null)
+            .off('webkitAnimationEnd');
+
+        $inPage
+            .attr('class', $inPage.data('original-classes') || null)
+            .off('webkitAnimationEnd');
+
+        isAnimating = false;
+    }
+
+}
+
 return {
     register: register
     , get: get
+    , pageTransition: pageTransition
 };
 
 
@@ -2789,6 +2858,1238 @@ function simple(currentEle, nextEle, dir, callback) {
 Animation.register('simple', simple);
 
 })();
+
+;(function(){
+
+function slideLR(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-moveToLeft', 
+        inClass = 'pt-page-moveFromRight'
+        ;
+
+    if(2 == dir){
+        outClass = 'pt-page-moveToRight'; 
+        inClass = 'pt-page-moveFromLeft';
+    }
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('slideLR', slideLR);
+
+})();
+
+;(function(){
+
+function slideTB(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-moveToTop', 
+        inClass = 'pt-page-moveFromBottom'
+        ;
+
+    if(2 == dir){
+        outClass = 'pt-page-moveToBottom'; 
+        inClass = 'pt-page-moveFromTop';
+    }
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('slideTB', slideTB);
+
+})();
+
+
+;(function(){
+
+function slidefadeLR(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-moveToLeftFade', 
+        inClass = 'pt-page-moveFromRightFade'
+        ;
+
+    if(2 == dir){
+        outClass = 'pt-page-moveToRightFade'; 
+        inClass = 'pt-page-moveFromLeftFade';
+    }
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('slidefadeLR', slidefadeLR);
+
+})();
+
+
+;(function(){
+
+function slidefadeTB(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-moveToTopFade', 
+        inClass = 'pt-page-moveFromBottomFade'
+        ;
+
+    if(2 == dir){
+        outClass = 'pt-page-moveToBottomFade'; 
+        inClass = 'pt-page-moveFromTopFade';
+    }
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('slidefadeTB', slidefadeTB);
+
+})();
+
+
+;(function(){
+
+function fadeslideLR(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-fade', 
+        inClass = 'pt-page-moveFromRight pt-page-ontop'
+        ;
+
+    if(2 == dir){
+        outClass = 'pt-page-fade'; 
+        inClass = 'pt-page-moveFromLeft pt-page-ontop';
+    }
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('fadeslideLR', fadeslideLR);
+
+})();
+
+
+;(function(){
+
+function fadeslideTB(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-fade', 
+        inClass = 'pt-page-moveFromBottom pt-page-ontop'
+        ;
+
+    if(2 == dir){
+        outClass = 'pt-page-fade'; 
+        inClass = 'pt-page-moveFromTop pt-page-ontop';
+    }
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('fadeslideTB', fadeslideTB);
+
+})();
+
+
+;(function(){
+
+function slideeasingLR(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-moveToLeftEasing pt-page-ontop', 
+        inClass = 'pt-page-moveFromRight'
+        ;
+
+    if(2 == dir){
+        outClass = 'pt-page-moveToRightEasing pt-page-ontop'; 
+        inClass = 'pt-page-moveFromLeft';
+    }
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('slideeasingLR', slideeasingLR);
+
+})();
+
+
+;(function(){
+
+function slideeasingTB(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-moveToTopEasing pt-page-ontop', 
+        inClass = 'pt-page-moveFromBottom'
+        ;
+
+    if(2 == dir){
+        outClass = 'pt-page-moveToBottomEasing pt-page-ontop'; 
+        inClass = 'pt-page-moveFromTop';
+    }
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('slideeasingTB', slideeasingTB);
+
+})();
+
+
+;(function(){
+
+function slidescaleupLR(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-moveToLeft pt-page-ontop', 
+        inClass = 'pt-page-scaleUp'
+        ;
+
+    if(2 == dir){
+        outClass = 'pt-page-moveToRight pt-page-ontop'; 
+        inClass = 'pt-page-scaleUp';
+    }
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('slidescaleupLR', slidescaleupLR);
+
+})();
+
+
+;(function(){
+
+function slidescaleupTB(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-moveToTop pt-page-ontop', 
+        inClass = 'pt-page-scaleUp'
+        ;
+
+    if(2 == dir){
+        outClass = 'pt-page-moveToBottom pt-page-ontop'; 
+        inClass = 'pt-page-scaleUp';
+    }
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('slidescaleupTB', slidescaleupTB);
+
+})();
+
+
+;(function(){
+
+function scaledownslideLR(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-scaleDown', 
+        inClass = 'pt-page-moveFromRight pt-page-ontop'
+        ;
+
+    if(2 == dir){
+        outClass = 'pt-page-scaleDown'; 
+        inClass = 'pt-page-moveFromLeft pt-page-ontop';
+    }
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('scaledownslideLR', scaledownslideLR);
+
+})();
+
+
+;(function(){
+
+function scaledownslideTB(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-scaleDown', 
+        inClass = 'pt-page-moveFromBottom pt-page-ontop'
+        ;
+
+    if(2 == dir){
+        outClass = 'pt-page-scaleDown'; 
+        inClass = 'pt-page-moveFromTop pt-page-ontop';
+    }
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('scaledownslideTB', scaledownslideTB);
+
+})();
+
+
+;(function(){
+
+function flipLR(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-flipOutLeft', 
+        inClass = 'pt-page-flipInRight pt-page-delay500'
+        ;
+
+    if(2 == dir){
+        outClass = 'pt-page-flipOutRight'; 
+        inClass = 'pt-page-flipInLeft pt-page-delay500';
+    }
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('flipLR', flipLR);
+
+})();
+
+;(function(){
+
+function flipTB(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-flipOutTop', 
+        inClass = 'pt-page-flipInBottom pt-page-delay500'
+        ;
+
+    if(2 == dir){
+        outClass = 'pt-page-flipOutBottom'; 
+        inClass = 'pt-page-flipInTop pt-page-delay500';
+    }
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('flipTB', flipTB);
+
+})();
+
+;(function(){
+
+function scaledownscaleupdown(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-scaleDown', 
+        inClass = 'pt-page-scaleUpDown pt-page-delay300'
+        ;
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('scaledownscaleupdown', scaledownscaleupdown);
+
+})();
+
+
+;(function(){
+
+function scaledownupscaleup(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-scaleDownUp', 
+        inClass = 'pt-page-scaleUp pt-page-delay300'
+        ;
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('scaledownupscaleup', scaledownupscaleup);
+
+})();
+
+
+;(function(){
+
+function rotatefallscaleup(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-rotateFall pt-page-ontop', 
+        inClass = 'pt-page-scaleUp'
+        ;
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('rotatefallscaleup', rotatefallscaleup);
+
+})();
+
+
+;(function(){
+
+function rotatenewspaper(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-rotateOutNewspaper', 
+        inClass = 'pt-page-rotateInNewspaper pt-page-delay500'
+        ;
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('rotatenewspaper', rotatenewspaper);
+
+})();
+
+
+;(function(){
+
+function rotateslide(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-rotateSlideOut',
+        inClass = 'pt-page-rotateSlideIn'
+        ;
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('rotateslide', rotateslide);
+
+})();
+
+
+;(function(){
+
+function rotateslidedelay(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-rotateSlideOut',
+        inClass = 'pt-page-rotateSlideIn pt-page-delay200'
+        ;
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('rotateslidedelay', rotateslidedelay);
+
+})();
+
+
+;(function(){
+
+function scaledowncenterscaleupcenter(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-scaleDownCenter', 
+        inClass = 'pt-page-scaleUpCenter pt-page-delay400'
+        ;
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('scaledowncenterscaleupcenter', scaledowncenterscaleupcenter);
+
+})();
+
+
+;(function(){
+
+function rotateslideLR(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-rotateRightSideFirst', 
+        inClass = 'pt-page-moveFromRight pt-page-delay200 pt-page-ontop'
+        ;
+
+    if(2 == dir){
+        outClass = 'pt-page-rotateLeftSideFirst'; 
+        inClass = 'pt-page-moveFromLeft pt-page-delay200 pt-page-ontop';
+    }
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('rotateslideLR', rotateslideLR);
+
+})();
+
+
+;(function(){
+
+function rotateslideTB(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-rotateBottomSideFirst', 
+        inClass = 'pt-page-moveFromBottom pt-page-delay200 pt-page-ontop'
+        ;
+
+    if(2 == dir){
+        outClass = 'pt-page-rotateTopSideFirst'; 
+        inClass = 'pt-page-moveFromTop pt-page-delay200 pt-page-ontop';
+    }
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('rotateslideTB', rotateslideTB);
+
+})();
+
+
+;(function(){
+
+function rotatepushslideLR(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-rotatePushLeft', 
+        inClass = 'pt-page-moveFromRight'
+        ;
+
+    if(2 == dir){
+        outClass = 'pt-page-rotatePushRight'; 
+        inClass = 'pt-page-moveFromLeft';
+    }
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('rotatepushslideLR', rotatepushslideLR);
+
+})();
+
+
+;(function(){
+
+function rotatepushslideTB(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-rotatePushTop', 
+        inClass = 'pt-page-moveFromBottom'
+        ;
+
+    if(2 == dir){
+        outClass = 'pt-page-rotatePushBottom'; 
+        inClass = 'pt-page-moveFromTop';
+    }
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('rotatepushslideTB', rotatepushslideTB);
+
+})();
+
+
+;(function(){
+
+function rotateroomLR(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-rotateRoomLeftOut pt-page-ontop', 
+        inClass = 'pt-page-rotateRoomLeftIn'
+        ;
+
+    if(2 == dir){
+        outClass = 'pt-page-rotateRoomRightOut pt-page-ontop'; 
+        inClass = 'pt-page-rotateRoomRightIn';
+    }
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('rotateroomLR', rotateroomLR);
+
+})();
+
+
+
+;(function(){
+
+function rotateroomTB(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-rotateRoomTopOut pt-page-ontop', 
+        inClass = 'pt-page-rotateRoomTopIn'
+        ;
+
+    if(2 == dir){
+        outClass = 'pt-page-rotateRoomBottomOut pt-page-ontop'; 
+        inClass = 'pt-page-rotateRoomBottomIn';
+    }
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('rotateroomTB', rotateroomTB);
+
+})();
+
+
+
+;(function(){
+
+function rotatecubeLR(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-rotateCubeLeftOut pt-page-ontop', 
+        inClass = 'pt-page-rotateCubeLeftIn'
+        ;
+
+    if(2 == dir){
+        outClass = 'pt-page-rotateCubeRightOut pt-page-ontop'; 
+        inClass = 'pt-page-rotateCubeRightIn';
+    }
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('rotatecubeLR', rotatecubeLR);
+
+})();
+
+
+
+;(function(){
+
+function rotatecubeTB(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-rotateCubeTopOut pt-page-ontop', 
+        inClass = 'pt-page-rotateCubeTopIn'
+        ;
+
+    if(2 == dir){
+        outClass = 'pt-page-rotateCubeBottomOut pt-page-ontop'; 
+        inClass = 'pt-page-rotateCubeBottomIn';
+    }
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('rotatecubeTB', rotatecubeTB);
+
+})();
+
+
+
+;(function(){
+
+function rotatecarouselTB(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-rotateCarouselTopOut pt-page-ontop', 
+        inClass = 'pt-page-rotateCarouselTopIn'
+        ;
+
+    if(2 == dir){
+        outClass = 'pt-page-rotateCarouselBottomOut pt-page-ontop'; 
+        inClass = 'pt-page-rotateCarouselBottomIn';
+    }
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('rotatecarouselTB', rotatecarouselTB);
+
+})();
+
+
+
+;(function(){
+
+function rotatecarouselLR(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-rotateCarouselLeftOut pt-page-ontop', 
+        inClass = 'pt-page-rotateCarouselLeftIn'
+        ;
+
+    if(2 == dir){
+        outClass = 'pt-page-rotateCarouselRightOut pt-page-ontop'; 
+        inClass = 'pt-page-rotateCarouselRightIn';
+    }
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('rotatecarouselLR', rotatecarouselLR);
+
+})();
+
+
+
+;(function(){
+
+function rotatefoldmovefadeLR(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-rotateFoldLeft', 
+        inClass = 'pt-page-moveFromRightFade'
+        ;
+
+    if(2 == dir){
+        outClass = 'pt-page-rotateFoldRight'; 
+        inClass = 'pt-page-moveFromLeftFade';
+    }
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('rotatefoldmovefadeLR', rotatefoldmovefadeLR);
+
+})();
+
+
+
+;(function(){
+
+function rotatefoldmovefadeTB(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-rotateFoldTop', 
+        inClass = 'pt-page-moveFromBottomFade'
+        ;
+
+    if(2 == dir){
+        outClass = 'pt-page-rotateFoldBottom'; 
+        inClass = 'pt-page-moveFromTopFade';
+    }
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('rotatefoldmovefadeTB', rotatefoldmovefadeTB);
+
+})();
+
+
+
+;(function(){
+
+function movefaderotateunfoldLR(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-moveToLeftFade', 
+        inClass = 'pt-page-rotateUnfoldRight'
+        ;
+
+    if(2 == dir){
+        outClass = 'pt-page-moveToRightFade'; 
+        inClass = 'pt-page-rotateUnfoldLeft';
+    }
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('movefaderotateunfoldLR', movefaderotateunfoldLR);
+
+})();
+
+
+
+;(function(){
+
+function movefaderotateunfoldTB(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-moveToTopFade', 
+        inClass = 'pt-page-rotateUnfoldBottom'
+        ;
+
+    if(2 == dir){
+        outClass = 'pt-page-moveToBottomFade'; 
+        inClass = 'pt-page-rotateUnfoldTop';
+    }
+
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+
+};
+
+Animation.register('movefaderotateunfoldTB', movefaderotateunfoldTB);
+
+})();
+
+
 
 ;
 Utils.extend(
