@@ -12,7 +12,7 @@ var AppRouter = Rocket.Router.extend({
     , pageOrder: ['index', 'sayhello']
 
     , pageTransition: {
-        'index-sayhello': 'slideeasingLR'
+        'index-sayhello': 'slideLR'
     }
 
 });

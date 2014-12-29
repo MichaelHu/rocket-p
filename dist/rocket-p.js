@@ -2746,6 +2746,7 @@ SubpageManager.extend = classExtend;
 
 var animations = {};
 var isAnimating = false;
+var lastAnimationCleanUP = null;
 
 function register(name, func){
     if(!Utils.isString(name) || name.length == 0){
@@ -2772,10 +2773,14 @@ function pageTransition(inPage, outPage, inClass, outClass){
         $outPage = $(outPage)
         ;
 
-    if(isAnimating){
-        return;
+    // If a new animation start, the current active (if exists) animation
+    // should be stopped
+    while(isAnimating){
+        lastAnimationCleanUp
+            && lastAnimationCleanUp();
     }
     isAnimating = true;
+    lastAnimationCleanUp = afterAnimation;
 
     outPageEnd = inPageEnd = false;
     animationComplete = false;
