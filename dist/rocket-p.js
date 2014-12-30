@@ -2785,20 +2785,10 @@ function pageTransition(inPage, outPage, inClass, outClass){
     outPageEnd = inPageEnd = false;
     animationComplete = false;
 
-    $outPage
-        .data('original-classes', $outPage.attr('class'))
-        .addClass(outClass)
-        .on('webkitAnimationEnd', function(e){
-            outPageEnd = true;
-            if(inPageEnd){
-                afterAnimation();
-            }   
-        }); 
+    $inPage[0].style.display = 'block';
 
     $inPage
-        .show()
         .data('original-classes', $inPage.attr('class'))
-        .addClass(inClass)
         .on('webkitAnimationEnd', function(e){
             inPageEnd = true;
             if(outPageEnd){
@@ -2806,13 +2796,40 @@ function pageTransition(inPage, outPage, inClass, outClass){
             }   
         }); 
 
+    $outPage
+        .data('original-classes', $outPage.attr('class'))
+        .on('webkitAnimationEnd', function(e){
+            outPageEnd = true;
+            if(inPageEnd){
+                afterAnimation();
+            }   
+        }); 
 
-    // afterAnimation may not be called in case of fast swipe
     setTimeout(function(){
-        if(!animationComplete){
-            afterAnimation();
-        }
-    }, 2000);
+
+        $inPage
+            .addClass(inClass)
+            ;
+
+        setTimeout(function(){
+
+            $outPage
+                .addClass(outClass)
+                ;
+
+            // afterAnimation may not be called in case of fast swipe
+            setTimeout(function(){
+                if(!animationComplete){
+                    afterAnimation();
+                }
+            }, 1000);
+
+        }, 0);
+
+
+    }, 0);
+
+
 
 
     function beforeAnimation(){
@@ -3876,6 +3893,46 @@ Animation.register('rotatecubeTB', rotatecubeTB);
 
 ;(function(){
 
+function rotatecarouselLR(currentEle, nextEle, dir, callback) {
+    var $currentEle = currentEle && $(currentEle),
+        $nextEle = nextEle && $(nextEle);
+
+    if(0 == dir){
+        if(currentEle != nextEle){
+            currentEle && $currentEle.hide();
+            setTimeout(function(){
+                nextEle && $nextEle.show();
+            }, 0);
+        }
+
+        callback && callback();
+        return;
+    }
+
+    var outClass = 'pt-page-rotateCarouselLeftOut pt-page-ontop', 
+        inClass = 'pt-page-rotateCarouselLeftIn'
+        ;
+
+    if(2 == dir){
+        outClass = 'pt-page-rotateCarouselRightOut pt-page-ontop'; 
+        inClass = 'pt-page-rotateCarouselRightIn';
+    }
+
+    setTimeout(function(){
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+    }, 10);
+
+};
+
+Animation.register('rotatecarouselLR', rotatecarouselLR);
+
+})();
+
+
+
+
+;(function(){
+
 function rotatecarouselTB(currentEle, nextEle, dir, callback) {
     var $currentEle = currentEle && $(currentEle),
         $nextEle = nextEle && $(nextEle);
@@ -3906,43 +3963,6 @@ function rotatecarouselTB(currentEle, nextEle, dir, callback) {
 };
 
 Animation.register('rotatecarouselTB', rotatecarouselTB);
-
-})();
-
-
-
-;(function(){
-
-function rotatecarouselLR(currentEle, nextEle, dir, callback) {
-    var $currentEle = currentEle && $(currentEle),
-        $nextEle = nextEle && $(nextEle);
-
-    if(0 == dir){
-        if(currentEle != nextEle){
-            currentEle && $currentEle.hide();
-            setTimeout(function(){
-                nextEle && $nextEle.show();
-            }, 0);
-        }
-
-        callback && callback();
-        return;
-    }
-
-    var outClass = 'pt-page-rotateCarouselLeftOut pt-page-ontop', 
-        inClass = 'pt-page-rotateCarouselLeftIn'
-        ;
-
-    if(2 == dir){
-        outClass = 'pt-page-rotateCarouselRightOut pt-page-ontop'; 
-        inClass = 'pt-page-rotateCarouselRightIn';
-    }
-
-    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
-
-};
-
-Animation.register('rotatecarouselLR', rotatecarouselLR);
 
 })();
 

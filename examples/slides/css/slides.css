@@ -17,7 +17,7 @@
     right:0;
     bottom:0;
 
-    overflow: hidden;
+    overflow: scroll;
 
     /*最低高度，确保即使没内容，loading也可以展示，同时能遮住下方内容*/
     /*
@@ -25,8 +25,10 @@
     */
 
     /*阻止文本选中*/
+    /*
     -webkit-user-select:none;
     -moz-user-select:none;
+    */
 
     background-color: #fff;
     text-align: center;
@@ -43,7 +45,6 @@
 
 .slide img {
     max-width: 100%;
-    max-height: 100%;
 }
 
 #slide1 { background-color: #993; }

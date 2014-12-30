@@ -4,12 +4,12 @@
 var AppRouter = Rocket.Router.extend({
 
     routes: {
-        '': '_defaultHandler:slide1'
-        , 'gslide1': '_defaultHandler:slide1'
+        'gslide1': '_defaultHandler:slide1'
         , 'gslide2': '_defaultHandler:slide2'
         , 'gslide3': '_defaultHandler:slide3'
         , 'gslide4': '_defaultHandler:slide4'
         , 'gslide5': '_defaultHandler:slide5'
+        , '*default': '_defaultHandler:slide1'
     }
 
     , pageOrder: [
@@ -20,12 +20,17 @@ var AppRouter = Rocket.Router.extend({
         , 'slide5'
     ]
 
+    , defaultPageTransition: 'rotatecubeLR'
+    // , defaultPageTransition: 'rotatenewspaper'
+    // , defaultPageTransition: 'rotatecarouselLR'
+    // , defaultPageTransition: 'slideLR'
+
     , pageTransition: {
-        'slide1-slide2': 'slideLR'
-        , 'slide2-slide3': 'rotatecarouselLR'
-        , 'slide3-slide4': 'slideeasingLR'
-        , 'slide4-slide5': 'rotatefallscaleup'
-        , 'slide5-slide1': 'scaledownupscaleup'
+        // 'slide1-slide2': 'slideLR'
+        // , 'slide2-slide3': 'rotatecarouselLR'
+        // , 'slide3-slide4': 'slideeasingLR'
+        // , 'slide4-slide5': 'rotatefallscaleup'
+        // , 'slide5-slide1': 'scaledownupscaleup'
     }
 
 });

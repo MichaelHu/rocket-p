@@ -4,9 +4,8 @@
 var AppRouter = Rocket.Router.extend({
 
     routes: {
-        '': '_defaultHandler:index'
-        , 'index': '_defaultHandler:index'
-        , 'sayhello': '_defaultHandler:sayhello'
+        'sayhello': '_defaultHandler:sayhello'
+        , '*default': '_defaultHandler:index'
     }
 
     , pageOrder: ['index', 'sayhello']

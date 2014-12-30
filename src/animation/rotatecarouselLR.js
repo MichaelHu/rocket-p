@@ -1,6 +1,6 @@
 (function(){
 
-function rotatecarouselTB(currentEle, nextEle, dir, callback) {
+function rotatecarouselLR(currentEle, nextEle, dir, callback) {
     var $currentEle = currentEle && $(currentEle),
         $nextEle = nextEle && $(nextEle);
 
@@ -16,21 +16,22 @@ function rotatecarouselTB(currentEle, nextEle, dir, callback) {
         return;
     }
 
-    var outClass = 'pt-page-rotateCarouselTopOut pt-page-ontop', 
-        inClass = 'pt-page-rotateCarouselTopIn'
+    var outClass = 'pt-page-rotateCarouselLeftOut pt-page-ontop', 
+        inClass = 'pt-page-rotateCarouselLeftIn'
         ;
 
     if(2 == dir){
-        outClass = 'pt-page-rotateCarouselBottomOut pt-page-ontop'; 
-        inClass = 'pt-page-rotateCarouselBottomIn';
+        outClass = 'pt-page-rotateCarouselRightOut pt-page-ontop'; 
+        inClass = 'pt-page-rotateCarouselRightIn';
     }
 
     Animation.pageTransition(nextEle, currentEle, inClass, outClass);
 
 };
 
-Animation.register('rotatecarouselTB', rotatecarouselTB);
+Animation.register('rotatecarouselLR', rotatecarouselLR);
 
 })();
+
 
 
