@@ -1,0 +1,113 @@
+(function(){
+
+var SLIDES_COUNT = 21;
+
+
+var AppRouter = Rocket.Router.extend({
+
+    routes: function(){
+        var rs = {};
+        for(var i=1; i<=SLIDES_COUNT; i++){
+            rs['gslide' + i] = '_defaultHandler:slide' + i;
+        }
+        rs['*default'] = '_defaultHandler:slide1';
+        return rs;
+    }
+
+    , pageOrder: function(){
+        var order = [];
+        for(var i=1; i<=SLIDES_COUNT; i++){
+            order.push('slide' + i);
+        }
+        return order;
+    }
+
+    , defaultPageTransition: 'rotatecubeTB'
+    // , defaultPageTransition: 'rotatecubeLR'
+    // , defaultPageTransition: 'rotatenewspaper'
+    // , defaultPageTransition: 'rotatecarouselLR'
+    // , defaultPageTransition: 'slideLR'
+
+    , pageTransition: function(){
+        var trans = {};
+        trans['slide' + SLIDES_COUNT + '-slide1']
+            = 'scaledownupscaleup'; 
+        return trans;
+    }
+
+});
+
+
+
+var pageViews = {},
+    ids = [];
+
+for(var i=1; i<22; i++) ids.push('slide' + i);
+
+$.each(
+    ids
+    , function(index, item){
+        pageViews[item] = Rocket.PageView.extend({
+
+            el: '#' + item
+
+            , events: {
+                'swipeDown': 'onswipeDown'
+                , 'swipeUp': 'onswipeUp'
+            }
+
+            , init: function(){
+                this.append(
+                    new TextSubView(
+                        {
+                            pos: {
+                                top: 100
+                                , left: 50
+                            }
+                            , size: {
+                                height: 30
+                                , width: 200
+                            }
+                            , text: {
+                                lineHeight: '36px'
+                                , color: '#fff'
+                                , textAlign: 'center'
+                                , fontSize: '26px'
+                            }
+                        }
+                        , this
+                    )
+                    , true
+                );
+            }
+
+            , onswipeUp: function(e){
+                var id = ( /slide(\d+)/.test(item), RegExp.$1 ) || 1;
+                this.navigate('gslide' + ( id % ids.length + 1 ) ); 
+            }
+
+            , onswipeDown: function(e){
+                var id = ( /slide(\d+)/.test(item), RegExp.$1 ) || 1;
+                this.navigate('gslide' + ( id % ids.length - 1 || 1 ) ); 
+            }
+
+        });
+    }
+);
+
+
+var appRouter = new AppRouter();
+
+$.each(pageViews, function(key, item){
+    appRouter.registerViewClass(key, item);
+});
+
+var globalPanel = new PanelGlobalView(null, appRouter);
+
+appRouter.start();
+    
+
+
+
+
+})();

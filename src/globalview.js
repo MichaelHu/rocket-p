@@ -8,7 +8,7 @@ var GlobalView = BaseView.extend({
             throw Error('GlobalView initialize: router must be an instance of Router');
         }
         
-        me.router = router;
+        me.router = me._router = router;
         router.on('routechange', me._onroutechange, me);
         
         // No parent view

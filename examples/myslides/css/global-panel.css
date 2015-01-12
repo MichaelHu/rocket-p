@@ -1,0 +1,22 @@
+.global-panel {
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+
+    background-color: #000;
+    opacity: 0.5;
+}
+
+.global-panel .panel span {
+    padding: 0 4px;
+    color: #f90;
+    font-size: 18px;
+    line-height: 40px;
+}
+
+.global-panel .panel span.on {
+    color: #f60;
+}
