@@ -81,7 +81,10 @@ Utils.extend(View.prototype, Events, {
             if(!method) continue;
             var match = key.match(delegateEventSplitter);
             var me = this;
-            this.delegate(match[1], match[2], function(){method.apply(me, arguments);});
+            (function(){
+                var _method = method;
+                me.delegate(match[1], match[2], function(){_method.apply(me, arguments);});
+            })();
         }
     }
 

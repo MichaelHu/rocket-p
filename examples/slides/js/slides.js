@@ -26,11 +26,11 @@ var AppRouter = Rocket.Router.extend({
     // , defaultPageTransition: 'slideLR'
 
     , pageTransition: {
-        // 'slide1-slide2': 'slideLR'
-        // , 'slide2-slide3': 'rotatecarouselLR'
-        // , 'slide3-slide4': 'slideeasingLR'
-        // , 'slide4-slide5': 'rotatefallscaleup'
-        // , 'slide5-slide1': 'scaledownupscaleup'
+        'slide1-slide2': 'slideLR'
+        , 'slide2-slide3': 'rotatecarouselLR'
+        , 'slide3-slide4': 'slideeasingLR'
+        , 'slide4-slide5': 'rotatefallscaleup'
+        , 'slide5-slide1': 'scaledownupscaleup'
     }
 
 });

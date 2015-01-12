@@ -235,7 +235,7 @@ Utils.extend(Router.prototype, Events, {
 
     , switchPage: function(from, to, params){
         var me = this,
-            dir = 0, order = me.pageOrder,
+            dir = 0, order = Utils.result(me, 'pageOrder'),
             fromAction = from && from.action || null,
             toAction = to && to.action || null,
             fromIndex, toIndex;
@@ -289,7 +289,7 @@ Utils.extend(Router.prototype, Events, {
         animate = me._selectAnimation(
                 fromView && fromView.action || null, 
                 toView && toView.action || null
-            ) || Animation.get(me.defaultPageTransition);
+            ) || Animation.get(Utils.result(me, 'defaultPageTransition'));
 
         animate(
             fromView && fromView.el, 
@@ -306,10 +306,11 @@ Utils.extend(Router.prototype, Events, {
         }
 
         var me = this,
-            animateName;
+            animateName,
+            pageTransition = Utils.result(me, 'pageTransition') || {};
 
-        animateName = me.pageTransition[fromAction + '-' + toAction]
-            || me.pageTransition[toAction + '-' + fromAction];
+        animateName = pageTransition[fromAction + '-' + toAction]
+            || pageTransition[toAction + '-' + fromAction];
 
         return Animation.get(animateName); 
     }

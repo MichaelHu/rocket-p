@@ -1778,7 +1778,7 @@ Utils.extend(Router.prototype, Events, {
 
     , switchPage: function(from, to, params){
         var me = this,
-            dir = 0, order = me.pageOrder,
+            dir = 0, order = Utils.result(me, 'pageOrder'),
             fromAction = from && from.action || null,
             toAction = to && to.action || null,
             fromIndex, toIndex;
@@ -1832,7 +1832,7 @@ Utils.extend(Router.prototype, Events, {
         animate = me._selectAnimation(
                 fromView && fromView.action || null, 
                 toView && toView.action || null
-            ) || Animation.get(me.defaultPageTransition);
+            ) || Animation.get(Utils.result(me, 'defaultPageTransition'));
 
         animate(
             fromView && fromView.el, 
@@ -1849,10 +1849,11 @@ Utils.extend(Router.prototype, Events, {
         }
 
         var me = this,
-            animateName;
+            animateName,
+            pageTransition = Utils.result(me, 'pageTransition') || {};
 
-        animateName = me.pageTransition[fromAction + '-' + toAction]
-            || me.pageTransition[toAction + '-' + fromAction];
+        animateName = pageTransition[fromAction + '-' + toAction]
+            || pageTransition[toAction + '-' + fromAction];
 
         return Animation.get(animateName); 
     }
@@ -1951,7 +1952,10 @@ Utils.extend(View.prototype, Events, {
             if(!method) continue;
             var match = key.match(delegateEventSplitter);
             var me = this;
-            this.delegate(match[1], match[2], function(){method.apply(me, arguments);});
+            (function(){
+                var _method = method;
+                me.delegate(match[1], match[2], function(){_method.apply(me, arguments);});
+            })();
         }
     }
 
@@ -2785,19 +2789,9 @@ function pageTransition(inPage, outPage, inClass, outClass){
     outPageEnd = inPageEnd = false;
     animationComplete = false;
 
-    $inPage[0].style.display = 'block';
-
-    $inPage
-        .data('original-classes', $inPage.attr('class'))
-        .on('webkitAnimationEnd', function(e){
-            inPageEnd = true;
-            if(outPageEnd){
-                afterAnimation();
-            }   
-        }); 
-
     $outPage
         .data('original-classes', $outPage.attr('class'))
+        .addClass(outClass)
         .on('webkitAnimationEnd', function(e){
             outPageEnd = true;
             if(inPageEnd){
@@ -2805,31 +2799,24 @@ function pageTransition(inPage, outPage, inClass, outClass){
             }   
         }); 
 
+    $inPage
+        .show()
+        .data('original-classes', $inPage.attr('class'))
+        .addClass(inClass)
+        .on('webkitAnimationEnd', function(e){
+            inPageEnd = true;
+            if(outPageEnd){
+                afterAnimation();
+            }   
+        }); 
+
+
+    // afterAnimation may not be called in case of fast swipe
     setTimeout(function(){
-
-        $inPage
-            .addClass(inClass)
-            ;
-
-        setTimeout(function(){
-
-            $outPage
-                .addClass(outClass)
-                ;
-
-            // afterAnimation may not be called in case of fast swipe
-            setTimeout(function(){
-                if(!animationComplete){
-                    afterAnimation();
-                }
-            }, 1000);
-
-        }, 0);
-
-
-    }, 0);
-
-
+        if(!animationComplete){
+            afterAnimation();
+        }
+    }, 2000);
 
 
     function beforeAnimation(){
@@ -3918,9 +3905,7 @@ function rotatecarouselLR(currentEle, nextEle, dir, callback) {
         inClass = 'pt-page-rotateCarouselRightIn';
     }
 
-    setTimeout(function(){
     Animation.pageTransition(nextEle, currentEle, inClass, outClass);
-    }, 10);
 
 };
 
