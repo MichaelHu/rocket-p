@@ -19,6 +19,11 @@ var PageView = BaseView.extend({
         me._router = router;
         me._tops = {};
 
+        // Make sure the PageView node is under certain node 
+        if(!me.$el.parent().length){
+            me.$el.appendTo('#wrapper');
+        }
+
         // PageView has no `"_parent"`
         me._super(options, null); 
     }

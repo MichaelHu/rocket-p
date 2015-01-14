@@ -172,6 +172,11 @@ Utils.extend(History.prototype, Events, {
         this.handlers.unshift({route: route, callback: callback});
     }
 
+    // Clear items in this.handlers
+    , resetHandlers: function(){
+        this.handlers.length = 0;
+    } 
+
     // Checks the current URL to see if it has changed, and if it has,
     // calls `loadUrl`, normalizing across the hidden iframe.
     , checkUrl: function(e) {

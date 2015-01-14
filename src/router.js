@@ -77,10 +77,44 @@ Utils.extend(Router.prototype, Events, {
         return this;
     } 
 
+    /**
+     * Add a new route into the existed routes config as belows:
+     *   route.addRoute('index/:type', 'index');
+     */
+    , addRoute: function(route, name){
+        var me = this, opt = {};
+        if(!me.routes || !Utils.isString(route)) return;
+        /**
+         * 1. this.routes is a JSON object or undefined after invoking this._bindRoutes
+         * 2. new route item is prepended to the existed this.routes
+         */
+        if(!me.routes[route]){
+            opt[route] = name;
+            me.routes = Utils.extend(opt, me.routes);
+        }
+        else{
+            me.routes[route] = name;
+        }
+        me._resetRoutes();
+        me._bindRoutes();
+    } 
+
+    /**
+     * Remove an existed route from the existed routes config as belows:
+     *   route.removeRoute('index/:type');
+     */
+    , removeRoute: function(route){
+        var me = this, opt = {};
+        if(!me.routes || !Utils.isString(route) || !me.routes[route]) return;
+        delete me.routes[route];
+        me._resetRoutes();
+        me._bindRoutes();
+    } 
+
     // Execute a route handler with the provided parameters.  This is an
     // excellent place to do pre-route setup or post-route cleanup.
-    , execute: function(callback, args, name){
-        if(callback) callback.apply(this, [ name ].concat(args));
+    , execute: function(callback, args, action){
+        if(callback) callback.apply(this, [ action ].concat(args));
     }
 
     , navigate: function(fragment, options){
@@ -90,7 +124,8 @@ Utils.extend(Router.prototype, Events, {
     }
 
     , start: function(){
-        this.history.start.apply(this.history, arguments);
+        var history = this.getHistory();
+        history.start.apply(history, arguments);
         return this;
     }
 
@@ -128,13 +163,27 @@ Utils.extend(Router.prototype, Events, {
             });
             var action = this.routes[route];
             if(Utils.isFunction(action)) action = '';
+
             var special = this._parseSpecialHandler(action);
             action = special.action || action;
+            /**
+             * Invalid handlers:
+             * {
+             *     'index':            '_defaultHandler'
+             *     'index/:type':      '_defaultHandler:'
+             * }
+             */
+            if(/^_defaultHandler[:]?$/.test(action)) continue;
+
             // There may be more than one routes mapping to the same action
             this.paramNames[action] || (this.paramNames[action] = []);
             this.paramNames[action].push(names);
             this.route(route, this.routes[route]);
         }
+    }
+
+    , _resetRoutes: function(){
+        this.getHistory().resetHandlers();
     }
     
     , _routeToRegExp: function(route){
