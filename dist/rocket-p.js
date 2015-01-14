@@ -549,6 +549,8 @@ var tip = (function(){
             contHeight = $(window).height();
 
         duration = duration || 1500;
+        xpos || ( xpos = 0 );
+        ypos || ( ypos = 0 );
         
         if($tip.length == 0){
             $tip = $('<div class="global-tip"><span></span></div>');
@@ -1077,6 +1079,11 @@ Utils.extend(History.prototype, Events, {
         this.handlers.unshift({route: route, callback: callback});
     }
 
+    // Clear items in this.handlers
+    , resetHandlers: function(){
+        this.handlers.length = 0;
+    } 
+
     // Checks the current URL to see if it has changed, and if it has,
     // calls `loadUrl`, normalizing across the hidden iframe.
     , checkUrl: function(e) {
@@ -1587,6 +1594,8 @@ Utils.extend(Router.prototype, Events, {
         // Trace pageviews involved in page switch
         this.currentView = null;
         this.previousView = null;
+
+        this.pageOrder = Utils.result(this, 'pageOrder');
     }
 
     , getHistory: function(){
@@ -1620,10 +1629,48 @@ Utils.extend(Router.prototype, Events, {
         return this;
     } 
 
+    /**
+     * Add a new route into the existed routes config as belows:
+     *   route.addRoute('index/:type', 'index');
+     */
+    , addRoute: function(route, name){
+        var me = this, opt = {};
+        if(!me.routes || !Utils.isString(route)) return;
+        /**
+         * 1. this.routes is a JSON object or undefined after invoking this._bindRoutes
+         * 2. new route item is prepended to the existed this.routes
+         */
+        if(!me.routes[route]){
+            opt[route] = name;
+            me.routes = Utils.extend(opt, me.routes);
+        }
+        else{
+            me.routes[route] = name;
+        }
+        me._resetRoutes();
+        me._bindRoutes();
+
+        return me;
+    } 
+
+    /**
+     * Remove an existed route from the existed routes config as belows:
+     *   route.removeRoute('index/:type');
+     */
+    , removeRoute: function(route){
+        var me = this, opt = {};
+        if(!me.routes || !Utils.isString(route) || !me.routes[route]) return;
+        delete me.routes[route];
+        me._resetRoutes();
+        me._bindRoutes();
+
+        return me;
+    } 
+
     // Execute a route handler with the provided parameters.  This is an
     // excellent place to do pre-route setup or post-route cleanup.
-    , execute: function(callback, args, name){
-        if(callback) callback.apply(this, [ name ].concat(args));
+    , execute: function(callback, args, action){
+        if(callback) callback.apply(this, [ action ].concat(args));
     }
 
     , navigate: function(fragment, options){
@@ -1633,7 +1680,8 @@ Utils.extend(Router.prototype, Events, {
     }
 
     , start: function(){
-        this.history.start.apply(this.history, arguments);
+        var history = this.getHistory();
+        history.start.apply(history, arguments);
         return this;
     }
 
@@ -1671,13 +1719,27 @@ Utils.extend(Router.prototype, Events, {
             });
             var action = this.routes[route];
             if(Utils.isFunction(action)) action = '';
+
             var special = this._parseSpecialHandler(action);
             action = special.action || action;
+            /**
+             * Invalid handlers:
+             * {
+             *     'index':            '_defaultHandler'
+             *     'index/:type':      '_defaultHandler:'
+             * }
+             */
+            if(/^_defaultHandler[:]?$/.test(action)) continue;
+
             // There may be more than one routes mapping to the same action
             this.paramNames[action] || (this.paramNames[action] = []);
             this.paramNames[action].push(names);
             this.route(route, this.routes[route]);
         }
+    }
+
+    , _resetRoutes: function(){
+        this.getHistory().resetHandlers();
     }
     
     , _routeToRegExp: function(route){
@@ -1711,6 +1773,65 @@ Utils.extend(Router.prototype, Events, {
     }
 
     , pageOrder: []
+
+    , getPageOrder: function(){
+        return this.pageOrder.slice();
+    }
+
+    /**
+     * Insert a new order in various ways:
+     *   options: 
+     *     { pos:  'FIRST' } : prepend
+     *     { pos:   'LAST' } : append
+     *     { pos:   NUMBER } : insert at position NUMBER
+     *     { pos: 'BEFORE', relatedAction: 'action' } : insert before 'action'
+     *     { pos:  'AFTER', relatedAction: 'action' } : insert after 'action' 
+     */
+    , insertPageOrder: function(action, options){
+        var order = this.pageOrder, isBefore, relatedAction, index, i;
+        options || ( options = {pos: 'LAST'} );
+        i = order.length;
+        // Prevent duplicated items
+        while(i >= 0){ if(order[i] == action) order.splice(i, 1); i--; }
+        switch(options.pos){
+            case 'FIRST' : order.unshift(action); break;
+            case 'LAST'  : order.push(action); break;
+            case 'BEFORE': isBefore = true;
+            case 'AFTER' :
+                relatedAction = options.relatedAction; 
+                i = 0;
+                while(i < order.length){
+                    if(order[i] == relatedAction){
+                        if(isBefore) index = i;
+                        else index = i + 1;
+                        break;
+                    }
+                    i++;
+                } 
+                break;
+            default: 
+                if(/\d+/.test(options.pos)){
+                    index = options.pos;
+                }
+        }
+        if(index !== void 0){
+            order.splice(index, 0, action);
+        }
+
+        return this;
+    }
+
+    , removePageOrder: function(action){
+        var order = this.pageOrder, i = 0;
+        while(i < order.length){
+            if(order[i] == action){
+                order.splice(i, 1);
+            }
+            i++;
+        }
+
+        return this;
+    }
 
     /**
      * Config of page transition
@@ -2413,8 +2534,11 @@ return View;
         this.$el.hide();
     }
 
-    , navigate: function(route){
-        this.gec.history.navigate(route, {trigger:true});
+    , navigate: function(route, options){
+        this.gec.history.navigate(
+            route
+            , $.extend({trigger:true}, options)
+        );
     }
 
 
@@ -2442,6 +2566,11 @@ return View;
         me.action = action;
         me._router = router;
         me._tops = {};
+
+        // Make sure the PageView node is under certain node 
+        if(!me.$el.parent().length){
+            me.$el.appendTo('#wrapper');
+        }
 
         // PageView has no `"_parent"`
         me._super(options, null); 

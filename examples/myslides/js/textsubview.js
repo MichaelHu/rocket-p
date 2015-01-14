@@ -20,7 +20,7 @@ this.TextSubView = RectSubView.extend({
             .append(me.tpl)
             ;
         me.$text = me.$('.text');
-        me.$panel.append('<span class="edit">&#xe60f;</span>');
+        me.$panel.append('<span class="edit">&#xe60e;</span>');
         me.$editButton = me.$('.edit');
         me.render(options);
     }

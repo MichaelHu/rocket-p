@@ -9,7 +9,7 @@ this.RectSubView = Rocket.SubView.extend({
 
     , panelTpl: [
           '<div class="iconfont control-panel">'
-        ,     '<span class="delete">&#xe62f;</span>'
+        ,     '<span class="delete">&#xe63d;</span>'
         ,     '<span class="resize">&#xe600;</span>'
         , '</div>'
     ].join('')

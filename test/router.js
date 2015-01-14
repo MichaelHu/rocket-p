@@ -116,7 +116,10 @@ var newRouter = Router.extend({
         "index":                      "_defaultHandler:index",
         "index/:type":                "_defaultHandler:index",
         "index/:type/p:page":         "_defaultHandler:index",
-        "index/:type/p:page/:order":  "_defaultHandler:",
+
+        // invalid route
+        "invalid/:type":              "_defaultHandler:",
+        "invalid/:type/p:page":       "_defaultHandler",
 
         "*anything":                  "anything"
     }
@@ -128,7 +131,6 @@ var newRouter = Router.extend({
 
     , _routeToRegExp: function(route){
         var reg = this._super(route);
-        // console.log(reg);
         return reg;
     }
 
@@ -191,7 +193,7 @@ var newRouter = Router.extend({
     }
 
     , anything: function(route, whatever) {
-        this.anything = whatever;
+        this.anyValue = whatever;
     }
 
     , namedOptional: function(route, z) {
@@ -208,7 +210,6 @@ var newRouter = Router.extend({
 
 
 });
-
 
 
 test("initialize", 1, function() {
@@ -356,7 +357,7 @@ test("routes (query)", 5, function() {
 test("routes (anything)", 1, function() {
     location.replace('http://example.com#doesnt-match-a-route');
     History.checkUrl();
-    equal(router.anything, 'doesnt-match-a-route');
+    equal(router.anyValue, 'doesnt-match-a-route');
 });
 
 test("routes (function)", function() {
@@ -1161,13 +1162,97 @@ test("default handler _defaultHandler", 3, function() {
         deepEqual(params, {type: 'basketball', page: "10",  _query_: null});
     };
     History.checkUrl();
+});
 
-    // no callback
-    location.replace('http://example.com#index/basketball/p10/asc');
+test("invalid routes", 2, function(){
+    location.replace('http://example.com#invalid/basketball/p10');
+    History.checkUrl();
+    equal('anything', lastRoute);
+
+    location.replace('http://example.com#invalid/basketball');
+    History.checkUrl();
+    equal('anything', lastRoute);
+});
+
+test("addRoute, removeRoute", function(){
+    location.replace('http://example.com#newroute');
+    // no action occured
     router.doAction = function(action, params){
         ok(false);
     };
     History.checkUrl();
+
+    router.addRoute('newroute/:type', '_defaultHandler:newroute');
+    location.replace('http://example.com#newroute/music');
+    router.doAction = function(action, params){
+        equal(action, 'newroute');
+        deepEqual(params, {type: 'music', _query_: null});
+    };
+    History.checkUrl();
+
+    location.replace('http://example.com#newroute/sports');
+    router.doAction = function(action, params){
+        equal(action, 'newroute');
+        deepEqual(params, {type: 'sports', _query_: null});
+    };
+    History.checkUrl();
+
+    location.replace('http://example.com#index');
+    router.doAction = function(action, params){
+        deepEqual(params, {_query_: null});
+    };
+    History.checkUrl();
+
+    router.removeRoute('newroute/:type');
+    location.replace('http://example.com#query');
+    router.doAction = function(action, params){
+        ok(true);
+    };
+    History.checkUrl();
+});
+
+test("insertPageOrder, removePageOrder", function(){
+    var order = router.pageOrder = ['index', 'list', 'detail'];
+    router.insertPageOrder('preview', {pos: 'FIRST'});
+    deepEqual(order, ['preview', 'index', 'list', 'detail']);
+    router.insertPageOrder('preview', {pos: 'FIRST'});
+    deepEqual(order, ['preview', 'index', 'list', 'detail']);
+
+    router.insertPageOrder('search', {pos: 2});
+    deepEqual(order, ['preview', 'index', 'search', 'list', 'detail']);
+    router.insertPageOrder('search', {pos: 2});
+    deepEqual(order, ['preview', 'index', 'search', 'list', 'detail']);
+
+    router.insertPageOrder('subscribe', {pos: 'LAST'});
+    deepEqual(order, ['preview', 'index', 'search', 'list', 'detail', 'subscribe']);
+    router.insertPageOrder('subscribe', {pos: 'LAST'});
+    deepEqual(order, ['preview', 'index', 'search', 'list', 'detail', 'subscribe']);
+
+    router.insertPageOrder('city', {pos: 'BEFORE', relatedAction: 'list'});
+    deepEqual(order, ['preview', 'index', 'search', 'city', 'list', 'detail', 'subscribe']);
+    router.insertPageOrder('city', {pos: 'BEFORE', relatedAction: 'list'});
+    deepEqual(order, ['preview', 'index', 'search', 'city', 'list', 'detail', 'subscribe']);
+
+    router.insertPageOrder('feedback', {pos: 'AFTER', relatedAction: 'index'});
+    deepEqual(order, ['preview', 'index', 'feedback', 'search', 'city', 'list', 'detail', 'subscribe']);
+    router.insertPageOrder('feedback', {pos: 'AFTER', relatedAction: 'index'});
+    deepEqual(order, ['preview', 'index', 'feedback', 'search', 'city', 'list', 'detail', 'subscribe']);
+
+    router.removePageOrder('city');
+    deepEqual(order, ['preview', 'index', 'feedback', 'search', 'list', 'detail', 'subscribe']);
+
+    order = router.pageOrder = [];
+    router.insertPageOrder('index');
+    deepEqual(order, ['index']);
+
+    router.insertPageOrder('index');
+    deepEqual(order, ['index']);
+
+    router.removePageOrder('index');
+    deepEqual(order, []);
+
+    router.removePageOrder('index');
+    deepEqual(order, []);
 });
 
 

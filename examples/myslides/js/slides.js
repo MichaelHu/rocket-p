@@ -8,16 +8,16 @@ var AppRouter = Rocket.Router.extend({
     routes: function(){
         var rs = {};
         for(var i=1; i<=SLIDES_COUNT; i++){
-            rs['gslide' + i] = '_defaultHandler:slide' + i;
+            rs['gslide' + i] = '_defaultHandler:gslide' + i;
         }
-        rs['*default'] = '_defaultHandler:slide1';
+        rs['*default'] = '_defaultHandler:gslide1';
         return rs;
     }
 
     , pageOrder: function(){
         var order = [];
         for(var i=1; i<=SLIDES_COUNT; i++){
-            order.push('slide' + i);
+            order.push('gslide' + i);
         }
         return order;
     }
@@ -30,7 +30,7 @@ var AppRouter = Rocket.Router.extend({
 
     , pageTransition: function(){
         var trans = {};
-        trans['slide' + SLIDES_COUNT + '-slide1']
+        trans['gslide' + SLIDES_COUNT + '-gslide1']
             = 'scaledownupscaleup'; 
         return trans;
     }
@@ -47,7 +47,7 @@ for(var i=1; i<22; i++) ids.push('slide' + i);
 $.each(
     ids
     , function(index, item){
-        pageViews[item] = Rocket.PageView.extend({
+        pageViews[item] = BaseSlidePageView.extend({
 
             el: '#' + item
 
@@ -82,13 +82,11 @@ $.each(
             }
 
             , onswipeUp: function(e){
-                var id = ( /slide(\d+)/.test(item), RegExp.$1 ) || 1;
-                this.navigate('gslide' + ( id % ids.length + 1 ) ); 
+                this.goNext();
             }
 
             , onswipeDown: function(e){
-                var id = ( /slide(\d+)/.test(item), RegExp.$1 ) || 1;
-                this.navigate('gslide' + ( id % ids.length - 1 || 1 ) ); 
+                this.goPrev();
             }
 
         });
@@ -99,7 +97,7 @@ $.each(
 var appRouter = new AppRouter();
 
 $.each(pageViews, function(key, item){
-    appRouter.registerViewClass(key, item);
+    appRouter.registerViewClass('g' + key, item);
 });
 
 var globalPanel = new PanelGlobalView(null, appRouter);
