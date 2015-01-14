@@ -44,6 +44,8 @@ Utils.extend(Router.prototype, Events, {
         // Trace pageviews involved in page switch
         this.currentView = null;
         this.previousView = null;
+
+        this.pageOrder = Utils.result(this, 'pageOrder');
     }
 
     , getHistory: function(){
@@ -97,6 +99,8 @@ Utils.extend(Router.prototype, Events, {
         }
         me._resetRoutes();
         me._bindRoutes();
+
+        return me;
     } 
 
     /**
@@ -109,6 +113,8 @@ Utils.extend(Router.prototype, Events, {
         delete me.routes[route];
         me._resetRoutes();
         me._bindRoutes();
+
+        return me;
     } 
 
     // Execute a route handler with the provided parameters.  This is an
@@ -217,6 +223,65 @@ Utils.extend(Router.prototype, Events, {
     }
 
     , pageOrder: []
+
+    , getPageOrder: function(){
+        return this.pageOrder.slice();
+    }
+
+    /**
+     * Insert a new order in various ways:
+     *   options: 
+     *     { pos:  'FIRST' } : prepend
+     *     { pos:   'LAST' } : append
+     *     { pos:   NUMBER } : insert at position NUMBER
+     *     { pos: 'BEFORE', relatedAction: 'action' } : insert before 'action'
+     *     { pos:  'AFTER', relatedAction: 'action' } : insert after 'action' 
+     */
+    , insertPageOrder: function(action, options){
+        var order = this.pageOrder, isBefore, relatedAction, index, i;
+        options || ( options = {pos: 'LAST'} );
+        i = order.length;
+        // Prevent duplicated items
+        while(i >= 0){ if(order[i] == action) order.splice(i, 1); i--; }
+        switch(options.pos){
+            case 'FIRST' : order.unshift(action); break;
+            case 'LAST'  : order.push(action); break;
+            case 'BEFORE': isBefore = true;
+            case 'AFTER' :
+                relatedAction = options.relatedAction; 
+                i = 0;
+                while(i < order.length){
+                    if(order[i] == relatedAction){
+                        if(isBefore) index = i;
+                        else index = i + 1;
+                        break;
+                    }
+                    i++;
+                } 
+                break;
+            default: 
+                if(/\d+/.test(options.pos)){
+                    index = options.pos;
+                }
+        }
+        if(index !== void 0){
+            order.splice(index, 0, action);
+        }
+
+        return this;
+    }
+
+    , removePageOrder: function(action){
+        var order = this.pageOrder, i = 0;
+        while(i < order.length){
+            if(order[i] == action){
+                order.splice(i, 1);
+            }
+            i++;
+        }
+
+        return this;
+    }
 
     /**
      * Config of page transition

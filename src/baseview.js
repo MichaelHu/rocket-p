@@ -408,8 +408,11 @@ var BaseView = View.extend({
         this.$el.hide();
     }
 
-    , navigate: function(route){
-        this.gec.history.navigate(route, {trigger:true});
+    , navigate: function(route, options){
+        this.gec.history.navigate(
+            route
+            , $.extend({trigger:true}, options)
+        );
     }
 
 

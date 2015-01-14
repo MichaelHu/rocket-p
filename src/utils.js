@@ -534,6 +534,8 @@ var tip = (function(){
             contHeight = $(window).height();
 
         duration = duration || 1500;
+        xpos || ( xpos = 0 );
+        ypos || ( ypos = 0 );
         
         if($tip.length == 0){
             $tip = $('<div class="global-tip"><span></span></div>');
