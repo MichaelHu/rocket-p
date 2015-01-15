@@ -63,7 +63,7 @@ this.RectSubView = Rocket.SubView.extend({
     , ensureResizeHandle: function(){
         var me = this;
         if(!me.$resizeHandle){
-            me.$el.append('<div class="iconfont resize-handle">&#xe611;</div>')
+            me.$el.append('<div class="iconfont resize-handle">&#xe644;</div>')
             me.$resizeHandle = me.$('.resize-handle').hide();
         }
         return me.$resizeHandle;

@@ -14,11 +14,14 @@ this.PanelGlobalView = Rocket.GlobalView.extend({
           '<div class="panel iconfont">'
         ,     '<span class="slide-new">&#xe64d;</span>'
         ,     '<span class="slide-delete">&#xe64e;</span>'
+        ,     '<span class="text-new">&#xe647;</span>'
+        ,     '<span class="image-new">&#xe617;</span>'
         ,     '<span class="align-left">&#xe650;</span>'
         ,     '<span class="align-center">&#xe651;</span>'
         ,     '<span class="align-right">&#xe652;</span>'
         ,     '<span class="font-family">&#xe62a;</span>'
         ,     '<span class="font-size">&#xe62e;</span>'
+        ,     '<span class="release-debug">&#xe612;</span>'
         , '</div>'
     ].join('')
 
@@ -43,6 +46,30 @@ this.PanelGlobalView = Rocket.GlobalView.extend({
         this.currentAction = params.to.action;
     }
 
+    , _getMaxSlideID: function(){
+        var order = this.router.getPageOrder(), 
+            i = order.length - 1,
+            max = 2; 
+       
+        while(i >= 0){
+            if(/^slide(\d+)$/.test(order[i])){
+                if(RegExp.$1 - 0 > max) {
+                    max = RegExp.$1 - 0; 
+                }
+            }
+            i--;
+        }
+        return max;
+    }
+
+    , getUniqueSlideID: function(){
+        var me = this;
+        if(void 0 === me._uniqueSlideID){
+            me._uniqueSlideID = me._getMaxSlideID();
+        }
+        return ++me._uniqueSlideID;
+    }
+
     , onpanelbuttonclick: function(e){
         var me = this,
             $btn = $(e.target).closest('span'),
@@ -58,17 +85,33 @@ this.PanelGlobalView = Rocket.GlobalView.extend({
             me.gec.trigger('textalign.global', {textAlign: align});
         }
         else if(/slide-new/.test(cls)){
-            var action = RegExp.$1;
+            var action = RegExp.$1,
+                action = 'slide' + me.getUniqueSlideID();
 
             me.gec.trigger('slideoperation.global', {action: 'new'})
-                .registerViewClass('abc', PlainPageView)
-                .addRoute('abc', '_defaultHandler:abc')
-                .insertPageOrder('abc', {pos: 'AFTER', relatedAction: me.currentAction});
+                .registerViewClass(action, PlainPageView)
+                .addRoute(action, '_defaultHandler:' + action)
+                .insertPageOrder(action, {pos: 'AFTER', relatedAction: me.currentAction});
 
-            me.navigate('abc');
+            me.navigate(action);
         }
         else if(/slide-delete/.test(cls)){
             me.gec.trigger('slideoperation.global', {action: 'delete'});
+        }
+        else if(/text-new/.test(cls)){
+            me.gec.trigger('newtext.global');
+        }
+        else if(/image-new/.test(cls)){
+            me.gec.trigger('newimage.global');
+        }
+        else if(/release/.test(cls)){
+            var slidesConfig = {
+                    order: me.gec.pageOrder
+                    , views: {}
+                };
+
+            me.gec.trigger('release.global', slidesConfig.views);
+            console.log(JSON.stringify(slidesConfig));
         }
 
     }

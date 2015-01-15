@@ -1,0 +1,31 @@
+.image {
+    position: relative;
+    width: 100px;
+    height: 100px;
+}
+
+.image .add {
+    text-shadow: #000 0px 0px 1px;
+    text-align: center;
+    font-size: 30px;
+    line-height: 100px;
+    color: #fff;
+}
+
+.image input[type="file"] {
+    position: absolute;
+    top: 35px;
+    left: 35px;
+    width: 30px;
+    height: 30px;
+    overflow: hidden;
+    opacity: 0;
+}
+
+.image img {
+    position: absolute;
+    display: none;
+    top: 0;
+    left: 0;
+    max-width: 100%;
+}

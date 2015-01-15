@@ -6,28 +6,8 @@ var PlainPageView = BaseSlidePageView.extend({
     }
 
     , init: function(){
-        this.append(
-            new TextSubView(
-                {
-                    pos: {
-                        top: 100
-                        , left: 50
-                    }
-                    , size: {
-                        height: 30
-                        , width: 200
-                    }
-                    , text: {
-                        lineHeight: '36px'
-                        , color: '#fff'
-                        , textAlign: 'center'
-                        , fontSize: '26px'
-                    }
-                }
-                , this
-            )
-            , true
-        );
+        this.viewClass = 'PlainPageView';
+        this._super();
     }
 
     , onswipeUp: function(e){

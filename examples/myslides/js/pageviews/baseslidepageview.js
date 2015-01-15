@@ -2,14 +2,28 @@ var BaseSlidePageView = Rocket.PageView.extend({
 
     className: 'slide'
 
+    , init: function(){
+        var me = this;
+        me._super();
+        if( !me.viewClass || !Utils.isString(me.viewClass) ){
+            throw Error('BaseSlidePageView.init: "viewClass" is undefined or is not of type String'); 
+        }    
+    }
+
     , registerEvents: function(){
         var me = this;
         me.gec.on('slideoperation.global', me.onslideoperation, me);
+        me.gec.on('release.global', me.onrelease, me);
+        me.gec.on('newtext.global', me.onnewtext, me);
+        me.gec.on('newimage.global', me.onnewimage, me);
     }
 
     , unregisterEvents: function(){
         var me = this;
         me.gec.off('slideoperation.global', me.onslideoperation, me);
+        me.gec.off('release.global', me.onrelease, me);
+        me.gec.off('newtext.global', me.onnewtext, me);
+        me.gec.off('newimage.global', me.onnewimage, me);
     }
 
     , onslideoperation: function(params){
@@ -20,6 +34,68 @@ var BaseSlidePageView = Rocket.PageView.extend({
                 me.destroy();
             }
         }
+    }
+
+    , onrelease: function(params){
+        var me = this;
+        
+        params[me.action] = {
+            'class': me.viewClass
+            // Make sure slide is default hidden
+            , 'html': me.$el.prop('outerHTML')
+                        .replace(/style="display: block;"/, '')
+        };
+    }
+
+    , onnewtext: function(){
+        
+        this.append(
+            new TextSubView(
+                {
+                    pos: {
+                        top: 100
+                        , left: 50
+                    }
+                    , size: {
+                        height: 30
+                        , width: 200
+                    }
+                    , text: {
+                        lineHeight: '36px'
+                        , color: '#fff'
+                        , textAlign: 'center'
+                        , fontSize: '26px'
+                    }
+                }
+                , this
+            )
+            , true
+        );
+
+    }
+
+    , onnewimage: function(){
+        
+        this.append(
+            new ImageSubView(
+                {
+                    pos: {
+                        top: 160
+                        , left: 50
+                    }
+                    , size: {
+                        height: 100
+                        , width: 100
+                    }
+                    , text: {
+                        textAlign: 'center'
+                    }
+                }
+                , this
+            )
+            , true
+        );
+
     }
 
     , goNext: function(options){

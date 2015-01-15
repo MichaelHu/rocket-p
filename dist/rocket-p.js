@@ -2191,6 +2191,7 @@ return View;
 
     , append: function(view, isShow) {
         this._addSubview(view, 'APPEND', isShow);
+        return this;
     }
 
     /**
@@ -2199,18 +2200,22 @@ return View;
      */
     , appendTo: function(view, container, isShow){
         this._addSubview(view, 'APPENDTO', isShow, container);
+        return this;
     }
 
     , prepend: function(view, isShow) {
         this._addSubview(view, 'PREPEND', isShow);
+        return this;
     }
 
     , prependTo: function(view, container, isShow) {
         this._addSubview(view, 'PREPENDTO', isShow, container);
+        return this;
     }
 
     , setup: function(view, isShow) {
         this._addSubview(view, 'SETUP', isShow);
+        return this;
     }
 
     /**

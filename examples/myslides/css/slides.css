@@ -33,25 +33,11 @@ html * {
     /*阻止文本选中*/
     -webkit-user-select:none;
 
-    background-color: #fff;
+    background-color: #000;
     text-align: center;
-}
-
-.slide .view-count {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    font: normal normal normal 14px/20px Arial;
-    border-radius: 10px; 
-    border: 1px solid green;
 }
 
 .slide img {
     max-width: 100%;
 }
 
-#slide1 { background-color: #993; }
-#slide2 { background-color: #ffc; }
-#slide3 { background-color: #c9c; }
-#slide4 { background-color: #cff; }
-#slide5 { background-color: #fcc; }
