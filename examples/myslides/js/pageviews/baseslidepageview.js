@@ -48,8 +48,11 @@ var BaseSlidePageView = Rocket.PageView.extend({
     }
 
     , onnewtext: function(){
+        var me = this;
+
+        if(!me.isActivePage()) return;
         
-        this.append(
+        me.append(
             new TextSubView(
                 {
                     pos: {
@@ -67,7 +70,7 @@ var BaseSlidePageView = Rocket.PageView.extend({
                         , fontSize: '26px'
                     }
                 }
-                , this
+                , me
             )
             , true
         );
@@ -75,8 +78,11 @@ var BaseSlidePageView = Rocket.PageView.extend({
     }
 
     , onnewimage: function(){
+        var me = this;
+
+        if(!me.isActivePage()) return;
         
-        this.append(
+        me.append(
             new ImageSubView(
                 {
                     pos: {
@@ -91,7 +97,7 @@ var BaseSlidePageView = Rocket.PageView.extend({
                         textAlign: 'center'
                     }
                 }
-                , this
+                , me
             )
             , true
         );

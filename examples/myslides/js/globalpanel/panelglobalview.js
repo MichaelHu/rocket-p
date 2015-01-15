@@ -49,7 +49,7 @@ this.PanelGlobalView = Rocket.GlobalView.extend({
     , _getMaxSlideID: function(){
         var order = this.router.getPageOrder(), 
             i = order.length - 1,
-            max = 2; 
+            max = 1; 
        
         while(i >= 0){
             if(/^slide(\d+)$/.test(order[i])){
