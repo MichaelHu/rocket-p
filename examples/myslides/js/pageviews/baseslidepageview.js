@@ -5,15 +5,19 @@ var BaseSlidePageView = Rocket.PageView.extend({
     , init: function(){
         var me = this;
         me._super();
-        if( !me.viewClass || !Utils.isString(me.viewClass) ){
-            throw Error('BaseSlidePageView.init: "viewClass" is undefined or is not of type String'); 
-        }    
+        me.setupSubViews();
+        setTimeout(function(){
+            if( !me.viewClass || !Utils.isString(me.viewClass) ){
+                throw Error('BaseSlidePageView.init: "viewClass" is undefined or is not of type String'); 
+            }    
+        }, 0);
     }
 
     , registerEvents: function(){
         var me = this;
         me.gec.on('slideoperation.global', me.onslideoperation, me);
         me.gec.on('release.global', me.onrelease, me);
+        me.gec.on('save.global', me.onsave, me);
         me.gec.on('newtext.global', me.onnewtext, me);
         me.gec.on('newimage.global', me.onnewimage, me);
     }
@@ -22,8 +26,25 @@ var BaseSlidePageView = Rocket.PageView.extend({
         var me = this;
         me.gec.off('slideoperation.global', me.onslideoperation, me);
         me.gec.off('release.global', me.onrelease, me);
+        me.gec.off('save.global', me.onsave, me);
         me.gec.off('newtext.global', me.onnewtext, me);
         me.gec.off('newimage.global', me.onnewimage, me);
+    }
+
+    , setupSubViews: function(){
+        var me = this;
+
+        me.$el.children().each(function(index, item){
+            var viewClass = $(item).data('view_class');
+            if(viewClass && Utils.isFunction(window[viewClass])){
+                me.append(
+                    new ( 
+                        window[viewClass].extend({el: item}) 
+                    ) ({isSetup: true}, me)
+                    , true
+                );
+            }
+        });
     }
 
     , onslideoperation: function(params){
@@ -45,6 +66,10 @@ var BaseSlidePageView = Rocket.PageView.extend({
             , 'html': me.$el.prop('outerHTML')
                         .replace(/style="display: block;"/, '')
         };
+    }
+
+    , onsave: function(params){
+        this.onrelease(params);
     }
 
     , onnewtext: function(){

@@ -6,8 +6,8 @@ var PlainPageView = BaseSlidePageView.extend({
     }
 
     , init: function(){
-        this.viewClass = 'PlainPageView';
         this._super();
+        this.viewClass = 'PlainPageView';
     }
 
     , onswipeUp: function(e){

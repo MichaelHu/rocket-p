@@ -12,16 +12,17 @@ this.PanelGlobalView = Rocket.GlobalView.extend({
 
     , contTpl: [
           '<div class="panel iconfont">'
-        ,     '<span class="slide-new">&#xe64d;</span>'
-        ,     '<span class="slide-delete">&#xe64e;</span>'
-        ,     '<span class="text-new">&#xe647;</span>'
-        ,     '<span class="image-new">&#xe617;</span>'
-        ,     '<span class="align-left">&#xe650;</span>'
-        ,     '<span class="align-center">&#xe651;</span>'
-        ,     '<span class="align-right">&#xe652;</span>'
-        ,     '<span class="font-family">&#xe62a;</span>'
-        ,     '<span class="font-size">&#xe62e;</span>'
-        ,     '<span class="release-debug">&#xe612;</span>'
+        ,     '<span class="slide-new icon-jia1"></span>'
+        ,     '<span class="slide-delete icon-jian1"></span>'
+        ,     '<span class="text-new icon-wenbenshuru"></span>'
+        ,     '<span class="image-new icon-tupian"></span>'
+        ,     '<span class="align-left icon-juzuo"></span>'
+        ,     '<span class="align-center icon-juzhong"></span>'
+        ,     '<span class="align-right icon-juyou"></span>'
+        ,     '<span class="font-family icon-ziti"></span>'
+        ,     '<span class="font-size icon-diaojie"></span>'
+        ,     '<span class="save icon-baocun"></span>'
+        ,     '<span class="release icon-fasong"></span>'
         , '</div>'
     ].join('')
 
@@ -104,13 +105,15 @@ this.PanelGlobalView = Rocket.GlobalView.extend({
         else if(/image-new/.test(cls)){
             me.gec.trigger('newimage.global');
         }
-        else if(/release/.test(cls)){
-            var slidesConfig = {
+        else if(/release|save/.test(cls)){
+            var action = RegExp['$&'],
+                slidesConfig = {
                     order: me.gec.pageOrder
                     , views: {}
+                    , isRelease: action == 'release' ? true : false
                 };
 
-            me.gec.trigger('release.global', slidesConfig.views);
+            me.gec.trigger(action + '.global', slidesConfig.views);
             console.log(JSON.stringify(slidesConfig));
         }
 

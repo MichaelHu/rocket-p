@@ -15,12 +15,16 @@ this.TextSubView = RectSubView.extend({
         var me = this;
         
         options || (options = {});
+
+        // Parent method first
         me._super(options);
-        me.$el
-            .append(me.tpl)
-            ;
+
+        me.viewClass = 'TextSubView';
+        if(!me._isSetup){
+            me.$el.append(me.tpl);
+            me.$panel.append('<span class="edit icon-bianji"></span>');
+        }
         me.$text = me.$('.text');
-        me.$panel.append('<span class="edit">&#xe60e;</span>');
         me.$editButton = me.$('.edit');
         me.render(options);
     }
@@ -28,7 +32,7 @@ this.TextSubView = RectSubView.extend({
     , render: function(options){
         var me = this;
         me._super();
-        if(!me.isFirstRender){
+        if(!me.isFirstRender && !me._isSetup){
             me.isFirstRender = true;
             me.$text.html('TextSubView');
         }

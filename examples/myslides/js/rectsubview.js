@@ -9,8 +9,8 @@ this.RectSubView = Rocket.SubView.extend({
 
     , panelTpl: [
           '<div class="iconfont control-panel">'
-        ,     '<span class="delete">&#xe63d;</span>'
-        ,     '<span class="resize">&#xe600;</span>'
+        ,     '<span class="delete icon-shanchu"></span>'
+        ,     '<span class="resize icon-daxiao"></span>'
         , '</div>'
     ].join('')
 
@@ -18,14 +18,38 @@ this.RectSubView = Rocket.SubView.extend({
         var me = this;
         
         options || (options = {});
+
+        // Whether subview dom node is already existed
+        me._isSetup = options.isSetup || false;
+
+        // Whether is release version
+        me._isRelease = me.gec.isRelease || false;
+
         me._setPos(options.pos);
         me._setSize(options.size);
-        me.$el
-            .html(me.panelTpl)
-            ;
+
+        if(!me._isSetup){
+            me.$el.html(me.panelTpl);
+        }
+
         me.$panel = me.$('.control-panel');
         me.$resizeButton = me.$('.resize');
         me.$deleteButton = me.$('.delete');
+        me.$resizeHandle = me.$('.resize-handle');
+
+        if(me._isRelease){
+            me.$panel.hide();
+            me.$resizeHandle.hide();
+        }
+
+        // Make sure correct subclass' viewClass
+        setTimeout(function(){
+            if( !me.viewClass 
+                || !Utils.isString(me.viewClass) ){
+                throw Error('RectSubView.init: "viewClass" is undefined or is not of type String'); 
+            }    
+            me.$el.data('view_class', me.viewClass);
+        }, 0);
     }
 
     , render: function(){
@@ -55,15 +79,10 @@ this.RectSubView = Rocket.SubView.extend({
 
     }
 
-    , onresizeclick: function(e){
-        me.$resizeHandle.show();
-        e.stopPropagation();
-    }
-
     , ensureResizeHandle: function(){
         var me = this;
-        if(!me.$resizeHandle){
-            me.$el.append('<div class="iconfont resize-handle">&#xe644;</div>')
+        if(!me.$resizeHandle.length){
+            me.$el.append('<div class="iconfont resize-handle icon-jia"></div>')
             me.$resizeHandle = me.$('.resize-handle').hide();
         }
         return me.$resizeHandle;
@@ -80,9 +99,11 @@ this.RectSubView = Rocket.SubView.extend({
     , registerEvents: function(){
         var me = this;
 
-        me.$el.on('doubleTap', function(e){
-            me.ondoubleTap.apply(me, arguments);
-        });
+        if(!me._isRelease){
+            me.$el.on('doubleTap', function(e){
+                me.ondoubleTap.apply(me, arguments);
+            });
+        }
 
         me.$resizeButton.on('touchstart', function(e){
             me.$resizeButton.addClass('on');

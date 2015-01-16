@@ -20,7 +20,11 @@ this.ImageSubView = RectSubView.extend({
         
         options || (options = {});
         me._super(options);
-        me.$el.append(me.tpl);
+
+        me.viewClass = 'ImageSubView';
+        if(!me._isSetup){
+            me.$el.append(me.tpl);
+        }
         me.$image = me.$('.image');
         me.$file = me.$('input[type="file"]');
         me.$img = me.$('img');
