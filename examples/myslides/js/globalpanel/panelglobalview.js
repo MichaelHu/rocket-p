@@ -1,8 +1,12 @@
-(function(){
+define(function(require){
 
+var $ = require('zepto');
+var Rocket = require('rocket');
+var PlainPageView = require('plainpageview');
+var FontColorPanelSubView = require('fontcolorpanelsubview');
 var undef = void 0;
 
-this.PanelGlobalView = Rocket.GlobalView.extend({
+var PanelGlobalView = Rocket.GlobalView.extend({
 
     className: 'global-panel'
 
@@ -19,7 +23,7 @@ this.PanelGlobalView = Rocket.GlobalView.extend({
         ,     '<span class="align-left icon-juzuo"></span>'
         ,     '<span class="align-center icon-juzhong"></span>'
         ,     '<span class="align-right icon-juyou"></span>'
-        ,     '<span class="font-family icon-ziti"></span>'
+        ,     '<span class="font-color icon-ziti"></span>'
         ,     '<span class="font-size icon-diaojie"></span>'
         ,     '<span class="save icon-baocun"></span>'
         ,     '<span class="release icon-fasong"></span>'
@@ -105,6 +109,9 @@ this.PanelGlobalView = Rocket.GlobalView.extend({
         else if(/image-new/.test(cls)){
             me.gec.trigger('newimage.global');
         }
+        else if(/font-color/.test(cls)){
+            me.toggleFontColorPanel();
+        }
         else if(/release|save/.test(cls)){
             var action = RegExp['$&'],
                 slidesConfig = {
@@ -119,7 +126,19 @@ this.PanelGlobalView = Rocket.GlobalView.extend({
 
     }
 
+    , toggleFontColorPanel: function(){
+        var me = this, panel = me.fontColorPanel;
+        if(!panel){
+            panel = me.fontColorPanel
+                = new FontColorPanelSubView(null, me);
+            me.append(panel); 
+        }
+        panel.toggle();
+    }
+
 
 });
 
-})();
+return PanelGlobalView;
+
+});

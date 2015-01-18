@@ -2,16 +2,16 @@
 
 
 if(typeof define === 'function' && define.amd){
-    define(['zepto', 'exports'], function($, exports){
-        factory(root, exports, $); 
+    define(['zepto', 'underscore', 'exports'], function($, _, exports){
+        factory(root, exports, $, _); 
     });
 }
 else{
-    root.Rocket = factory(root, {}, root.Zepto || root.jQuery);
+    root.Rocket = factory(root, {}, root.Zepto || root.jQuery, _);
 }
 
 
-})(this, function(root, Rocket, $) {
+})(this, function(root, Rocket, $, _) {
 
 ;var _Utils = (function(){
 

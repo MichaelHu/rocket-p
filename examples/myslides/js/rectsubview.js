@@ -1,8 +1,12 @@
-(function(){
+define(function(require){
 
+var Rocket = require('rocket');
+var $ = require('zepto');
+var BoxSettingsInterface = require('boxsettingsinterface');
+require('zepto-draggable');
 var undef = void 0;
 
-this.RectSubView = Rocket.SubView.extend({
+var RectSubView = Rocket.SubView.extend({
 
     events: {
     }
@@ -193,68 +197,10 @@ this.RectSubView = Rocket.SubView.extend({
         me.hideBorder();
     }
 
-
-
-    , _getPos: function(){
-        var me = this, $el = me.$el, pos = {}, 
-            left, top, right, bottom;
-
-        left = $el.data('pos_left'); 
-        top = $el.data('pos_top'); 
-        right = $el.data('pos_right'); 
-        bottom = $el.data('pos_bottom'); 
-
-        left !== undef && (pos.left = left);
-        top !== undef && (pos.top = top);
-        right !== undef && (pos.right = right);
-        bottom !== undef && (pos.bottom = bottom);
-
-        return pos;
-    }
-
-    , _getSize: function(){
-        var me = this, $el = me.$el, size = {}, 
-            width, height;
-
-        width = $el.data('size_width'); 
-        height = $el.data('size_height'); 
-
-        width !== undef && (size.width = width);
-        height !== undef && (size.height = height);
-
-        return size;
-    }
-
-    , _setPos: function(pos){
-        if(!pos) return;
-        var $el = this.$el;
-        pos.left !== undef && $el.data('pos_left', pos.left);
-        pos.top !== undef && $el.data('pos_top', pos.top);
-        pos.right !== undef && $el.data('pos_right', pos.right);
-        pos.bottom !== undef && $el.data('pos_bottom', pos.bottom);
-    }
-
-    , _setSize: function(size){
-        if(!size) return;
-        var $el = this.$el;
-        size.width !== undef && $el.data('size_width', size.width);
-        size.height !== undef && $el.data('size_height', size.height);
-    }
-
-    , _applyPos: function(pos){
-        if(Utils.isEmpty(pos)) return;
-        var opt = $.extend({'position': 'absolute'}, pos);
-        this.$el.css(opt);
-        this._setPos(pos);
-    } 
-
-    , _applySize: function(size){
-        if(Utils.isEmpty(size)) return;
-        var opt = $.extend({'position': 'absolute'}, size);
-        this.$el.css(opt);
-        this._setSize(size);
-    }
-
 });
 
-})();
+$.extend(RectSubView.prototype, BoxSettingsInterface);
+
+return RectSubView;
+
+});

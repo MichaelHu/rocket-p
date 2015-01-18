@@ -1,3 +1,7 @@
+define(function(require){
+
+var BaseSlidePageView = require('baseslidepageview');
+
 var PlainPageView = BaseSlidePageView.extend({
 
     events: {
@@ -20,3 +24,6 @@ var PlainPageView = BaseSlidePageView.extend({
 
 });
 
+return PlainPageView;
+
+});

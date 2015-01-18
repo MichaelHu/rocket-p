@@ -1,8 +1,12 @@
-(function(){
+define(function(require){
 
 var undef = void 0;
 
-this.ImageSubView = RectSubView.extend({
+var $ = require('zepto');
+var CommonSettingsInterface = require('commonsettingsinterface');
+var RectSubView = require('rectsubview');
+
+var ImageSubView = RectSubView.extend({
 
     events: {
     }
@@ -89,49 +93,11 @@ this.ImageSubView = RectSubView.extend({
         me._applyTextAlign(opt || me._getTextAlign());
     }
 
-
-
-
-    , _setTextAlign: function(opt){
-        return this._setTextSettings(opt, 'text_align', 'textAlign');
-    }
-
-    , _setTextSettings: function(opt, dataKey, jsonKey){
-        if(!opt) return;
-        opt[jsonKey] !== undef && this.$el.data(dataKey, opt[jsonKey]);
-    }
-
-
-
-
-
-    , _getTextAlign: function(){
-        return this._getTextSettings('text_align', 'textAlign');
-    }
-
-    , _getTextSettings: function(dataKey, jsonKey){
-        var me = this, $el = me.$el, data = {},
-            value = $el.data(dataKey);
-
-        value !== undef && ( data[jsonKey] = value );
-        return data;
-    }
-
-
-
-    
-    , _applyTextAlign: function(opt){
-        this._applyTextSettings(opt, 'text-align', 'textAlign');
-    }
-
-    , _applyTextSettings: function(opt, cssKey, jsonKey){
-        if(Utils.isEmpty(opt) || Utils.isEmpty(opt[jsonKey])) return;
-        this.$el.css(cssKey, opt[jsonKey]);
-        this['_set' + jsonKey.replace(/^\w/, function($0){return $0.toUpperCase();})](opt);
-    }
-
-
 });
 
-})();
+$.extend(ImageSubView.prototype, CommonSettingsInterface);
+
+return ImageSubView;
+
+});
 

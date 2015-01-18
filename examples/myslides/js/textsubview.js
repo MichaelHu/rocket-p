@@ -1,8 +1,10 @@
-(function(){
+define(function(require){
 
-var undef = void 0;
+var $ = require('zepto');
+var RectSubView = require('rectsubview');
+var CommonSettingsInterface = require('commonsettingsinterface');
 
-this.TextSubView = RectSubView.extend({
+var TextSubView = RectSubView.extend({
 
     events: {
     }
@@ -101,85 +103,11 @@ this.TextSubView = RectSubView.extend({
         me._applyTextAlign(opt || me._getTextAlign());
     }
 
-
-
-
-    , _setFontSize: function(opt){
-        return this._setTextSettings(opt, 'text_fontSize', 'fontSize');
-    }
-
-    , _setLineHeight: function(opt){
-        return this._setTextSettings(opt, 'text_lineHeight', 'lineHeight');
-    }
-
-    , _setColor: function(opt){
-        return this._setTextSettings(opt, 'text_color', 'color');
-    }
-
-    , _setTextAlign: function(opt){
-        return this._setTextSettings(opt, 'text_align', 'textAlign');
-    }
-
-    , _setTextSettings: function(opt, dataKey, jsonKey){
-        if(!opt) return;
-        opt[jsonKey] !== undef && this.$el.data(dataKey, opt[jsonKey]);
-    }
-
-
-
-
-
-    , _getFontSize: function(){
-        return this._getTextSettings('text_fontSize', 'fontSize');
-    }
-
-    , _getLineHeight: function(){
-        return this._getTextSettings('text_lineHeight', 'lineHeight');
-    }
-
-    , _getColor: function(){
-        return this._getTextSettings('text_color', 'color');
-    }
-
-    , _getTextAlign: function(){
-        return this._getTextSettings('text_align', 'textAlign');
-    }
-
-    , _getTextSettings: function(dataKey, jsonKey){
-        var me = this, $el = me.$el, data = {},
-            value = $el.data(dataKey);
-
-        value !== undef && ( data[jsonKey] = value );
-        return data;
-    }
-
-
-
-    
-    , _applyFontSize: function(opt){
-        this._applyTextSettings(opt, 'font-size', 'fontSize');
-    }
-
-    , _applyLineHeight: function(opt){
-        this._applyTextSettings(opt, 'line-height', 'lineHeight');
-    }
-
-    , _applyColor: function(opt){
-        this._applyTextSettings(opt, 'color', 'color');
-    }
-
-    , _applyTextAlign: function(opt){
-        this._applyTextSettings(opt, 'text-align', 'textAlign');
-    }
-
-    , _applyTextSettings: function(opt, cssKey, jsonKey){
-        if(Utils.isEmpty(opt) || Utils.isEmpty(opt[jsonKey])) return;
-        this.$el.css(cssKey, opt[jsonKey]);
-        this['_set' + jsonKey.replace(/^\w/, function($0){return $0.toUpperCase();})](opt);
-    }
-
-
 });
 
-})();
+$.extend(TextSubView.prototype, CommonSettingsInterface);
+
+return TextSubView;
+
+});
 
