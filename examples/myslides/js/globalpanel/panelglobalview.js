@@ -2,8 +2,8 @@ define(function(require){
 
 var $ = require('zepto');
 var Rocket = require('rocket');
-var PlainPageView = require('plainpageview');
 var FontColorPanelSubView = require('fontcolorpanelsubview');
+var SlideNewPanelSubView = require('slidenewpanelsubview');
 var undef = void 0;
 
 var PanelGlobalView = Rocket.GlobalView.extend({
@@ -51,30 +51,6 @@ var PanelGlobalView = Rocket.GlobalView.extend({
         this.currentAction = params.to.action;
     }
 
-    , _getMaxSlideID: function(){
-        var order = this.router.getPageOrder(), 
-            i = order.length - 1,
-            max = 1; 
-       
-        while(i >= 0){
-            if(/^slide(\d+)$/.test(order[i])){
-                if(RegExp.$1 - 0 > max) {
-                    max = RegExp.$1 - 0; 
-                }
-            }
-            i--;
-        }
-        return max;
-    }
-
-    , getUniqueSlideID: function(){
-        var me = this;
-        if(void 0 === me._uniqueSlideID){
-            me._uniqueSlideID = me._getMaxSlideID();
-        }
-        return ++me._uniqueSlideID;
-    }
-
     , onpanelbuttonclick: function(e){
         var me = this,
             $btn = $(e.target).closest('span'),
@@ -90,15 +66,7 @@ var PanelGlobalView = Rocket.GlobalView.extend({
             me.gec.trigger('textalign.global', {textAlign: align});
         }
         else if(/slide-new/.test(cls)){
-            var action = RegExp.$1,
-                action = 'slide' + me.getUniqueSlideID();
-
-            me.gec.trigger('slideoperation.global', {action: 'new'})
-                .registerViewClass(action, PlainPageView)
-                .addRoute(action, '_defaultHandler:' + action)
-                .insertPageOrder(action, {pos: 'AFTER', relatedAction: me.currentAction});
-
-            me.navigate(action);
+            this.toggleSlideNewPanel();
         }
         else if(/slide-delete/.test(cls)){
             me.gec.trigger('slideoperation.global', {action: 'delete'});
@@ -131,6 +99,16 @@ var PanelGlobalView = Rocket.GlobalView.extend({
         if(!panel){
             panel = me.fontColorPanel
                 = new FontColorPanelSubView(null, me);
+            me.append(panel); 
+        }
+        panel.toggle();
+    }
+
+    , toggleSlideNewPanel: function(){
+        var me = this, panel = me.slideNewPanel;
+        if(!panel){
+            panel = me.slideNewPanel
+                = new SlideNewPanelSubView(null, me);
             me.append(panel); 
         }
         panel.toggle();

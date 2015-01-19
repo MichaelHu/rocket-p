@@ -66,6 +66,8 @@ var TextSubView = RectSubView.extend({
 
         ec.on('pagebeforechange', me.onpagebeforechange, me);
         gec.on('textalign.global', me.ontextalign, me);
+        gec.on('color.global', me.oncolor, me);
+        gec.on('fontsize.global', me.onfontsize, me);
     }
 
     , unregisterEvents: function(){
@@ -76,6 +78,8 @@ var TextSubView = RectSubView.extend({
         me.$editButton.off();
         ec.off('pagebeforechange', me.onpagebeforechange, me);
         gec.off('textalign.global', me.ontextalign, me);
+        gec.off('color.global', me.oncolor, me);
+        gec.off('fontsize.global', me.onfontsize, me);
         me._super();
     }
 
@@ -88,10 +92,25 @@ var TextSubView = RectSubView.extend({
         }
     }
 
+    , onfontsize: function(params){
+        var me = this;
+        if(me.isSelected){
+            me._applyFontSize(params);
+            me._applyLineHeight(params);
+        }
+    }
+
     , ontextalign: function(params){
         var me = this;
         if(me.isSelected){
             me._applyTextAlign(params);
+        }
+    }
+
+    , oncolor: function(params){
+        var me = this;
+        if(me.isSelected){
+            me._applyColor(params);
         }
     }
 

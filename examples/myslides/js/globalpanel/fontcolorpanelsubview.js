@@ -10,16 +10,57 @@ var FontColorPanelSubView = Rocket.SubView.extend({
 
     className: 'fontcolorpanel'
 
+    , events: {
+        'click .font-size': 'onfontsizeclick'
+    }
+
     , init: function(options){
         this.render();
     }
 
-    , render: function(){
+    , tpl: [
+          '<div class="color">Color: <input></div>'
+        , '<div class="font-size">Size:'
+        ,      '<span>12px</span>'
+        ,      '<span>14px</span>'
+        ,      '<span>16px</span>'
+        ,      '<span>18px</span>'
+        ,      '<span>20px</span>'
+        ,      '<span>22px</span>'
+        ,      '<span>24px</span>'
+        ,      '<span>26px</span>'
+        ,      '<span>28px</span>'
+        ,      '<span>36px</span>'
+        ,      '<span>48px</span>'
+        ,      '<span>72px</span>'
+        , '</div>'
+    ].join('')
+
+    , onfontsizeclick: function(e){
         var me = this, 
+            $target = $(e.target),
+            $span;
+        if(( $span = $target.closest('span') ).length){
+            me.gec.trigger('fontsize.global', {
+                fontSize: $span.html()
+                , lineHeight: $span.html()
+            });
+        }
+    }
+
+    , render: function(){
+        var me = this; 
+
+        me.$el.html(me.tpl);
+        me.createColorPicker();
+        return me;
+    } 
+
+    , createColorPicker: function(){
+        var me = this,
             // Must 6 hex digits
             initialColor = '#67890a';
 
-        me.$el.html('<h3>Color: <input></h3>');
         $$(me.$('input')[0]).css('color', initialColor).spectrum({
             color: initialColor
             // , showInput: true
@@ -42,12 +83,11 @@ var FontColorPanelSubView = Rocket.SubView.extend({
                 ["#900","#b45f06","#bf9000","#38761d","#134f5c","#0b5394","#351c75","#741b47"],
                 ["#600","#783f04","#7f6000","#274e13","#0c343d","#073763","#20124d","#4c1130"]
             ]
-            // , change: function(color){
-            //     me.$('h3').css('color', color.toHexString());
-            // }
+            , change: function(color){
+                me.gec.trigger('color.global', {color: color.toHexString()});
+            }
         });
-        return me;
-    } 
+    }
 
     , toggle: function(){
         this.$el.toggle();
