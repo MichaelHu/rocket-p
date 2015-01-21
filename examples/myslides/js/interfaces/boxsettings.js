@@ -31,6 +31,10 @@ var BoxSettingsInterface = {
         return size;
     }
 
+    , _getBoxAlign: function(){
+        return this._getSettings('pos_boxalign', 'boxAlign');
+    }
+
 
 
 
@@ -46,6 +50,10 @@ var BoxSettingsInterface = {
         var me = this;
         me._setSettings(size, 'size_width', 'width');
         me._setSettings(size, 'size_height', 'height');
+    }
+
+    , _setBoxAlign: function(align){
+        this._setSettings(align, 'pos_boxalign', 'boxAlign');
     }
 
 
@@ -64,6 +72,28 @@ var BoxSettingsInterface = {
         var opt = $.extend({'position': 'absolute'}, size);
         this.$el.css(opt);
         this._setSize(size);
+    }
+
+    , _applyBoxAlign: function(align){
+        if(Utils.isEmpty(align)) return;
+        var me = this;
+    
+        apply();
+
+        function apply(){
+            if(!me.ec.isActivePage()){
+                setTimeout(apply, 50);
+                return;
+            }
+
+            var width = me.$el.width(),
+                slideWidth = me.ec.$el.width();
+
+            me._applyPos({
+                left: ( slideWidth - width ) / 2
+            });
+            me._setBoxAlign(align);
+        }
     }
 
 };

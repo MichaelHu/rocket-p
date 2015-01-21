@@ -59,6 +59,7 @@ var RectSubView = Rocket.SubView.extend({
     , render: function(){
         var me = this;
         me._applyPos(me._getPos());
+        me._applyBoxAlign(me._getBoxAlign());
         me._applySize(me._getSize());
     }
 
@@ -109,6 +110,9 @@ var RectSubView = Rocket.SubView.extend({
             });
         }
 
+        me.gec.on('zoom.global', me.onzoom, me);
+        me.gec.on('boxalign.global', me.onboxalign, me);
+
         me.$resizeButton.on('touchstart', function(e){
             me.$resizeButton.addClass('on');
             setTimeout(function(){
@@ -146,6 +150,8 @@ var RectSubView = Rocket.SubView.extend({
         var me = this;
 
         me.$el.off();
+        me.gec.off('zoom.global', me.onzoom, me);
+        me.gec.off('boxalign.global', me.onboxalign, me);
         me.$resizeButton.off();
         me.$resizeHandle.disableDrag();
         me.$deleteButton.off();
@@ -179,10 +185,24 @@ var RectSubView = Rocket.SubView.extend({
         me.$resizeHandle.addClass('on');
     }
 
+    , onzoom: function(params){
+        var me = this, flag = 1;
+
+        if(!me.isSelected) return;
+        if(params.action == 'out'){
+            flag = -1;
+        }
+
+        var width = me.$el.width(),
+            height = me.$el.width();
+
+        me.onresizedrag(20 * flag, 20 * height / width * flag);
+    }
+
     , onresizedrag: function(deltaX, deltaY){
         var me = this,
-            width = parseInt(me.$el.css('width')) || 0,
-            height = parseInt(me.$el.css('height')) || 0,
+            width = me.$el.width(),
+            height = me.$el.width(),
             opt = {
                 width: width + deltaX
                 , height: height + deltaY
@@ -195,6 +215,17 @@ var RectSubView = Rocket.SubView.extend({
         var me = this;
         me.$resizeHandle.removeClass('on').hide();
         me.hideBorder();
+    }
+
+    , onboxalign: function(){
+        var me = this;
+        if(!me.isSelected) return;
+        me.positionCenterX();
+    }
+
+    , positionCenterX: function(){
+        var me = this;
+        me._applyBoxAlign({boxAlign: 1});
     }
 
 });

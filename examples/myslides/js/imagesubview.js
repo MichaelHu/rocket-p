@@ -13,7 +13,7 @@ var ImageSubView = RectSubView.extend({
 
     , tpl: [
           '<div class="image">'
-        ,     '<div class="add iconfont">&#xe617;</div>'
+        ,     '<div class="add iconfont icon-tupian"></div>'
         ,     '<input type="file">'
         ,     '<img>'
         , '</div>'
@@ -68,7 +68,7 @@ var ImageSubView = RectSubView.extend({
 
     , onfilechange: function(e){
         var me = this;
-        me.$img.attr('src', './img/10.jpg')
+        me.$img.attr('src', './img/jizhi/7.jpeg')
             .show();;
     }
 

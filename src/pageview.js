@@ -29,7 +29,7 @@ var PageView = BaseView.extend({
     }
 
     , isActivePage: function(){
-        return this.$el.css('display') == 'block';
+        return Utils.isReallyDisplay(this.el);
     }
 
     , _getDynamicFeatureString: function(params){

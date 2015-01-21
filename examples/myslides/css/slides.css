@@ -31,7 +31,9 @@ html * {
     */
 
     /*阻止文本选中*/
+    /*
     -webkit-user-select:none;
+    */
 
     background-color: #000;
     text-align: center;

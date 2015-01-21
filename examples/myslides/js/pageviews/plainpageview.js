@@ -16,10 +16,12 @@ var PlainPageView = BaseSlidePageView.extend({
 
     , onswipeUp: function(e){
         this.goNext();
+        e.preventDefault();
     }
 
     , onswipeDown: function(e){
         this.goPrev();
+        e.preventDefault();
     }
 
 });

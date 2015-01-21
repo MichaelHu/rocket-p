@@ -20,11 +20,13 @@ var PanelGlobalView = Rocket.GlobalView.extend({
         ,     '<span class="slide-delete icon-jian1"></span>'
         ,     '<span class="text-new icon-wenbenshuru"></span>'
         ,     '<span class="image-new icon-tupian"></span>'
+        ,     '<span class="boxalign-center icon-juzhong"></span>'
         ,     '<span class="align-left icon-juzuo"></span>'
         ,     '<span class="align-center icon-juzhong"></span>'
         ,     '<span class="align-right icon-juyou"></span>'
         ,     '<span class="font-color icon-ziti"></span>'
-        ,     '<span class="font-size icon-diaojie"></span>'
+        ,     '<span class="zoom-in icon-fangda"></span>'
+        ,     '<span class="zoom-out icon-suoxiao"></span>'
         ,     '<span class="save icon-baocun"></span>'
         ,     '<span class="release icon-fasong"></span>'
         , '</div>'
@@ -61,12 +63,15 @@ var PanelGlobalView = Rocket.GlobalView.extend({
             $btn.removeClass('on');
         }, 300);
 
-        if(/align-(\w+)/.test(cls)){
+        if(/^align-(\w+)/.test(cls)){
             var align = RegExp.$1;
             me.gec.trigger('textalign.global', {textAlign: align});
         }
+        else if(/^boxalign-center/.test(cls)){
+            me.gec.trigger('boxalign.global', {type: 'x'});
+        }
         else if(/slide-new/.test(cls)){
-            this.toggleSlideNewPanel();
+            me.toggleSlideNewPanel();
         }
         else if(/slide-delete/.test(cls)){
             me.gec.trigger('slideoperation.global', {action: 'delete'});
@@ -79,6 +84,10 @@ var PanelGlobalView = Rocket.GlobalView.extend({
         }
         else if(/font-color/.test(cls)){
             me.toggleFontColorPanel();
+        }
+        else if(/zoom-(in|out)/.test(cls)){
+            var action = RegExp.$1;
+            me.gec.trigger('zoom.global', {action: action});
         }
         else if(/release|save/.test(cls)){
             var action = RegExp['$&'],
