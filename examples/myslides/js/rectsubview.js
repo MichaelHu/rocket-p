@@ -39,7 +39,6 @@ var RectSubView = Rocket.SubView.extend({
         me.$panel = me.$('.control-panel');
         me.$resizeButton = me.$('.resize');
         me.$deleteButton = me.$('.delete');
-        me.$resizeHandle = me.$('.resize-handle');
 
         if(me._isRelease){
             me.$panel.hide();
@@ -63,22 +62,22 @@ var RectSubView = Rocket.SubView.extend({
         me._applySize(me._getSize());
     }
 
-    , ondoubleTap: function(e){
+    , onclick: function(e){
         var me = this;
 
         me.showBorder();
         me.isSelected = true;
         me.$el.enableDrag({
             ondragstart: function(){
-                me.ondragstart.apply(me, arguments);
+                // me.ondragstart.apply(me, arguments);
             }
             , ondrag: function(deltaX, deltaY){
                 me.ondrag.apply(me, arguments);
             }
             , ondragend: function(){
-                me.ondragend.apply(me, arguments);
-                me.$el.disableDrag();
-                delete me.isSelected;
+                // me.ondragend.apply(me, arguments);
+                // me.$el.disableDrag();
+                // delete me.isSelected;
             }
         });
 
@@ -86,11 +85,11 @@ var RectSubView = Rocket.SubView.extend({
 
     , ensureResizeHandle: function(){
         var me = this;
+        me.$resizeHandle = me.$('.resize-handle');
         if(!me.$resizeHandle.length){
             me.$el.append('<div class="iconfont resize-handle icon-jia"></div>')
             me.$resizeHandle = me.$('.resize-handle').hide();
         }
-        return me.$resizeHandle;
     }
 
     , showBorder: function(){
@@ -105,22 +104,39 @@ var RectSubView = Rocket.SubView.extend({
         var me = this;
 
         if(!me._isRelease){
-            me.$el.on('doubleTap', function(e){
-                me.ondoubleTap.apply(me, arguments);
+            me.$el.on('click', function(e){
+                me.onclear();
+                console.log('drag');
+                me.onclick.apply(me, arguments);
             });
         }
 
         me.gec.on('zoom.global', me.onzoom, me);
         me.gec.on('boxalign.global', me.onboxalign, me);
+        me.gec.on('clear.global', me.onclear, me);
 
         me.$resizeButton.on('touchstart', function(e){
+            me.onclear();
             me.$resizeButton.addClass('on');
             setTimeout(function(){
                 me.$resizeButton.removeClass('on');
             }, 300);
 
+            console.log('resize');
+            me.ensureResizeHandle();
             me.$resizeHandle.show();
             me.showBorder();;
+            me.$resizeHandle.enableDrag({
+                ondragstart: function(){
+                    me.$resizeHandle.addClass('on');
+                }
+                , ondrag: function(deltaX, deltaY){
+                    me.onresizedrag.apply(me, arguments);
+                }
+                , ondragend: function(){
+                    me.$resizeHandle.removeClass('on').hide();
+                }
+            });
             e.stopPropagation();
             e.preventDefault();
         });
@@ -133,17 +149,6 @@ var RectSubView = Rocket.SubView.extend({
 
         });
 
-        me.ensureResizeHandle().enableDrag({
-            ondragstart: function(){
-                me.onresizedragstart.apply(me, arguments);
-            }
-            , ondrag: function(deltaX, deltaY){
-                me.onresizedrag.apply(me, arguments);
-            }
-            , ondragend: function(){
-                me.onresizedragend.apply(me, arguments);
-            }
-        });
     }
     
     , unregisterEvents: function(){
@@ -152,9 +157,19 @@ var RectSubView = Rocket.SubView.extend({
         me.$el.off();
         me.gec.off('zoom.global', me.onzoom, me);
         me.gec.off('boxalign.global', me.onboxalign, me);
+        me.gec.off('clear.global', me.onclear, me);
         me.$resizeButton.off();
-        me.$resizeHandle.disableDrag();
         me.$deleteButton.off();
+        me.$resizeHandle.disableDrag();
+    }
+
+    , onclear: function(){
+        var me = this;
+        me.$el.disableDrag();
+        if(me.$resizeHandle){
+            me.$resizeHandle.hide().disableDrag();
+        }
+        me.hideBorder();
     }
 
     , ondragstart: function(){
@@ -174,17 +189,6 @@ var RectSubView = Rocket.SubView.extend({
         me._applyPos(opt);
     } 
 
-    , ondragend: function(){
-        var me = this;
-        me.hideBorder();
-    }
-
-
-    , onresizedragstart: function(){
-        var me = this;
-        me.$resizeHandle.addClass('on');
-    }
-
     , onzoom: function(params){
         var me = this, flag = 1;
 
@@ -194,7 +198,7 @@ var RectSubView = Rocket.SubView.extend({
         }
 
         var width = me.$el.width(),
-            height = me.$el.width();
+            height = me.$el.height();
 
         me.onresizedrag(20 * flag, 20 * height / width * flag);
     }
@@ -202,20 +206,15 @@ var RectSubView = Rocket.SubView.extend({
     , onresizedrag: function(deltaX, deltaY){
         var me = this,
             width = me.$el.width(),
-            height = me.$el.width(),
+            height = me.$el.height(),
             opt = {
                 width: width + deltaX
                 , height: height + deltaY
             };
 
+        console.log([width, height, deltaX, deltaY, opt.width, opt.height].join('|'));
         me._applySize(opt);
     } 
-
-    , onresizedragend: function(){
-        var me = this;
-        me.$resizeHandle.removeClass('on').hide();
-        me.hideBorder();
-    }
 
     , onboxalign: function(){
         var me = this;
