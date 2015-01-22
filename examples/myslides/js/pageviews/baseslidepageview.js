@@ -59,8 +59,16 @@ var BaseSlidePageView = Rocket.PageView.extend({
         var me = this;
 
         if(me.isActivePage()){
-            if(params.action == 'delete'){
-                me.destroy();
+            switch(params.action){
+                case 'delete':
+                    me.destroy();
+                    break;
+                case 'prev':
+                    me.goPrev();
+                    break;
+                case 'next':
+                    me.goNext();
+                    break;
             }
         }
     }

@@ -15,13 +15,20 @@ var PlainPageView = BaseSlidePageView.extend({
     }
 
     , onswipeUp: function(e){
-        this.goNext();
-        e.preventDefault();
+        var me = this;
+        console.log(111);
+        if(me.gec.isRelease){
+            me.goNext();
+            e.preventDefault();
+        }
     }
 
     , onswipeDown: function(e){
-        this.goPrev();
-        e.preventDefault();
+        var me = this;
+        if(me.gec.isRelease){
+            me.goPrev();
+            e.preventDefault();
+        }
     }
 
 });

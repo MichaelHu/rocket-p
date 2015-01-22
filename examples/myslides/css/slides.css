@@ -23,7 +23,7 @@ html * {
     right:0;
     bottom:0;
 
-    overflow: scroll;
+    overflow: hidden;
 
     /*最低高度，确保即使没内容，loading也可以展示，同时能遮住下方内容*/
     /*

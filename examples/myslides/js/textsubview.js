@@ -49,25 +49,36 @@ var TextSubView = RectSubView.extend({
         me._super();
 
         me.$editButton.on('touchstart', function(e){
+            e.stopPropagation();
+            e.preventDefault();
+
+            me.gec.trigger('clear.global');
             me.$editButton.addClass('on');
             setTimeout(function(){
                 me.$editButton.removeClass('on');
             }, 300);
+            me.isEdited = true;
+            me.gec.trigger('beforeedit.global', {text: me.$text.html()});
+            return;
 
             me.$text.attr('contenteditable', 'true')
                 .focus()
                 .on('blur', function(e){
-                    $(this).attr('contenteditable', 'false');
-                }); 
+                    $(this).attr('contenteditable', 'false')
+                        .off();
+                }) 
+                .on('click', function(e){
+                    e.stopPropagation();
+                });
 
-            e.stopPropagation();
-            e.preventDefault();
         });
+
 
         ec.on('pagebeforechange', me.onpagebeforechange, me);
         gec.on('textalign.global', me.ontextalign, me);
         gec.on('color.global', me.oncolor, me);
         gec.on('fontsize.global', me.onfontsize, me);
+        gec.on('afteredit.global', me.onafteredit, me);
     }
 
     , unregisterEvents: function(){
@@ -80,6 +91,7 @@ var TextSubView = RectSubView.extend({
         gec.off('textalign.global', me.ontextalign, me);
         gec.off('color.global', me.oncolor, me);
         gec.off('fontsize.global', me.onfontsize, me);
+        gec.off('afteredit.global', me.onafteredit, me);
         me._super();
     }
 
@@ -90,6 +102,15 @@ var TextSubView = RectSubView.extend({
         if(to == me.ec){
             me.render();
         }
+    }
+
+    , onafteredit: function(params){
+        var me = this;
+
+        if(params.text !== void 0 && me.isEdited){
+            me.$text.html(params.text);
+        }
+        me.isEdited = false;
     }
 
     , onfontsize: function(params){

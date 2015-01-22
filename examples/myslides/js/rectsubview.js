@@ -39,6 +39,8 @@ var RectSubView = Rocket.SubView.extend({
         me.$panel = me.$('.control-panel');
         me.$resizeButton = me.$('.resize');
         me.$deleteButton = me.$('.delete');
+        // Maybe not existed
+        me.$resizeHandle = me.$('.resize-handle');
 
         if(me._isRelease){
             me.$panel.hide();
@@ -85,7 +87,6 @@ var RectSubView = Rocket.SubView.extend({
 
     , ensureResizeHandle: function(){
         var me = this;
-        me.$resizeHandle = me.$('.resize-handle');
         if(!me.$resizeHandle.length){
             me.$el.append('<div class="iconfont resize-handle icon-jia"></div>')
             me.$resizeHandle = me.$('.resize-handle').hide();
@@ -105,7 +106,7 @@ var RectSubView = Rocket.SubView.extend({
 
         if(!me._isRelease){
             me.$el.on('click', function(e){
-                me.onclear();
+                me.gec.trigger('clear.global');
                 console.log('drag');
                 me.onclick.apply(me, arguments);
             });
@@ -116,7 +117,7 @@ var RectSubView = Rocket.SubView.extend({
         me.gec.on('clear.global', me.onclear, me);
 
         me.$resizeButton.on('touchstart', function(e){
-            me.onclear();
+            me.gec.trigger('clear.global');
             me.$resizeButton.addClass('on');
             setTimeout(function(){
                 me.$resizeButton.removeClass('on');
@@ -134,7 +135,7 @@ var RectSubView = Rocket.SubView.extend({
                     me.onresizedrag.apply(me, arguments);
                 }
                 , ondragend: function(){
-                    me.$resizeHandle.removeClass('on').hide();
+                    me.$resizeHandle.removeClass('on');
                 }
             });
             e.stopPropagation();
@@ -166,6 +167,7 @@ var RectSubView = Rocket.SubView.extend({
     , onclear: function(){
         var me = this;
         me.$el.disableDrag();
+        me.isSelected = false;
         if(me.$resizeHandle){
             me.$resizeHandle.hide().disableDrag();
         }
@@ -197,22 +199,21 @@ var RectSubView = Rocket.SubView.extend({
             flag = -1;
         }
 
-        var width = me.$el.width(),
-            height = me.$el.height();
+        var width = parseInt(me.$el.css('width')) || me.$el.width(),
+            height = parseInt(me.$el.css('height')) || me.$el.width();
 
         me.onresizedrag(20 * flag, 20 * height / width * flag);
     }
 
     , onresizedrag: function(deltaX, deltaY){
         var me = this,
-            width = me.$el.width(),
-            height = me.$el.height(),
+            width = parseInt(me.$el.css('width')) || me.$el.width(),
+            height = parseInt(me.$el.css('height')) || me.$el.width(),
             opt = {
                 width: width + deltaX
                 , height: height + deltaY
             };
 
-        console.log([width, height, deltaX, deltaY, opt.width, opt.height].join('|'));
         me._applySize(opt);
     } 
 
