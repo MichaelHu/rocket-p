@@ -13,6 +13,10 @@
 .global-panel .panel-wrpper {
     height: 100%;
     width: 100%;
+}
+
+.global-panel .panel {
+    height: 100%;
     overflow: hidden;
 }
 
@@ -28,55 +32,11 @@
     border-color: #f60;
 }
 
+.global-panel .panel span.boxalign-left ,
+.global-panel .panel span.boxalign-right ,
 .global-panel .panel span.boxalign-center {
     padding: 0;
     margin: 0 10px;
     border: 1px solid #f90;
 }
-
-.global-panel .fontcolorpanel {
-    position: absolute;
-    top: 60px;
-    left: 0px;
-    width: 100%;
-    background-color: #000;
-    color: #fff;
-}
-
-.global-panel .fontcolorpanel .font-size span {
-    padding: 0 4px;
-    font-size: 12px;
-    line-height: 14px;
-    word-wrap: break-word;
-}
-
-
-.global-panel .slidenewpanel {
-    position: absolute;
-    top: 60px;
-    left: 0px;
-    width: 100%;
-    background-color: #000;
-    color: #fff;
-}
-
-.popup-edit-subview {
-    position: absolute;
-    top: 60px;
-    left: 0;
-    right: 0;
-    height: 100px;
-}
-
-.popup-edit-subview textarea{
-    margin-left: 5%;
-    border-radius: 4px;
-    resize: none;
-    width: 90%;
-    height: 100px;
-    color: #333;
-    font-size: 16px;
-    line-height: 26px;
-}
-
 

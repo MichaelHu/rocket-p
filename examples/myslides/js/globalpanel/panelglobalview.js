@@ -2,9 +2,10 @@ define(function(require){
 
 var $ = require('zepto');
 var Rocket = require('rocket');
-var FontColorPanelSubView = require('fontcolorpanelsubview');
-var SlideNewPanelSubView = require('slidenewpanelsubview');
+
 var PopupEditSubView = require('popupeditsubview');
+var PopupFontColorSubView = require('popupfontcolorsubview');
+var PopupSlideNewSubView = require('popupslidenewsubview');
 
 // window.IScroll
 require('iscroll');
@@ -30,13 +31,16 @@ var PanelGlobalView = Rocket.GlobalView.extend({
         ,     '<span class="slide-next icon-xiangyou2"></span>'
         ,     '<span class="text-new icon-wenbenshuru"></span>'
         ,     '<span class="image-new icon-tupian"></span>'
+        ,     '<span class="boxalign-left icon-juzuo"></span>'
         ,     '<span class="boxalign-center icon-juzhong"></span>'
+        ,     '<span class="boxalign-right icon-juyou"></span>'
         ,     '<span class="align-left icon-juzuo"></span>'
         ,     '<span class="align-center icon-juzhong"></span>'
         ,     '<span class="align-right icon-juyou"></span>'
         ,     '<span class="font-color icon-ziti"></span>'
         ,     '<span class="zoom-in icon-fangda"></span>'
         ,     '<span class="zoom-out icon-suoxiao"></span>'
+        ,     '<span class="preview icon-dianshiji"></span>'
         ,     '<span class="save icon-baocun"></span>'
         ,     '<span class="release icon-fasong"></span>'
         ,   '</div>'
@@ -78,7 +82,7 @@ var PanelGlobalView = Rocket.GlobalView.extend({
         // Delay to make sure width of panel is updated correctly.
         setTimeout(function(){
             me.refreshIScroll();
-        }, 500);
+        }, 200);
     }
 
     , refreshIScroll: function(){
@@ -87,13 +91,13 @@ var PanelGlobalView = Rocket.GlobalView.extend({
             var $item = $(item);
             totalWidth += $item.width();
         });
-        totalWidth += 2 * parseInt(me.$('.boxalign-center').css('margin-left'));
+        totalWidth += 6 * parseInt(me.$('.boxalign-center').css('margin-left'));
         setTimeout(function(){
             $panel.width(totalWidth );
             setTimeout(function(){
                 me.iScroll.refresh();
-            }, 0);
-        }, 0);
+            }, 100);
+        }, 300);
     }
 
     , onroutechange: function(params){
@@ -114,8 +118,8 @@ var PanelGlobalView = Rocket.GlobalView.extend({
             var align = RegExp.$1;
             me.gec.trigger('textalign.global', {textAlign: align});
         }
-        else if(/^boxalign-center/.test(cls)){
-            me.gec.trigger('boxalign.global', {type: 'x'});
+        else if(/^boxalign-(left|right|center)/.test(cls)){
+            me.gec.trigger('boxalign.global', {type: RegExp.$1});
         }
         else if(/panel-(bottom|top)/.test(cls)){
             me.positionPanel(RegExp.$1);
@@ -140,6 +144,10 @@ var PanelGlobalView = Rocket.GlobalView.extend({
             var action = RegExp.$1;
             me.gec.trigger('zoom.global', {action: action});
         }
+        else if(/preview/.test(cls)){
+            me.gec.trigger('clear.global preview.global');
+            me.previewSlides();
+        }
         else if(/release|save/.test(cls)){
             var action = RegExp['$&'],
                 slidesConfig = {
@@ -148,7 +156,13 @@ var PanelGlobalView = Rocket.GlobalView.extend({
                     , isRelease: action == 'release' ? true : false
                 };
 
-            me.gec.trigger(action + '.global', slidesConfig.views);
+            if(!me.isPreviewed){
+                me.tip('Please preview first.');
+                return;
+            }
+            me.gec
+                .trigger('clear.global')
+                .trigger(action + '.global', slidesConfig.views);
             console.log(JSON.stringify(slidesConfig));
         }
 
@@ -162,8 +176,8 @@ var PanelGlobalView = Rocket.GlobalView.extend({
         var me = this, panel = me.fontColorPanel;
         if(!panel){
             panel = me.fontColorPanel
-                = new FontColorPanelSubView(null, me);
-            me.append(panel); 
+                = new PopupFontColorSubView(null, me);
+            me.appendTo(panel, 'body'); 
         }
         panel.toggle();
     }
@@ -172,8 +186,8 @@ var PanelGlobalView = Rocket.GlobalView.extend({
         var me = this, panel = me.slideNewPanel;
         if(!panel){
             panel = me.slideNewPanel
-                = new SlideNewPanelSubView(null, me);
-            me.append(panel); 
+                = new PopupSlideNewSubView(null, me);
+            me.appendTo(panel, 'body'); 
         }
         panel.toggle();
     }
@@ -203,6 +217,26 @@ var PanelGlobalView = Rocket.GlobalView.extend({
                 bottom: 0
                 , top: 'auto'
             });
+        }
+    }
+
+    , previewSlides: function(){
+        var me = this
+            , order = me.gec.pageOrder
+            , i = 0;
+
+        me.tip('Preview start.');
+        _play();
+        me.isPreviewed = true;
+
+        function _play(){
+            if(i < order.length){
+                me.navigate(order[i++]);
+                setTimeout(function(){_play();}, 2000);
+            }
+            else{
+                me.tip('Preview finish.');
+            }
         }
     }
 

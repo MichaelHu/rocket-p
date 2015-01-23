@@ -5,7 +5,9 @@ var Rocket = require('rocket');
 
 var PopupSubView = Rocket.SubView.extend({
 
-    init: function(options){
+    className: 'popup'
+
+    , init: function(options){
         this._super();
         this.render();
     }

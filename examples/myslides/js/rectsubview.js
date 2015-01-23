@@ -42,8 +42,8 @@ var RectSubView = Rocket.SubView.extend({
         // Maybe not existed
         me.$resizeHandle = me.$('.resize-handle');
 
+        me.$panel.hide();
         if(me._isRelease){
-            me.$panel.hide();
             me.$resizeHandle.hide();
         }
 
@@ -70,16 +70,8 @@ var RectSubView = Rocket.SubView.extend({
         me.showBorder();
         me.isSelected = true;
         me.$el.enableDrag({
-            ondragstart: function(){
-                // me.ondragstart.apply(me, arguments);
-            }
-            , ondrag: function(deltaX, deltaY){
+            ondrag: function(deltaX, deltaY){
                 me.ondrag.apply(me, arguments);
-            }
-            , ondragend: function(){
-                // me.ondragend.apply(me, arguments);
-                // me.$el.disableDrag();
-                // delete me.isSelected;
             }
         });
 
@@ -106,8 +98,8 @@ var RectSubView = Rocket.SubView.extend({
 
         if(!me._isRelease){
             me.$el.on('click', function(e){
-                me.gec.trigger('clear.global');
-                console.log('drag');
+                me.gec.trigger('clear.global', {target: me});
+                me.$panel.show();
                 me.onclick.apply(me, arguments);
             });
         }
@@ -117,7 +109,7 @@ var RectSubView = Rocket.SubView.extend({
         me.gec.on('clear.global', me.onclear, me);
 
         me.$resizeButton.on('touchstart', function(e){
-            me.gec.trigger('clear.global');
+            me.gec.trigger('clear.global', {target: me});
             me.$resizeButton.addClass('on');
             setTimeout(function(){
                 me.$resizeButton.removeClass('on');
@@ -164,8 +156,12 @@ var RectSubView = Rocket.SubView.extend({
         me.$resizeHandle.disableDrag();
     }
 
-    , onclear: function(){
+    , onclear: function(params){
         var me = this;
+
+        if(!params || params.target != me){
+            me.$panel.hide();
+        }
         me.$el.disableDrag();
         me.isSelected = false;
         if(me.$resizeHandle){
@@ -217,16 +213,31 @@ var RectSubView = Rocket.SubView.extend({
         me._applySize(opt);
     } 
 
-    , onboxalign: function(){
+    , onboxalign: function(params){
         var me = this;
         if(!me.isSelected) return;
-        me.positionCenterX();
+        switch(params.type){
+            case 'left': me.positionLeft(); break;
+            case 'right': me.positionRight(); break;
+            case 'center': me.positionCenter(); break;
+        }
     }
 
-    , positionCenterX: function(){
+    , positionCenter: function(){
         var me = this;
-        me._applyBoxAlign({boxAlign: 1});
+        me._applyBoxAlign({boxAlignCenter: 1});
     }
+
+    , positionLeft: function(){
+        var me = this;
+        me._applyBoxAlign({boxAlignLeft: 1});
+    }
+
+    , positionRight: function(){
+        var me = this;
+        me._applyBoxAlign({boxAlignRight: 1});
+    }
+
 
 });
 

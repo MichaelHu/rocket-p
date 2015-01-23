@@ -1,0 +1,91 @@
+.popupfontcolor {
+    position: absolute;
+    top: 60px;
+    left: 0px;
+    width: 100%;
+    padding: 10px;
+    color: #fff;
+    background-color: #000;
+    text-align: left;
+    font-size: 16px;
+    line-height: 24px;
+}
+
+.popupfontcolor .color ,
+.popupfontcolor .font-size {
+    margin: 10px 0;
+}
+
+.popupfontcolor b {
+    float: left;
+    margin-right: 20px;
+    color: #f90;
+}
+
+.popupfontcolor .color input ,
+.popupfontcolor .font-size div span {
+    float: left;
+    padding-right: 6px;
+}
+
+.popupfontcolor .font-size > div {
+    margin-left: 52px;
+    height: 50px;
+}
+
+
+
+
+
+
+.popup-edit-subview {
+    position: absolute;
+    top: 60px;
+    left: 0;
+    right: 0;
+    height: 100px;
+}
+
+.popup-edit-subview textarea{
+    margin-left: 5%;
+    border-radius: 4px;
+    border-color: #000;
+    resize: none;
+    width: 90%;
+    height: 100px;
+    color: #f90;
+    font-size: 20px;
+    line-height: 28px;
+}
+
+
+.popup .slidenewpanel {
+    position: absolute;
+    top: 70px;
+    left: 20px;
+    right: 20px;
+    background-color: #000;
+    color: #f90;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.popup .slidenewpanel .tpl-cont {
+    float: left;
+    width: 60px;
+    height: 80px;
+    border: 1px solid #000;
+}
+
+.popup .slidenewpanel .tpl-thumbnail {
+    width: 50px;
+    height: 60px;
+    margin: 0 auto;
+    background-color: #fff;
+    border-radius: 4px;
+}
+
+.popup .slidenewpanel .tpl-info {
+    height: 20px;
+    text-align: center;
+}

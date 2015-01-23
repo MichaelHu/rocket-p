@@ -16,7 +16,6 @@ var PlainPageView = BaseSlidePageView.extend({
 
     , onswipeUp: function(e){
         var me = this;
-        console.log(111);
         if(me.gec.isRelease){
             me.goNext();
             e.preventDefault();

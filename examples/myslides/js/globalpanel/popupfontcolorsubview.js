@@ -1,38 +1,52 @@
 define(function(require){
 
 var $$ = require('jquery');
-var Rocket = require('rocket');
+var $ = require('zepto');
+var PopupSubView = require('popupsubview');
 require('spectrum'); 
 
 var undef = void 0;
 
-var FontColorPanelSubView = Rocket.SubView.extend({
+var PopupFontColorSubView = PopupSubView.extend({
 
-    className: 'fontcolorpanel'
-
-    , events: {
-        'click .font-size': 'onfontsizeclick'
+    init: function(options){
+        var me = this;
+        me._super();
+        me.$panel = me.$('.popupfontcolor');
     }
 
-    , init: function(options){
-        this.render();
-    }
-
-    , tpl: [
-          '<div class="color">Color: <input></div>'
-        , '<div class="font-size">Size:'
-        ,      '<span>12px</span>'
-        ,      '<span>14px</span>'
-        ,      '<span>16px</span>'
-        ,      '<span>18px</span>'
-        ,      '<span>20px</span>'
-        ,      '<span>22px</span>'
-        ,      '<span>24px</span>'
-        ,      '<span>26px</span>'
-        ,      '<span>28px</span>'
-        ,      '<span>36px</span>'
-        ,      '<span>48px</span>'
-        ,      '<span>72px</span>'
+    , popupFontColorTpl: [
+          '<div class="popupfontcolor">'
+        ,      '<div class="color"><b>颜色</b><input></div>'
+        ,      '<div class="font-size">'
+        ,          '<b>字号</b>'
+        ,          '<div>'
+        ,              '<span>12px</span>'
+        ,              '<span>14px</span>'
+        ,              '<span>16px</span>'
+        ,              '<span>18px</span>'
+        ,              '<span>20px</span>'
+        ,              '<span>22px</span>'
+        ,              '<span>24px</span>'
+        ,              '<span>26px</span>'
+        ,              '<span>28px</span>'
+        ,              '<span>30px</span>'
+        ,              '<span>32px</span>'
+        ,              '<span>34px</span>'
+        ,              '<span>36px</span>'
+        ,              '<span>38px</span>'
+        ,              '<span>40px</span>'
+        ,              '<span>42px</span>'
+        ,              '<span>48px</span>'
+        ,              '<span>56px</span>'
+        ,              '<span>64px</span>'
+        ,              '<span>72px</span>'
+        ,              '<span>80px</span>'
+        ,              '<span>90px</span>'
+        ,              '<span>100px</span>'
+        ,              '<span>120px</span>'
+        ,          '</div>'
+        ,      '</div>'
         , '</div>'
     ].join('')
 
@@ -40,6 +54,7 @@ var FontColorPanelSubView = Rocket.SubView.extend({
         var me = this, 
             $target = $(e.target),
             $span;
+
         if(( $span = $target.closest('span') ).length){
             me.gec.trigger('fontsize.global', {
                 fontSize: $span.html()
@@ -51,10 +66,23 @@ var FontColorPanelSubView = Rocket.SubView.extend({
     , render: function(){
         var me = this; 
 
-        me.$el.html(me.tpl);
+        me._super();
+        me.$el.html(me.popupFontColorTpl);
         me.createColorPicker();
         return me;
     } 
+
+    , registerEvents: function(){
+        var me = this;
+        me._super();
+        me.$panel.on('click', function(e){
+            e.stopPropagation();
+        });
+
+        me.$('.font-size').on('click', function(e){
+            me.onfontsizeclick(e);
+        });
+    }
 
     , createColorPicker: function(){
         var me = this,
@@ -89,12 +117,8 @@ var FontColorPanelSubView = Rocket.SubView.extend({
         });
     }
 
-    , toggle: function(){
-        this.$el.toggle();
-    }
-
 });
 
-return FontColorPanelSubView;
+return PopupFontColorSubView;
 
 });

@@ -52,7 +52,7 @@ var TextSubView = RectSubView.extend({
             e.stopPropagation();
             e.preventDefault();
 
-            me.gec.trigger('clear.global');
+            me.gec.trigger('clear.global', {target: me});
             me.$editButton.addClass('on');
             setTimeout(function(){
                 me.$editButton.removeClass('on');

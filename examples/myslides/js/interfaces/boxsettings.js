@@ -32,7 +32,15 @@ var BoxSettingsInterface = {
     }
 
     , _getBoxAlign: function(){
-        return this._getSettings('pos_boxalign', 'boxAlign');
+        var me = this, align = {};
+        $.extend(
+            align
+            , me._getSettings('pos_boxalign_center', 'boxAlignCenter')
+            , me._getSettings('pos_boxalign_left', 'boxAlignLeft')
+            , me._getSettings('pos_boxalign_right', 'boxAlignRight')
+        );
+
+        return align;
     }
 
 
@@ -53,7 +61,11 @@ var BoxSettingsInterface = {
     }
 
     , _setBoxAlign: function(align){
-        this._setSettings(align, 'pos_boxalign', 'boxAlign');
+        var me = this;
+
+        me._setSettings(align, 'pos_boxalign_center', 'boxAlignCenter')
+        me._setSettings(align, 'pos_boxalign_left', 'boxAlignLeft')
+        me._setSettings(align, 'pos_boxalign_right', 'boxAlignRight')
     }
 
 
@@ -81,17 +93,34 @@ var BoxSettingsInterface = {
         apply();
 
         function apply(){
+            // Make sure width we got is correct
             if(!me.ec.isActivePage()){
                 setTimeout(apply, 50);
                 return;
             }
 
-            var width = me.$el.width(),
-                slideWidth = me.ec.$el.width();
+            if(align.boxAlignCenter){
+                var width = me.$el.width(),
+                    slideWidth = me.ec.$el.width();
 
-            me._applyPos({
-                left: ( slideWidth - width ) / 2
-            });
+                me._applyPos({
+                    left: ( slideWidth - width ) / 2
+                    , right: 'auto'
+                });
+            }
+            else if(align.boxAlignLeft){
+                me._applyPos({
+                    left: 0
+                    , right: 'auto'
+                });
+            }
+            else if(align.boxAlignRight){
+                me._applyPos({
+                    right: 0
+                    , left: 'auto'
+                });
+            }
+
             me._setBoxAlign(align);
         }
     }
