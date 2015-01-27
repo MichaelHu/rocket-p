@@ -31,6 +31,12 @@ var BoxSettingsInterface = {
         return size;
     }
 
+    , _getZIndex: function(){
+        var me = this;
+
+        return me._getSettings('layer_zindex', 'zIndex');
+    }
+
     , _getBoxAlign: function(){
         var me = this, align = {};
         $.extend(
@@ -66,6 +72,12 @@ var BoxSettingsInterface = {
         me._setSettings(align, 'pos_boxalign_center', 'boxAlignCenter')
         me._setSettings(align, 'pos_boxalign_left', 'boxAlignLeft')
         me._setSettings(align, 'pos_boxalign_right', 'boxAlignRight')
+    }
+
+    , _setZIndex: function(layer){
+        var me = this;
+
+        return me._setSettings(layer, 'layer_zindex', 'zIndex');
     }
 
 
@@ -124,6 +136,13 @@ var BoxSettingsInterface = {
             me._setBoxAlign(align);
         }
     }
+
+    , _applyZIndex: function(layer){
+        if(Utils.isEmpty(layer)) return;
+        this.$el.css(layer);
+        this._setZIndex(layer);
+    }
+
 
 };
 

@@ -52,7 +52,6 @@ function pageTransition(inPage, outPage, inClass, outClass){
         }); 
 
     $inPage
-        .show()
         .data('original-classes', $inPage.attr('class'))
         .addClass(inClass)
         .on('webkitAnimationEnd', function(e){
@@ -60,7 +59,11 @@ function pageTransition(inPage, outPage, inClass, outClass){
             if(outPageEnd){
                 afterAnimation();
             }   
-        }); 
+        })
+        // Do not use jQuery method `show` which leads to low performance
+        [0].style.display = 'block'
+        ;
+
 
 
     // afterAnimation may not be called in case of fast swipe

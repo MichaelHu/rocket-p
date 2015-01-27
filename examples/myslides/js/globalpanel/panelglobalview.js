@@ -4,6 +4,7 @@ var $ = require('zepto');
 var Rocket = require('rocket');
 
 var PopupEditSubView = require('popupeditsubview');
+var PopupImageSubView = require('popupimagesubview');
 var PopupFontColorSubView = require('popupfontcolorsubview');
 var PopupSlideNewSubView = require('popupslidenewsubview');
 
@@ -34,6 +35,8 @@ var PanelGlobalView = Rocket.GlobalView.extend({
         ,     '<span class="boxalign-left icon-juzuo"></span>'
         ,     '<span class="boxalign-center icon-juzhong"></span>'
         ,     '<span class="boxalign-right icon-juyou"></span>'
+        ,     '<span class="layer-up icon-xiangshang"></span>'
+        ,     '<span class="layer-down icon-paixu"></span>'
         ,     '<span class="align-left icon-juzuo"></span>'
         ,     '<span class="align-center icon-juzhong"></span>'
         ,     '<span class="align-right icon-juyou"></span>'
@@ -58,6 +61,7 @@ var PanelGlobalView = Rocket.GlobalView.extend({
         var me = this;
         me.ec.on('routechange', me.onroutechange, me);
         me.gec.on('beforeedit.global', me.onbeforeedit, me);
+        me.gec.on('beforeimageedit.global', me.onbeforeimageedit, me);
     }
 
     , render: function(){
@@ -131,11 +135,16 @@ var PanelGlobalView = Rocket.GlobalView.extend({
             var action = RegExp.$1;
             me.gec.trigger('slideoperation.global', {action: action});
         }
+        else if(/layer-(up|down)/.test(cls)){
+            var action = RegExp.$1;
+            me.gec.trigger('layer.global', {action: action});
+        }
         else if(/text-new/.test(cls)){
             me.gec.trigger('newtext.global');
         }
         else if(/image-new/.test(cls)){
-            me.gec.trigger('newimage.global');
+            // me.gec.trigger('newimage.global');
+            me.togglePopupImagePanel();
         }
         else if(/font-color/.test(cls)){
             me.toggleFontColorPanel();
@@ -172,6 +181,10 @@ var PanelGlobalView = Rocket.GlobalView.extend({
         this.togglePopupEditPanel(params);
     }
 
+    , onbeforeimageedit: function(params){
+        this.togglePopupImagePanel(params);
+    }
+
     , toggleFontColorPanel: function(){
         var me = this, panel = me.fontColorPanel;
         if(!panel){
@@ -190,6 +203,16 @@ var PanelGlobalView = Rocket.GlobalView.extend({
             me.appendTo(panel, 'body'); 
         }
         panel.toggle();
+    }
+
+    , togglePopupImagePanel: function(params){
+        var me = this, panel = me.popupImagePanel;
+        if(!panel){
+            panel = me.popupImagePanel
+                = new PopupImageSubView(null, me);
+            me.appendTo(panel, 'body'); 
+        }
+        panel.toggle(params && params.url);
     }
 
     , togglePopupEditPanel: function(params){

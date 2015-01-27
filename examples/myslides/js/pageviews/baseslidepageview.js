@@ -118,10 +118,10 @@ var BaseSlidePageView = Rocket.PageView.extend({
 
     }
 
-    , onnewimage: function(){
+    , onnewimage: function(params){
         var me = this;
 
-        if(!me.isActivePage()) return;
+        if(!me.isActivePage() || !params.url) return;
         
         me.append(
             new ImageSubView(
@@ -132,10 +132,13 @@ var BaseSlidePageView = Rocket.PageView.extend({
                     }
                     , size: {
                         height: 100
-                        , width: 100
+                        , width: 150
                     }
                     , text: {
                         textAlign: 'center'
+                    }
+                    , data: {
+                        url: params.url
                     }
                 }
                 , me

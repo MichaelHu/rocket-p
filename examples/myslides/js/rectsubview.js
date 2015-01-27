@@ -62,6 +62,12 @@ var RectSubView = Rocket.SubView.extend({
         me._applyPos(me._getPos());
         me._applyBoxAlign(me._getBoxAlign());
         me._applySize(me._getSize());
+        me._applyZIndex(
+            $.extend(
+                {zIndex: 10}
+                , me._getZIndex()
+            )
+        );
     }
 
     , onclick: function(e){
@@ -105,6 +111,7 @@ var RectSubView = Rocket.SubView.extend({
         }
 
         me.gec.on('zoom.global', me.onzoom, me);
+        me.gec.on('layer.global', me.onlayer, me);
         me.gec.on('boxalign.global', me.onboxalign, me);
         me.gec.on('clear.global', me.onclear, me);
 
@@ -115,7 +122,6 @@ var RectSubView = Rocket.SubView.extend({
                 me.$resizeButton.removeClass('on');
             }, 300);
 
-            console.log('resize');
             me.ensureResizeHandle();
             me.$resizeHandle.show();
             me.showBorder();;
@@ -149,11 +155,31 @@ var RectSubView = Rocket.SubView.extend({
 
         me.$el.off();
         me.gec.off('zoom.global', me.onzoom, me);
+        me.gec.off('layer.global', me.onlayer, me);
         me.gec.off('boxalign.global', me.onboxalign, me);
         me.gec.off('clear.global', me.onclear, me);
         me.$resizeButton.off();
         me.$deleteButton.off();
         me.$resizeHandle.disableDrag();
+    }
+
+    , onlayer: function(params){
+        var me = this, zIndex;
+
+        if(!params || !me.isSelected) return;
+
+        zIndex = parseInt(me.$el.css('z-index')) || 0; 
+        switch(params.action){
+            case 'up':
+                zIndex++;
+                break;
+            case 'down':
+                zIndex--;
+                break;
+            default:
+                return;
+        }
+        me._applyZIndex({zIndex: zIndex});
     }
 
     , onclear: function(params){
@@ -177,8 +203,12 @@ var RectSubView = Rocket.SubView.extend({
 
     , ondrag: function(deltaX, deltaY){
         var me = this,
-            top = parseInt(me.$el.css('top')) || 0,
-            left = parseInt(me.$el.css('left')) || 0,
+            top = parseInt(me.$el.css('top')) 
+                || me.$el.prop('offsetTop')
+                || 0,
+            left = parseInt(me.$el.css('left')) 
+                || me.$el.prop('offsetLeft')
+                || 0,
             opt = {
                 top: top + deltaY
                 , left: left + deltaX

@@ -13,8 +13,6 @@ var ImageSubView = RectSubView.extend({
 
     , tpl: [
           '<div class="image">'
-        ,     '<div class="add iconfont icon-tupian"></div>'
-        ,     '<input type="file">'
         ,     '<img>'
         , '</div>'
     ].join('')
@@ -26,22 +24,34 @@ var ImageSubView = RectSubView.extend({
         me._super(options);
 
         me.viewClass = 'ImageSubView';
-        if(!me._isSetup){
-            me.$el.append(me.tpl);
-        }
-        me.$image = me.$('.image');
-        me.$file = me.$('input[type="file"]');
-        me.$img = me.$('img');
+
         me.render(options);
+        me.$image = me.$('.image');
+        me.$img = me.$('img');
+        me.$editButton = me.$('.edit');
+        me.initImage(options);
     }
 
     , render: function(options){
         var me = this;
+
         me._super();
-        if(!me.isFirstRender){
-            me.isFirstRender = true;
+        if(!me._isSetup){
+            me.$el.append(me.tpl);
+            me.$panel.append('<span class="edit icon-bianji"></span>');
         }
+
         me.applyTextSettings(options && options.image);
+    }
+
+    , initImage: function(options){
+        var me = this;
+        if(options.data && options.data.url){
+            me.$img.attr('src', options.data.url);
+            setTimeout(function(){ 
+                me.$img.show(); 
+            }, 0);
+        }
     }
 
     , registerEvents: function(){
@@ -50,9 +60,23 @@ var ImageSubView = RectSubView.extend({
             ec = me.ec;
 
         me._super();
-        me.$file.on('change', function(e){me.onfilechange.apply(me, arguments);});
         ec.on('pagebeforechange', me.onpagebeforechange, me);
         gec.on('textalign.global', me.ontextalign, me);
+        gec.on('imagechange.global', me.onimagechange, me);
+
+        me.$editButton.on('touchstart', function(e){
+            e.stopPropagation();
+            e.preventDefault();
+
+            me.gec.trigger('clear.global', {target: me});
+            me.$editButton.addClass('on');
+            setTimeout(function(){
+                me.$editButton.removeClass('on');
+            }, 300);
+            me.isEdited = true;
+            me.gec.trigger('beforeimageedit.global', {url: me.$img.attr('src')});
+            return;
+        });
     }
 
     , unregisterEvents: function(){
@@ -60,16 +84,19 @@ var ImageSubView = RectSubView.extend({
             ec = me.ec,
             gec = me.gec;
 
-        me.$file.off('change', function(e){me.onfilechange.apply(me, arguments);});
         ec.off('pagebeforechange', me.onpagebeforechange, me);
         gec.off('textalign.global', me.ontextalign, me);
+        gec.off('imagechange.global', me.onimagechange, me);
+        me.$editButton.off();
         me._super();
     }
 
-    , onfilechange: function(e){
+    , onimagechange: function(params){
         var me = this;
-        me.$img.attr('src', './img/jizhi/7.jpeg')
+        if(!params || !params.url || !me.isSelected) return;
+        me.$img.attr('src', params.url)
             .show();;
+        me.isEdited = false;
     }
 
     , onpagebeforechange: function(options){

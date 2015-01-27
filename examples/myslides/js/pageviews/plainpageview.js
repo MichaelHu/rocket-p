@@ -14,8 +14,15 @@ var PlainPageView = BaseSlidePageView.extend({
         this.viewClass = 'PlainPageView';
     }
 
+    , registerEvents: function(){
+        var me = this;
+
+        me._super();
+    }
+
     , onswipeUp: function(e){
         var me = this;
+
         if(me.gec.isRelease){
             me.goNext();
             e.preventDefault();
@@ -23,8 +30,11 @@ var PlainPageView = BaseSlidePageView.extend({
     }
 
     , onswipeDown: function(e){
-        var me = this;
-        if(me.gec.isRelease){
+        var me = this,
+            scrollY = window.scrollY;
+
+        if(me.gec.isRelease
+            && scrollY <= 5){
             me.goPrev();
             e.preventDefault();
         }
