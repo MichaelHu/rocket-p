@@ -3,9 +3,9 @@ define(function(require){
 var $ = require('zepto');
 var Rocket = require('rocket');
 
-var ImageUrlSubView = Rocket.SubView.extend({
+var ImageUploadSubView = Rocket.SubView.extend({
 
-    className: 'image-url-container'
+    className: 'image-upload-container'
 
     , events: {
         'click .confirm': 'onconfirmclick'
@@ -16,12 +16,17 @@ var ImageUrlSubView = Rocket.SubView.extend({
 
         me._super();
         me.render();
-        me.$text = me.$('textarea');
+        me.$form = me.$('form');
+        me.$file = me.$('input');
         me.$confirm = me.$('.confirm');
     }
 
     , tpl: [
-          '<textarea></textarea>'
+          '<form action="/news?tn=uploadfile" enctype="multipart/form-data"'
+        ,     ' method="POST" target="__image_upload__">'
+        ,     '<input name="pic" type="file" accept="image/png,image/gif,image/png">'
+        , '</form>'
+        , '<iframe name="__image_upload__" style="display:none;"></iframe>'
         , '<div class="confirm">确定</div>'
     ].join('')
 
@@ -36,8 +41,10 @@ var ImageUrlSubView = Rocket.SubView.extend({
 
         me._super();
 
-        pec.on('editimage', me.oneditimage, me);
         pec.on('typechange', me.ontypechange, me);
+        me.$file.on('change', function(e){
+            me.onchange();
+        });
     }
 
     , onconfirmclick: function(){
@@ -45,26 +52,24 @@ var ImageUrlSubView = Rocket.SubView.extend({
         me._parent.trigger('confirm', {url: me.$text.val()});
     }
 
-    , oneditimage: function(params){
-        if(params && params.url){
-            this.$text.val(params.url);
+    , onchange: function(e){
+        var me = this;     
+        me.$form.submit();
+        if(!window.__uploadFileCallback__){
+            window.__uploadFileCallback__ = function(file){
+                me._parent.trigger('confirm', {url: file});
+            };
         }
     }
 
     , ontypechange: function(params){
         var me = this;
         
-        if(params && params.type == 'url'){
+        if(params && params.type == 'local'){
             me.show();
         }
         else {
             me.hide();
-        }
-    }
-
-    , setValue: function(val){
-        if(val !== void 0){
-            this.$text.val(val);
         }
     }
 
@@ -80,21 +85,19 @@ var ImageUrlSubView = Rocket.SubView.extend({
     }
 
     , open: function(val){
-        this.setValue(val);
         this.show();
     }
 
     , close: function(){
         var me = this;
-
-        me.gec.trigger('afterimage.global', {src: ''});
         this.hide();
     }
     
     
 });
 
-return ImageUrlSubView;
+return ImageUploadSubView;
 
 });
+
 

@@ -5,23 +5,25 @@ var $ = require('zepto');
 
 var SettingsUtilsInterface = {
 
-    _getSettings: function(dataKey, jsonKey){
-        var me = this, $el = me.$el, data = {},
+    _getSettings: function(dataKey, jsonKey, $el){
+        var me = this, $el = $el || me.$el, data = {},
             value = $el.data(dataKey);
 
         value !== undef && ( data[jsonKey] = value );
         return data;
     }
 
-    , _setSettings: function(opt, dataKey, jsonKey){
+    , _setSettings: function(opt, dataKey, jsonKey, $el){
         if(!opt) return;
-        opt[jsonKey] !== undef && this.$el.data(dataKey, opt[jsonKey]);
+        $el = $el || this.$el;
+        opt[jsonKey] !== undef && $el.data(dataKey, opt[jsonKey]);
     }
 
-    , _applySettings: function(opt, cssKey, jsonKey){
+    , _applySettings: function(opt, cssKey, jsonKey, $el){
         if(Utils.isEmpty(opt) || Utils.isEmpty(opt[jsonKey])) return;
-        this.$el.css(cssKey, opt[jsonKey]);
-        this['_set' + jsonKey.replace(/^\w/, function($0){return $0.toUpperCase();})](opt);
+        $el = $el || this.$el;
+        $el.css(cssKey, opt[jsonKey]);
+        this['_set' + jsonKey.replace(/^\w/, function($0){return $0.toUpperCase();})](opt, $el);
     }
 
 };

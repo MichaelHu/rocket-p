@@ -13,20 +13,10 @@
     color: #fff;
 }
 
-.image input[type="file"] {
-    position: absolute;
-    top: 35px;
-    left: 35px;
-    width: 30px;
-    height: 30px;
-    overflow: hidden;
-    opacity: 0;
-}
-
 .image img {
     position: absolute;
     display: none;
     top: 0;
     left: 0;
-    max-width: 100%;
 }
+

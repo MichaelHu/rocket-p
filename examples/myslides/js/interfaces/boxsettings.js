@@ -7,43 +7,47 @@ var SettingsUtilsInterface = require('settingsutilsinterface');
 
 var BoxSettingsInterface = {
 
-    _getPos: function(){
+    _getPos: function($el){
         var me = this, pos = {};
+        $el = $el || me.$el;
         $.extend(
             pos
-            , me._getSettings('pos_left', 'left') 
-            , me._getSettings('pos_top', 'top') 
-            , me._getSettings('pos_right', 'right') 
-            , me._getSettings('pos_bottom', 'bottom') 
+            , me._getSettings('pos_left', 'left', $el) 
+            , me._getSettings('pos_top', 'top', $el) 
+            , me._getSettings('pos_right', 'right', $el) 
+            , me._getSettings('pos_bottom', 'bottom', $el) 
         );
 
         return pos;
     }
 
-    , _getSize: function(){
+    , _getSize: function($el){
         var me = this, size = {};
+        $el = $el || me.$el;
         $.extend(
             size
-            , me._getSettings('size_width', 'width') 
-            , me._getSettings('size_height', 'height') 
+            , me._getSettings('size_width', 'width', $el) 
+            , me._getSettings('size_height', 'height', $el) 
         );
 
         return size;
     }
 
-    , _getZIndex: function(){
+    , _getZIndex: function($el){
         var me = this;
 
-        return me._getSettings('layer_zindex', 'zIndex');
+        $el = $el || me.$el;
+        return me._getSettings('layer_zindex', 'zIndex', $el);
     }
 
-    , _getBoxAlign: function(){
+    , _getBoxAlign: function($el){
         var me = this, align = {};
+        $el = $el || me.$el;
         $.extend(
             align
-            , me._getSettings('pos_boxalign_center', 'boxAlignCenter')
-            , me._getSettings('pos_boxalign_left', 'boxAlignLeft')
-            , me._getSettings('pos_boxalign_right', 'boxAlignRight')
+            , me._getSettings('pos_boxalign_center', 'boxAlignCenter', $el)
+            , me._getSettings('pos_boxalign_left', 'boxAlignLeft', $el)
+            , me._getSettings('pos_boxalign_right', 'boxAlignRight', $el)
         );
 
         return align;
@@ -52,50 +56,56 @@ var BoxSettingsInterface = {
 
 
 
-    , _setPos: function(pos){
+    , _setPos: function(pos, $el){
         var me = this;
-        me._setSettings(pos, 'pos_left', 'left');
-        me._setSettings(pos, 'pos_top', 'top');
-        me._setSettings(pos, 'pos_right', 'right');
-        me._setSettings(pos, 'pos_bottom', 'bottom');
+        $el = $el || me.$el;
+        me._setSettings(pos, 'pos_left', 'left', $el);
+        me._setSettings(pos, 'pos_top', 'top', $el);
+        me._setSettings(pos, 'pos_right', 'right', $el);
+        me._setSettings(pos, 'pos_bottom', 'bottom', $el);
     }
 
-    , _setSize: function(size){
+    , _setSize: function(size, $el){
         var me = this;
-        me._setSettings(size, 'size_width', 'width');
-        me._setSettings(size, 'size_height', 'height');
+        $el = $el || me.$el;
+        me._setSettings(size, 'size_width', 'width', $el);
+        me._setSettings(size, 'size_height', 'height', $el);
     }
 
-    , _setBoxAlign: function(align){
+    , _setBoxAlign: function(align, $el){
         var me = this;
 
-        me._setSettings(align, 'pos_boxalign_center', 'boxAlignCenter')
-        me._setSettings(align, 'pos_boxalign_left', 'boxAlignLeft')
-        me._setSettings(align, 'pos_boxalign_right', 'boxAlignRight')
+        $el = $el || me.$el;
+        me._setSettings(align, 'pos_boxalign_center', 'boxAlignCenter', $el)
+        me._setSettings(align, 'pos_boxalign_left', 'boxAlignLeft', $el)
+        me._setSettings(align, 'pos_boxalign_right', 'boxAlignRight', $el)
     }
 
-    , _setZIndex: function(layer){
+    , _setZIndex: function(layer, $el){
         var me = this;
 
-        return me._setSettings(layer, 'layer_zindex', 'zIndex');
+        $el = $el || me.$el;
+        return me._setSettings(layer, 'layer_zindex', 'zIndex', $el);
     }
 
 
 
 
 
-    , _applyPos: function(pos){
+    , _applyPos: function(pos, $el){
         if(Utils.isEmpty(pos)) return;
         var opt = $.extend({'position': 'absolute'}, pos);
-        this.$el.css(opt);
-        this._setPos(pos);
+        $el = $el || this.$el;
+        $el.css(opt);
+        this._setPos(pos, $el);
     } 
 
-    , _applySize: function(size){
+    , _applySize: function(size, $el){
         if(Utils.isEmpty(size)) return;
         var opt = $.extend({'position': 'absolute'}, size);
-        this.$el.css(opt);
-        this._setSize(size);
+        $el = $el || this.$el;
+        $el.css(opt);
+        this._setSize(size, $el);
     }
 
     , _applyBoxAlign: function(align){
@@ -137,10 +147,11 @@ var BoxSettingsInterface = {
         }
     }
 
-    , _applyZIndex: function(layer){
+    , _applyZIndex: function(layer, $el){
         if(Utils.isEmpty(layer)) return;
-        this.$el.css(layer);
-        this._setZIndex(layer);
+        $el = $el || this.$el;
+        $el.css(layer);
+        this._setZIndex(layer, $el);
     }
 
 

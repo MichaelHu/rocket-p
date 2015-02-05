@@ -3,6 +3,7 @@ define(function(require){
 var $ = require('zepto');
 var PopupSubView = require('popupsubview');
 var ImageUrlSubView = require('imageurlsubview');
+var ImageUploadSubView = require('imageuploadsubview');
 
 var PopupImageSubView = PopupSubView.extend({
 
@@ -36,18 +37,22 @@ var PopupImageSubView = PopupSubView.extend({
 
     , registerEvents: function(){
         var me = this;
+
         me._super();
         me.$popupImage.on('click', function(e){
             e.stopPropagation();
         });
 
         me.$tab.on('click', function(e){
-            var $target = $(e.target).closest('.tab-item');
+            var $target = $(e.target).closest('.tab-item'),
+                type;
 
             if(!$target.length) return;
             me.$('.tab-item').removeClass('on');
             $target.addClass('on');
-            me.trigger('imagesource', {type: $target.data('type')});
+            type = $target.data('type');
+            me.openSubPanel(type);
+            me.trigger('typechange', {type: type});
         });
 
         me.on('confirm', me.onconfirm, me);
@@ -87,6 +92,13 @@ var PopupImageSubView = PopupSubView.extend({
                 if(!me.imageUrlPanel){
                     panel = me.imageUrlPanel 
                         = new ImageUrlSubView(null, me);
+                    me.appendTo(panel, me.$popupImage);
+                }
+                break;
+            case 'local': 
+                if(!me.imageUploadPanel){
+                    panel = me.imageUploadPanel 
+                        = new ImageUploadSubView(null, me);
                     me.appendTo(panel, me.$popupImage);
                 }
                 break;

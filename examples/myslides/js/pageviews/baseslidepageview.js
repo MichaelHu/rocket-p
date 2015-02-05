@@ -4,6 +4,7 @@ var $ = require('zepto');
 var Rocket = require('rocket');
 var TextSubView = require('textsubview');
 var ImageSubView = require('imagesubview');
+var ImageWithMaskSubView = require('imagewithmasksubview');
 var CommonSettingsInterface = require('commonsettingsinterface');
 
 var BaseSlidePageView = Rocket.PageView.extend({
@@ -124,7 +125,7 @@ var BaseSlidePageView = Rocket.PageView.extend({
         if(!me.isActivePage() || !params.url) return;
         
         me.append(
-            new ImageSubView(
+            new ImageWithMaskSubView(
                 {
                     pos: {
                         top: 160

@@ -15,6 +15,11 @@ var ImageSubView = RectSubView.extend({
           '<div class="image">'
         ,     '<img>'
         , '</div>'
+        , '<div class="inner-panel">'
+        ,     '<span class="img-move" data-btn-type="img-move">移动</span>'
+        ,     '<span data-btn-type="img-zoom-in">放大</span>'
+        ,     '<span data-btn-type="img-zoom-out">缩小</span>'
+        , '</div>'
     ].join('')
 
     , init: function(options){
@@ -30,6 +35,11 @@ var ImageSubView = RectSubView.extend({
         me.$img = me.$('img');
         me.$editButton = me.$('.edit');
         me.initImage(options);
+
+        me.$innerPanel = me.$('.inner-panel');
+        if(me._isRelease){
+            me.$innerPanel.hide();
+        }
     }
 
     , render: function(options){
@@ -77,6 +87,25 @@ var ImageSubView = RectSubView.extend({
             me.gec.trigger('beforeimageedit.global', {url: me.$img.attr('src')});
             return;
         });
+
+        me.$innerPanel.on('touchstart', function(e){
+            e.preventDefault();
+            e.stopPropagation();
+
+            var $target = $(e.target).closest('span');
+
+            switch($target.data('btn-type')){
+                case 'img-move':
+                    me.toggleImageMove($target);
+                    break;
+                case 'img-zoom-in':
+                    me.imgZoomIn();
+                    break;
+                case 'img-zoom-out':
+                    me.imgZoomOut();
+                    break;
+            }
+        });
     }
 
     , unregisterEvents: function(){
@@ -88,6 +117,7 @@ var ImageSubView = RectSubView.extend({
         gec.off('textalign.global', me.ontextalign, me);
         gec.off('imagechange.global', me.onimagechange, me);
         me.$editButton.off();
+        me.$innerPanel.off();
         me._super();
     }
 
@@ -118,6 +148,69 @@ var ImageSubView = RectSubView.extend({
     , applyTextSettings: function(opt){
         var me = this;
         me._applyTextAlign(opt || me._getTextAlign());
+    }
+
+    , enableImageDrag: function(){
+        var me = this;
+
+        me.gec.trigger('clear.global', {target: me});
+        me.$img.enableDrag({
+            ondrag: function(deltaX, deltaY){
+                me.onimgdrag.apply(me, arguments);
+            }
+        });
+    }
+
+    , onimgdrag: function(deltaX, deltaY){
+        var me = this,
+            $img = me.$img,
+            top = parseInt($img.css('top')) 
+                || $img.prop('offsetTop')
+                || 0,
+            left = parseInt($img.css('left')) 
+                || $img.prop('offsetLeft')
+                || 0,
+            opt = {
+                top: top + deltaY
+                , left: left + deltaX
+            };
+
+        me._applyPos(opt, $img);
+    } 
+
+    , imgZoomIn: function(){
+        var me = this,
+            width = me.$img.width(),
+            opt = {width: width * 1.1};
+        me._applySize(opt, me.$img);
+    }
+
+    , imgZoomOut: function(){
+        var me = this,
+            width = me.$img.width(),
+            opt = {width: width * 0.9};
+        me._applySize(opt, me.$img);
+    }
+
+    , onclear: function(params){
+        var me = this;
+
+        me._super();
+        me.$img.disableDrag();
+    }
+
+    , toggleImageMove: function($el){
+        var me = this;
+        
+        me.gec.trigger('clear.global', {target: me});
+        me.isEnableImageMove = !me.isEnableImageMove;
+        if(me.isEnableImageMove){
+            $el.addClass('on');
+            me.enableImageDrag();
+        }
+        else{
+            $el.removeClass('on');
+        }
     }
 
 });

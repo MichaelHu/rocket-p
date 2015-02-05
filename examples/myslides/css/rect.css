@@ -32,3 +32,26 @@
 .resize-handle.on {
     color: #0b0; 
 }
+
+.inner-panel {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    height: 20px;
+}
+
+.inner-panel span {
+    margin-right: 8px;
+    color: #0f0;
+    text-shadow: 0px 0px 2px #000;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.inner-panel span.img-move {
+    color: #060;
+}
+
+.inner-panel span.img-move.on {
+    color: #0f0;
+}
