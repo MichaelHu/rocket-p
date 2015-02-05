@@ -79,6 +79,8 @@ var ImageSubView = RectSubView.extend({
             e.preventDefault();
 
             me.gec.trigger('clear.global', {target: me});
+            // Make sure it can response to `imagechange` event
+            me.isSelected = true;
             me.$editButton.addClass('on');
             setTimeout(function(){
                 me.$editButton.removeClass('on');
@@ -125,7 +127,7 @@ var ImageSubView = RectSubView.extend({
         var me = this;
         if(!params || !params.url || !me.isSelected) return;
         me.$img.attr('src', params.url)
-            .show();;
+            .show();
         me.isEdited = false;
     }
 

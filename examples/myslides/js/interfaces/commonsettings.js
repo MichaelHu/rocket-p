@@ -94,19 +94,19 @@ var CommonSettingsInterface = {
     }
 
     , _applyBackgroundColor: function(opt, $el){
-        this._applySettings(opt, 'background_color', 'backgroundColor', $el);
+        this._applySettings(opt, 'background-color', 'backgroundColor', $el);
     }
 
     , _applyBackgroundImage: function(opt, $el){
-        this._applySettings(opt, 'background_image', 'backgroundImage', $el);
+        this._applySettings(opt, 'background-image', 'backgroundImage', $el);
     }
 
     , _applyBackgroundPosition: function(opt, $el){
-        this._applySettings(opt, 'background_position', 'backgroundPosition', $el);
+        this._applySettings(opt, 'background-position', 'backgroundPosition', $el);
     }
 
     , _applyBackgroundRepeat: function(opt, $el){
-        this._applySettings(opt, 'background_repeat', 'backgroundRepeat', $el);
+        this._applySettings(opt, 'background-repeat', 'backgroundRepeat', $el);
     }
 
 };

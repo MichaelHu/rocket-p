@@ -182,6 +182,7 @@ var PanelGlobalView = Rocket.GlobalView.extend({
     }
 
     , onbeforeimageedit: function(params){
+        $.extend(params, {isEditing: true});
         this.togglePopupImagePanel(params);
     }
 
@@ -212,7 +213,7 @@ var PanelGlobalView = Rocket.GlobalView.extend({
                 = new PopupImageSubView(null, me);
             me.appendTo(panel, 'body'); 
         }
-        panel.toggle(params && params.url);
+        panel.toggle(params);
     }
 
     , togglePopupEditPanel: function(params){

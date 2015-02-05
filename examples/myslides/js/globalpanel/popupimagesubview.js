@@ -61,8 +61,9 @@ var PopupImageSubView = PopupSubView.extend({
     , onconfirm: function(params){
         var me = this;
 
-        if(params.isEditing){
+        if(me.isEditing){
             me.gec.trigger('imagechange.global', params);
+            me.isEditing = false;
         }
         else{
             me.gec.trigger('newimage.global', params);
@@ -114,11 +115,16 @@ var PopupImageSubView = PopupSubView.extend({
         }
     }
 
-    , toggle: function(val){
+    , toggle: function(params){
         var me = this;
         me._super();
+
+        if(params.isEditing){
+            me.isEditing = true;
+        }
+
         if(me.$el.css('display') != 'none'){
-            me.open(val);
+            me.open(params && params.url);
         }
         else{
             me.close();
