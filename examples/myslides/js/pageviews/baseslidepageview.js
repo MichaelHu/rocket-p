@@ -23,21 +23,25 @@ var BaseSlidePageView = Rocket.PageView.extend({
     }
 
     , registerEvents: function(){
-        var me = this;
-        me.gec.on('slideoperation.global', me.onslideoperation, me);
-        me.gec.on('release.global', me.onrelease, me);
-        me.gec.on('save.global', me.onsave, me);
-        me.gec.on('newtext.global', me.onnewtext, me);
-        me.gec.on('newimage.global', me.onnewimage, me);
+        var me = this, gec = me.gec;
+        gec.on('slideoperation.global', me.onslideoperation, me);
+        gec.on('slidebgcolor.global', me.onslidebgcolor, me);
+        gec.on('release.global', me.onrelease, me);
+        gec.on('save.global', me.onsave, me);
+        gec.on('color.global', me.oncolor, me);
+        gec.on('newtext.global', me.onnewtext, me);
+        gec.on('newimage.global', me.onnewimage, me);
     }
 
     , unregisterEvents: function(){
-        var me = this;
-        me.gec.off('slideoperation.global', me.onslideoperation, me);
-        me.gec.off('release.global', me.onrelease, me);
-        me.gec.off('save.global', me.onsave, me);
-        me.gec.off('newtext.global', me.onnewtext, me);
-        me.gec.off('newimage.global', me.onnewimage, me);
+        var me = this, gec = me.gec;
+        gec.off('slideoperation.global', me.onslideoperation, me);
+        gec.off('slidebgcolor.global', me.onslidebgcolor, me);
+        gec.off('release.global', me.onrelease, me);
+        gec.off('save.global', me.onsave, me);
+        gec.off('color.global', me.oncolor, me);
+        gec.off('newtext.global', me.onnewtext, me);
+        gec.off('newimage.global', me.onnewimage, me);
     }
 
     , setupSubViews: function(){
@@ -74,6 +78,12 @@ var BaseSlidePageView = Rocket.PageView.extend({
         }
     }
 
+    , onslidebgcolor: function(params){
+        var me = this;
+        if(!params || !params.color) return;
+        me._applyBackgroundColor({'backgroundColor': params.color});
+    }
+
     , onrelease: function(params){
         var me = this;
         
@@ -87,6 +97,15 @@ var BaseSlidePageView = Rocket.PageView.extend({
 
     , onsave: function(params){
         this.onrelease(params);
+    }
+
+    , oncolor: function(params){
+        var me = this;
+        if(me.isActivePage()){
+            me._applyBackgroundColor({
+                backgroundColor: params.color
+            });
+        }
     }
 
     , onnewtext: function(){

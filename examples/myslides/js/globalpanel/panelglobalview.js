@@ -7,6 +7,7 @@ var PopupEditSubView = require('popupeditsubview');
 var PopupImageSubView = require('popupimagesubview');
 var PopupFontColorSubView = require('popupfontcolorsubview');
 var PopupSlideNewSubView = require('popupslidenewsubview');
+var PopupSlideConfigSubView = require('popupslideconfigsubview');
 
 // window.IScroll
 require('iscroll');
@@ -30,6 +31,7 @@ var PanelGlobalView = Rocket.GlobalView.extend({
         ,     '<span class="slide-delete icon-jian1"></span>'
         ,     '<span class="slide-prev icon-xiangzuo2"></span>'
         ,     '<span class="slide-next icon-xiangyou2"></span>'
+        ,     '<span class="slide-config icon-shezhi"></span>'
         ,     '<span class="text-new icon-wenbenshuru"></span>'
         ,     '<span class="image-new icon-tupian"></span>'
         ,     '<span class="boxalign-left icon-juzuo"></span>'
@@ -68,6 +70,8 @@ var PanelGlobalView = Rocket.GlobalView.extend({
         var me = this;
         me.$el.html(me.contTpl)
             .appendTo('body');
+        // Default to bottom
+        me.positionPanel('bottom');
     }
 
     , initIScroll: function(){
@@ -108,6 +112,10 @@ var PanelGlobalView = Rocket.GlobalView.extend({
         this.currentAction = params.to.action;
     }
 
+    , clearState: function(){
+        this.gec.trigger('clear.global', {target: this});
+    }
+
     , onpanelbuttonclick: function(e){
         var me = this,
             $btn = $(e.target).closest('span'),
@@ -126,13 +134,20 @@ var PanelGlobalView = Rocket.GlobalView.extend({
             me.gec.trigger('boxalign.global', {type: RegExp.$1});
         }
         else if(/panel-(bottom|top)/.test(cls)){
+            me.clearState();
             me.positionPanel(RegExp.$1);
         }
         else if(/slide-new/.test(cls)){
+            me.clearState();
             me.toggleSlideNewPanel();
+        }
+        else if(/slide-config/.test(cls)){
+            me.clearState();
+            me.toggleSlideConfigPanel();
         }
         else if(/slide-(next|prev|delete)/.test(cls)){
             var action = RegExp.$1;
+            me.clearState();
             me.gec.trigger('slideoperation.global', {action: action});
         }
         else if(/layer-(up|down)/.test(cls)){
@@ -140,10 +155,12 @@ var PanelGlobalView = Rocket.GlobalView.extend({
             me.gec.trigger('layer.global', {action: action});
         }
         else if(/text-new/.test(cls)){
+            me.clearState();
             me.gec.trigger('newtext.global');
         }
         else if(/image-new/.test(cls)){
             // me.gec.trigger('newimage.global');
+            me.clearState();
             me.togglePopupImagePanel();
         }
         else if(/font-color/.test(cls)){
@@ -154,6 +171,7 @@ var PanelGlobalView = Rocket.GlobalView.extend({
             me.gec.trigger('zoom.global', {action: action});
         }
         else if(/preview/.test(cls)){
+            me.clearState();
             me.gec.trigger('clear.global preview.global');
             me.previewSlides();
         }
@@ -201,6 +219,16 @@ var PanelGlobalView = Rocket.GlobalView.extend({
         if(!panel){
             panel = me.slideNewPanel
                 = new PopupSlideNewSubView(null, me);
+            me.appendTo(panel, 'body'); 
+        }
+        panel.toggle();
+    }
+
+    , toggleSlideConfigPanel: function(){
+        var me = this, panel = me.slideConfigPanel;
+        if(!panel){
+            panel = me.slideConfigPanel
+                = new PopupSlideConfigSubView(null, me);
             me.appendTo(panel, 'body'); 
         }
         panel.toggle();

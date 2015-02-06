@@ -26,7 +26,6 @@ var ImageUploadSubView = Rocket.SubView.extend({
         ,     ' method="POST" target="__image_upload__">'
         ,     '<input name="pic" type="file" accept="image/png,image/gif,image/png">'
         , '</form>'
-        , '<iframe name="__image_upload__" style="display:none;"></iframe>'
         , '<div class="confirm">确定</div>'
     ].join('')
 
@@ -34,6 +33,14 @@ var ImageUploadSubView = Rocket.SubView.extend({
         var me = this;
         me._super();
         me.$el.append(me.tpl);
+        me.ensureHiddenIFrame();
+    }
+
+    , ensureHiddenIFrame: function(){
+        if($('#__image_upload__').length) return;
+        $(
+            '<iframe id="__image_upload__" name="__image_upload__" style="display:none;"></iframe>'
+        ).appendTo('body');
     }
 
     , registerEvents: function(){

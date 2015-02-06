@@ -7,7 +7,7 @@ var PopupEditSubView = PopupSubView.extend({
 
     init: function(options){
         var me = this;
-        me._super();
+        me._super(options);
         me.$popupEdit = me.$('.popup-edit-subview');
         me.$text = me.$('textarea');
     }

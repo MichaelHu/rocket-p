@@ -11,7 +11,7 @@ var PopupSlideNewSubView = PopupSubView.extend({
     init: function(options){
         var me = this;
 
-        me._super();
+        me._super(options);
         me.$panel = me.$('.slidenewpanel');
     }
 

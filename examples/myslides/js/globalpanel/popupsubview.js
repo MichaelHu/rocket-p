@@ -8,7 +8,7 @@ var PopupSubView = Rocket.SubView.extend({
     className: 'popup'
 
     , init: function(options){
-        this._super();
+        this._super(options);
         this.render();
     }
 

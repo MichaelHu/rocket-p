@@ -7,67 +7,25 @@ require('spectrum');
 
 var undef = void 0;
 
-var PopupFontColorSubView = PopupSubView.extend({
+var PopupSlideConfigSubView = PopupSubView.extend({
 
     init: function(options){
         var me = this;
         me._super(options);
-        me.$panel = me.$('.popupfontcolor');
+        me.$panel = me.$('.popupslideconfig');
     }
 
-    , popupFontColorTpl: [
-          '<div class="popupfontcolor">'
-        ,      '<div class="color"><b>颜色</b><input></div>'
-        ,      '<div class="font-size">'
-        ,          '<b>字号</b>'
-        ,          '<div>'
-        ,              '<span>12px</span>'
-        ,              '<span>14px</span>'
-        ,              '<span>16px</span>'
-        ,              '<span>18px</span>'
-        ,              '<span>20px</span>'
-        ,              '<span>22px</span>'
-        ,              '<span>24px</span>'
-        ,              '<span>26px</span>'
-        ,              '<span>28px</span>'
-        ,              '<span>30px</span>'
-        ,              '<span>32px</span>'
-        ,              '<span>34px</span>'
-        ,              '<span>36px</span>'
-        ,              '<span>38px</span>'
-        ,              '<span>40px</span>'
-        ,              '<span>42px</span>'
-        ,              '<span>48px</span>'
-        ,              '<span>56px</span>'
-        ,              '<span>64px</span>'
-        ,              '<span>72px</span>'
-        ,              '<span>80px</span>'
-        ,              '<span>90px</span>'
-        ,              '<span>100px</span>'
-        ,              '<span>120px</span>'
-        ,          '</div>'
-        ,      '</div>'
+    , popupSlideConfigTpl: [
+          '<div class="popupslideconfig">'
+        ,      '<div class="color"><b>背景颜色</b><input></div>'
         , '</div>'
     ].join('')
-
-    , onfontsizeclick: function(e){
-        var me = this, 
-            $target = $(e.target),
-            $span;
-
-        if(( $span = $target.closest('span') ).length){
-            me.gec.trigger('fontsize.global', {
-                fontSize: $span.html()
-                , lineHeight: $span.html()
-            });
-        }
-    }
 
     , render: function(){
         var me = this; 
 
         me._super();
-        me.$el.html(me.popupFontColorTpl);
+        me.$el.html(me.popupSlideConfigTpl);
         me.createColorPicker();
         return me;
     } 
@@ -78,15 +36,11 @@ var PopupFontColorSubView = PopupSubView.extend({
         me.$panel.on('click', function(e){
             e.stopPropagation();
         });
-
-        me.$('.font-size').on('click', function(e){
-            me.onfontsizeclick(e);
-        });
     }
 
     , createColorPicker: function(){
         var me = this,
-            // Must 6 hex digits
+            // Must be 6 hex digits
             initialColor = '#67890a';
 
         $$(me.$('input')[0]).css('color', initialColor).spectrum({
@@ -119,6 +73,6 @@ var PopupFontColorSubView = PopupSubView.extend({
 
 });
 
-return PopupFontColorSubView;
+return PopupSlideConfigSubView;
 
 });

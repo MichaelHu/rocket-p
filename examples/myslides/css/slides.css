@@ -1,3 +1,7 @@
+body {
+    max-width: 414px;
+}
+
 body, 
 #wrapper{
     position:absolute;

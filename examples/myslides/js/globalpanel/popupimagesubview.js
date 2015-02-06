@@ -10,7 +10,7 @@ var PopupImageSubView = PopupSubView.extend({
     init: function(options){
         var me = this, type;
 
-        me._super();
+        me._super(options);
         me.$popupImage = me.$('.popup-image-subview');
         me.$tab = me.$('.tab');
         type = me.defaultType = me.options.defaultType || 'url';
