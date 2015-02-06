@@ -92,6 +92,33 @@ var BoxSettingsInterface = {
 
 
 
+    , _clearBoxAlign: function(align, $el){
+        var me = this;
+
+        $el = $el || me.$el;
+        me._clearSettings(align, 'pos_boxalign_center', 'boxAlignCenter', $el)
+        me._clearSettings(align, 'pos_boxalign_left', 'boxAlignLeft', $el)
+        me._clearSettings(align, 'pos_boxalign_right', 'boxAlignRight', $el)
+    }
+
+    , _clearBoxAlignAll: function($el){
+        var me = this;
+
+        $el = $el || me.$el;
+        me._clearBoxAlign(
+            {
+                'boxAlignCenter': 1
+                , 'boxAlignRight': 1
+                , 'boxAlignLeft': 1
+            }
+            , $el
+        );
+    }
+
+
+
+
+
     , _applyPos: function(pos, $el){
         if(Utils.isEmpty(pos)) return;
         var opt = $.extend({'position': 'absolute'}, pos);

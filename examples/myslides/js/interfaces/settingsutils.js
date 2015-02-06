@@ -19,6 +19,12 @@ var SettingsUtilsInterface = {
         opt[jsonKey] !== undef && $el.data(dataKey, opt[jsonKey]);
     }
 
+    , _clearSettings: function(opt, dataKey, jsonKey, $el){
+        if(!opt) return;
+        $el = $el || this.$el;
+        opt[jsonKey] !== undef && $el.data(dataKey, null);
+    }
+
     , _applySettings: function(opt, cssKey, jsonKey, $el){
         if(Utils.isEmpty(opt) || Utils.isEmpty(opt[jsonKey])) return;
         $el = $el || this.$el;

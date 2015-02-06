@@ -96,12 +96,7 @@ var TextSubView = RectSubView.extend({
     }
 
     , onpagebeforechange: function(options){
-        var me = this,
-            to = options.to;
-
-        if(to == me.ec){
-            me.render();
-        }
+        this._super(options);
     }
 
     , onafteredit: function(params){

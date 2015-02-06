@@ -59,15 +59,18 @@ var RectSubView = Rocket.SubView.extend({
 
     , render: function(){
         var me = this;
-        me._applyPos(me._getPos());
-        me._applyBoxAlign(me._getBoxAlign());
-        me._applySize(me._getSize());
-        me._applyZIndex(
-            $.extend(
-                {zIndex: 10}
-                , me._getZIndex()
-            )
-        );
+
+        setTimeout(function(){
+            // me._applyPos(me._getPos());
+            // me._applySize(me._getSize());
+            me._applyBoxAlign(me._getBoxAlign());
+            me._applyZIndex(
+                $.extend(
+                    {zIndex: 10}
+                    , me._getZIndex()
+                )
+            );
+        }, 200);
     }
 
     , onclick: function(e){
@@ -115,6 +118,8 @@ var RectSubView = Rocket.SubView.extend({
         me.gec.on('boxalign.global', me.onboxalign, me);
         me.gec.on('clear.global', me.onclear, me);
 
+        me.ec.on('pagebeforechange', me.onpagebeforechange, me);
+
         me.$resizeButton.on('touchstart', function(e){
             me.gec.trigger('clear.global', {target: me});
             me.$resizeButton.addClass('on');
@@ -158,9 +163,19 @@ var RectSubView = Rocket.SubView.extend({
         me.gec.off('layer.global', me.onlayer, me);
         me.gec.off('boxalign.global', me.onboxalign, me);
         me.gec.off('clear.global', me.onclear, me);
+        me.ec.off('pagebeforechange', me.onpagebeforechange, me);
         me.$resizeButton.off();
         me.$deleteButton.off();
         me.$resizeHandle.disableDrag();
+    }
+
+    , onpagebeforechange: function(options){
+        var me = this,
+            to = options.to;
+
+        if(to == me.ec){
+            me.render();
+        }
     }
 
     , onlayer: function(params){
@@ -214,6 +229,7 @@ var RectSubView = Rocket.SubView.extend({
                 , left: left + deltaX
             };
 
+        me._clearBoxAlignAll();
         me._applyPos(opt);
     } 
 
@@ -255,16 +271,19 @@ var RectSubView = Rocket.SubView.extend({
 
     , positionCenter: function(){
         var me = this;
+        me._clearBoxAlignAll();
         me._applyBoxAlign({boxAlignCenter: 1});
     }
 
     , positionLeft: function(){
         var me = this;
+        me._clearBoxAlignAll();
         me._applyBoxAlign({boxAlignLeft: 1});
     }
 
     , positionRight: function(){
         var me = this;
+        me._clearBoxAlignAll();
         me._applyBoxAlign({boxAlignRight: 1});
     }
 

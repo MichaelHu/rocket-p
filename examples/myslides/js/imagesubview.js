@@ -135,9 +135,7 @@ var ImageSubView = RectSubView.extend({
         var me = this,
             to = options.to;
 
-        if(to == me.ec){
-            me.show();
-        }
+        me._super(options);
     }
 
     , ontextalign: function(params){
