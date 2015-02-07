@@ -9,7 +9,7 @@ var TextSubView = RectSubView.extend({
     events: {
     }
 
-    , tpl: [
+    , texttpl: [
         '<div class="text"></div>'
     ].join('')
 
@@ -23,22 +23,24 @@ var TextSubView = RectSubView.extend({
 
         me.viewClass = 'TextSubView';
         if(!me._isSetup){
-            me.$el.append(me.tpl);
+            me.$el.append(me.textTpl);
             me.$panel.append('<span class="edit icon-bianji"></span>');
         }
+
         me.$text = me.$('.text');
         me.$editButton = me.$('.edit');
-        me.render(options);
+
+        if(!me._isSetup){
+            me.$text.html('TextSubView');
+        }
     }
 
     , render: function(options){
         var me = this;
         me._super();
-        if(!me.isFirstRender && !me._isSetup){
-            me.isFirstRender = true;
-            me.$text.html('TextSubView');
-        }
-        me.applyTextSettings(options && options.text);
+        setTimeout(function(){
+            me.applyTextSettings(options && options.text);
+        }, 200); 
     }
 
     , registerEvents: function(){
@@ -61,6 +63,7 @@ var TextSubView = RectSubView.extend({
             me.gec.trigger('beforeedit.global', {text: me.$text.html()});
             return;
 
+            // Discarded
             me.$text.attr('contenteditable', 'true')
                 .focus()
                 .on('blur', function(e){

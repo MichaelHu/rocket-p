@@ -66,7 +66,7 @@ var PopupSlideConfigSubView = PopupSubView.extend({
                 ["#600","#783f04","#7f6000","#274e13","#0c343d","#073763","#20124d","#4c1130"]
             ]
             , change: function(color){
-                me.gec.trigger('color.global', {color: color.toHexString()});
+                me.gec.trigger('slidebgcolor.global', {color: color.toHexString()});
             }
         });
     }

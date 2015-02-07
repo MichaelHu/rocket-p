@@ -30,14 +30,19 @@ var ImageSubView = RectSubView.extend({
 
         me.viewClass = 'ImageSubView';
 
-        me.render(options);
+        if(!me._isSetup){
+            me.$el.append(me.tpl);
+            me.$panel.append('<span class="edit icon-bianji"></span>');
+        }
+
         me.$image = me.$('.image');
         me.$img = me.$('img');
         me.$editButton = me.$('.edit');
         me.initImage(options);
 
         me.$innerPanel = me.$('.inner-panel');
-        if(me._isRelease){
+        if(me._isRelease
+            || me._isPartialEdit && me._isLocked){
             me.$innerPanel.hide();
         }
     }
@@ -46,21 +51,18 @@ var ImageSubView = RectSubView.extend({
         var me = this;
 
         me._super();
-        if(!me._isSetup){
-            me.$el.append(me.tpl);
-            me.$panel.append('<span class="edit icon-bianji"></span>');
-        }
-
-        me.applyTextSettings(options && options.image);
+        setTimeout(function(){
+            me.applyTextSettings(options && options.image);
+        }, 200);
     }
 
     , initImage: function(options){
         var me = this;
         if(options.data && options.data.url){
-            me.$img.attr('src', options.data.url);
             setTimeout(function(){ 
+                me.$img.attr('src', options.data.url);
                 me.$img.show(); 
-            }, 0);
+            }, 5000);
         }
     }
 
@@ -70,6 +72,21 @@ var ImageSubView = RectSubView.extend({
             ec = me.ec;
 
         me._super();
+
+        if(me._isRelease) return;
+
+        if(me._isPartialEdit){
+            me.$el.on('click', function(e){
+                e.stopPropagation();
+                e.preventDefault();
+                me.gec.trigger('clear.global', {target: me});
+                // Make sure it can response to `imagechange` event
+                me.isSelected = true;
+                me.isEdited = true;
+                me.gec.trigger('beforeimageedit.global', {url: me.$img.attr('src')});
+            });
+        }
+
         ec.on('pagebeforechange', me.onpagebeforechange, me);
         gec.on('textalign.global', me.ontextalign, me);
         gec.on('imagechange.global', me.onimagechange, me);
@@ -114,6 +131,8 @@ var ImageSubView = RectSubView.extend({
         var me = this, 
             ec = me.ec,
             gec = me.gec;
+
+        if(me._isRelease) return;
 
         ec.off('pagebeforechange', me.onpagebeforechange, me);
         gec.off('textalign.global', me.ontextalign, me);

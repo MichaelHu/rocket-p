@@ -20,10 +20,16 @@ var ImageWithMaskSubView = ImageSubView.extend({
         me._super(options);
 
         me.viewClass = 'ImageWithMaskSubView';
+
+        if(!me._isSetup){
+            me.$el.append(me.maskImageTpl);
+        }
+
         me.$imgMask = me.$('.img-mask');
         me.$changeMaskBtn = me.$('.img-mask-change');
 
-        if(me._isRelease){
+        if(me._isRelease
+            || me._isPartialEdit){
             me.$changeMaskBtn.hide();
         }
     }
@@ -32,9 +38,6 @@ var ImageWithMaskSubView = ImageSubView.extend({
         var me = this;
 
         me._super();
-        if(!me._isSetup){
-            me.$el.append(me.maskImageTpl);
-        }
     }
 
     , registerEvents: function(){
@@ -43,6 +46,8 @@ var ImageWithMaskSubView = ImageSubView.extend({
             ec = me.ec;
 
         me._super();
+
+        if(me._isRelease || me._isPartialEdit) return;
 
         me.$changeMaskBtn.on('touchstart', function(e){
             e.stopPropagation();
@@ -94,7 +99,6 @@ var ImageWithMaskSubView = ImageSubView.extend({
     , enableImageMaskDrag: function(){
         var me = this;
 
-        me.gec.trigger('clear.global', {target: me});
         me.$imgMask.enableDrag({
             ondrag: function(deltaX, deltaY){
                 me.onimgdrag.apply(me, arguments);
@@ -121,7 +125,7 @@ var ImageWithMaskSubView = ImageSubView.extend({
     , onclear: function(params){
         var me = this;
 
-        me._super();
+        me._super(params);
         me.$imgMask.disableDrag();
     }
 

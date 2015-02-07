@@ -14,7 +14,7 @@ var ImageUploadSubView = Rocket.SubView.extend({
     , init: function(options){
         var me = this;
 
-        me._super();
+        me._super(options);
         me.render();
         me.$form = me.$('form');
         me.$file = me.$('input');
@@ -22,9 +22,14 @@ var ImageUploadSubView = Rocket.SubView.extend({
     }
 
     , tpl: [
-          '<form action="/news?tn=uploadfile" enctype="multipart/form-data"'
+          '<form action="' + global_greetingcard_server + '"' 
+        ,     ' enctype="multipart/form-data"'
         ,     ' method="POST" target="__image_upload__">'
-        ,     '<input name="pic" type="file" accept="image/png,image/gif,image/png">'
+        ,     '<input name="image" type="file" accept="image/gif,image/jpeg,image/jpg">'
+        ,     '<input name="action" type="hidden" value="uploadimg">'
+        ,     '<input name="redirect" type="hidden"'
+        ,         ' value="' + global_land_page + '">'
+        ,     '<input name="maxwidth" type="hidden" value="800">'
         , '</form>'
         , '<div class="confirm">确定</div>'
     ].join('')
@@ -62,9 +67,10 @@ var ImageUploadSubView = Rocket.SubView.extend({
     , onchange: function(e){
         var me = this;     
         me.$form.submit();
-        if(!window.__uploadFileCallback__){
-            window.__uploadFileCallback__ = function(file){
-                me._parent.trigger('confirm', {url: file});
+        if(!window.__cardAsyncCallback__){
+            window.__cardAsyncCallback__ = function(opt){
+                if(opt && !opt.imgurl) return;
+                me._parent.trigger('confirm', {url: opt.imgurl});
             };
         }
     }

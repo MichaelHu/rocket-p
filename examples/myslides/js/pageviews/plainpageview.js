@@ -23,18 +23,18 @@ var PlainPageView = BaseSlidePageView.extend({
     , onswipeUp: function(e){
         var me = this;
 
-        if(me.gec.isRelease){
+        if(me.gec.editMode == 'RELEASE'
+            || me.gec.editMode == 'PARTIALEDIT'){
             me.goNext();
             e.preventDefault();
         }
     }
 
     , onswipeDown: function(e){
-        var me = this,
-            scrollY = window.scrollY;
+        var me = this;
 
-        if(me.gec.isRelease
-            && scrollY <= 5){
+        if(me.gec.editMode == 'RELEASE'
+            || me.gec.editMode == 'PARTIALEDIT'){
             me.goPrev();
             e.preventDefault();
         }

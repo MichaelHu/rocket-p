@@ -117,9 +117,9 @@ var PopupImageSubView = PopupSubView.extend({
 
     , toggle: function(params){
         var me = this;
-        me._super();
+        me._super(params);
 
-        if(params.isEditing){
+        if(params && params.isEditing){
             me.isEditing = true;
         }
 

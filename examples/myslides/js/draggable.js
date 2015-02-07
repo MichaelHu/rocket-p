@@ -17,7 +17,6 @@ function enableDrag(el, options){
         e.stopPropagation();
         e.preventDefault();
 
-
         $el.on('touchmove', function(e){
             var t = e.touches[0];
             lastX = currentX; 

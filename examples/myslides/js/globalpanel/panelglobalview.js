@@ -47,6 +47,7 @@ var PanelGlobalView = Rocket.GlobalView.extend({
         ,     '<span class="zoom-out icon-suoxiao"></span>'
         ,     '<span class="preview icon-dianshiji"></span>'
         ,     '<span class="save icon-baocun"></span>'
+        ,     '<span class="cardedit icon-shangchuan"></span>'
         ,     '<span class="release icon-fasong"></span>'
         ,   '</div>'
         , '</div>'
@@ -56,7 +57,13 @@ var PanelGlobalView = Rocket.GlobalView.extend({
         var me = this;
         me.render();
         me.$panel = me.$('.panel');
-        me.initIScroll();
+
+        if(me.gec.editMode == 'FULLEDIT'){
+            me.initIScroll();
+        }
+        else{
+            me.hide();
+        }
     }
 
     , registerEvents: function(){
@@ -175,12 +182,17 @@ var PanelGlobalView = Rocket.GlobalView.extend({
             me.gec.trigger('clear.global preview.global');
             me.previewSlides();
         }
-        else if(/release|save/.test(cls)){
+        else if(/cardedit|release|save/.test(cls)){
             var action = RegExp['$&'],
                 slidesConfig = {
                     order: me.gec.pageOrder
                     , views: {}
                     , isRelease: action == 'release' ? true : false
+                    , editMode: action == 'cardedit'
+                        ? 'PARTIALEDIT' 
+                        : action == 'save'
+                            ? 'FULLEDIT'
+                            : 'RELEASE'
                 };
 
             if(!me.isPreviewed){

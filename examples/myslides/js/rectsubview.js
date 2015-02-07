@@ -13,6 +13,7 @@ var RectSubView = Rocket.SubView.extend({
 
     , panelTpl: [
           '<div class="iconfont control-panel">'
+        ,     '<span class="lock icon-jiesuo"></span>'
         ,     '<span class="delete icon-shanchu"></span>'
         ,     '<span class="resize icon-daxiao"></span>'
         , '</div>'
@@ -26,8 +27,10 @@ var RectSubView = Rocket.SubView.extend({
         // Whether subview dom node is already existed
         me._isSetup = options.isSetup || false;
 
-        // Whether is release version
-        me._isRelease = me.gec.isRelease || false;
+        // Determine edit mode
+        me._isRelease = me.gec.editMode == 'RELEASE';
+        me._isPartialEdit = me.gec.editMode == 'PARTIALEDIT';
+        me._isFullEdit = me.gec.editMode == 'FULLEDIT';
 
         me._setPos(options.pos);
         me._setSize(options.size);
@@ -39,11 +42,21 @@ var RectSubView = Rocket.SubView.extend({
         me.$panel = me.$('.control-panel');
         me.$resizeButton = me.$('.resize');
         me.$deleteButton = me.$('.delete');
+        me.$lockButton = me.$('.lock');
+
         // Maybe not existed
         me.$resizeHandle = me.$('.resize-handle');
 
+        // Panel is default hidden
         me.$panel.hide();
+
+        // Init this._isLocked flag
+        me._applyLockTag(me._getLockTag());
+
         if(me._isRelease){
+            me.$resizeHandle.hide();
+        }
+        else if(me._isPartialEdit){
             me.$resizeHandle.hide();
         }
 
@@ -55,14 +68,18 @@ var RectSubView = Rocket.SubView.extend({
             }    
             me.$el.data('view_class', me.viewClass);
         }, 0);
+
+        me.render(options);
     }
 
     , render: function(){
         var me = this;
 
         setTimeout(function(){
-            // me._applyPos(me._getPos());
-            // me._applySize(me._getSize());
+            // Mainly for newly created items
+            me._applyPos(me._getPos());
+            me._applySize(me._getSize());
+
             me._applyBoxAlign(me._getBoxAlign());
             me._applyZIndex(
                 $.extend(
@@ -105,13 +122,15 @@ var RectSubView = Rocket.SubView.extend({
     , registerEvents: function(){
         var me = this;
 
-        if(!me._isRelease){
+        if(me._isFullEdit){
             me.$el.on('click', function(e){
                 me.gec.trigger('clear.global', {target: me});
                 me.$panel.show();
                 me.onclick.apply(me, arguments);
             });
         }
+
+        if(me._isRelease) return;
 
         me.gec.on('zoom.global', me.onzoom, me);
         me.gec.on('layer.global', me.onlayer, me);
@@ -153,10 +172,24 @@ var RectSubView = Rocket.SubView.extend({
 
         });
 
+        me.$lockButton.on('touchstart', function(e){
+            var $lock = me.$lockButton;
+
+            if($lock.hasClass('icon-jiesuo')) {
+                me._applyLockTag({lock: 'lock'});
+            }
+            else {
+                me._clearLockTag({lock: 'lock'});
+            }
+
+        });
+
     }
     
     , unregisterEvents: function(){
         var me = this;
+
+        if(me._isRelease) return;
 
         me.$el.off();
         me.gec.off('zoom.global', me.onzoom, me);
@@ -166,6 +199,7 @@ var RectSubView = Rocket.SubView.extend({
         me.ec.off('pagebeforechange', me.onpagebeforechange, me);
         me.$resizeButton.off();
         me.$deleteButton.off();
+        me.$lockButton.off();
         me.$resizeHandle.disableDrag();
     }
 

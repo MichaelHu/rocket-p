@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>land page</title>
+</head>
+<body>
+<img src="http://cq01-testing-arch-iknow02.vm.baidu.com:8082/news/w%3D800/sign=30bc2f77d0160924dc25af1be407359b/cefc1e178a82b901ccd18b12738da9773912ef97.jpg" style="display: inline;">
+</body>
+</html>
+<script>
+function getQuery(name){
+    var qstr = location.search,
+        rname = new RegExp(name + '=([^&]+)'),
+        match;
+    if((match = qstr.match(rname))){
+        return decodeURIComponent(match[1]);
+    }
+    return null;
+}
+
+var imgUrl = getQuery('imgurl'),
+    cardId = getQuery('cardid'),
+    errno = getQuery('errno'),
+    opt = {
+        imgurl: imgUrl
+        , cardid: cardId
+        , errno: errno
+    };
+
+parent.__cardAsyncCallback__(opt);
+</script>

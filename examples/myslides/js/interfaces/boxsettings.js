@@ -40,6 +40,13 @@ var BoxSettingsInterface = {
         return me._getSettings('layer_zindex', 'zIndex', $el);
     }
 
+    , _getLockTag: function($el){
+        var me = this;
+
+        $el = $el || me.$el;
+        return me._getSettings('lock', 'lock', $el);
+    }
+
     , _getBoxAlign: function($el){
         var me = this, align = {};
         $el = $el || me.$el;
@@ -88,6 +95,13 @@ var BoxSettingsInterface = {
         return me._setSettings(layer, 'layer_zindex', 'zIndex', $el);
     }
 
+    , _setLockTag: function(lock, $el){
+        var me = this;
+
+        $el = $el || me.$el;
+        return me._setSettings(lock, 'lock', 'lock', $el);
+    }
+
 
 
 
@@ -113,6 +127,17 @@ var BoxSettingsInterface = {
             }
             , $el
         );
+    }
+
+    , _clearLockTag: function(lock, $el){
+        var me = this;
+        if(Utils.isEmpty(lock) || !lock.lock) return;
+
+        $el = $el || me.$el;
+        me._clearSettings(lock, 'lock', 'lock', $el);
+        me._isLocked = false;
+        me.$lockButton.removeClass('icon-suoding')
+            .addClass('icon-jiesuo');
     }
 
 
@@ -179,6 +204,21 @@ var BoxSettingsInterface = {
         $el = $el || this.$el;
         $el.css(layer);
         this._setZIndex(layer, $el);
+    }
+
+    , _applyLockTag: function(lock, $el){
+        var me = this;
+
+        $el = $el || me.$el;
+        if(Utils.isEmpty(lock)){
+            me._clearLockTag({lock: 'lock'}, $el);
+        }
+        else{
+            me._isLocked = true;
+            me._setLockTag(lock, $el);
+            me.$lockButton.removeClass('icon-jiesuo')
+                .addClass('icon-suoding');
+        }
     }
 
 
