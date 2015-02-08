@@ -75,7 +75,7 @@ var ImageSubView = RectSubView.extend({
 
         if(me._isRelease) return;
 
-        if(me._isPartialEdit){
+        if(me._isPartialEdit && !me._isLocked){
             me.$el.on('click', function(e){
                 e.stopPropagation();
                 e.preventDefault();
@@ -85,6 +85,7 @@ var ImageSubView = RectSubView.extend({
                 me.isEdited = true;
                 me.gec.trigger('beforeimageedit.global', {url: me.$img.attr('src')});
             });
+            me.showBorder();
         }
 
         ec.on('pagebeforechange', me.onpagebeforechange, me);
@@ -145,9 +146,12 @@ var ImageSubView = RectSubView.extend({
     , onimagechange: function(params){
         var me = this;
         if(!params || !params.url || !me.isSelected) return;
-        me.$img.attr('src', params.url)
-            .show();
-        me.isEdited = false;
+
+        setTimeout(function(){
+            me.$img.attr('src', params.url)
+                .show();
+            me.isEdited = false;
+        }, 5000);
     }
 
     , onpagebeforechange: function(options){

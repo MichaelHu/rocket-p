@@ -242,12 +242,11 @@ var RectSubView = Rocket.SubView.extend({
         if(me.$resizeHandle){
             me.$resizeHandle.hide().disableDrag();
         }
-        me.hideBorder();
-    }
 
-    , ondragstart: function(){
-        var me = this;
-        me.showBorder();
+        // Show which item is editable in partial edit mode
+        if(!me._isPartialEdit || me._isLocked){
+            me.hideBorder();
+        }
     }
 
     , ondrag: function(deltaX, deltaY){

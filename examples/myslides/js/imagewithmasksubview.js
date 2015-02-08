@@ -80,19 +80,23 @@ var ImageWithMaskSubView = ImageSubView.extend({
         if(!params || !params.url || !me.isSelected) return;
 
         if(me.isEdited){
-            me.$img.attr('src', params.url)
-                .show();
-            me.isEdited = false;
+            setTimeout(function(){
+                me.$img.attr('src', params.url)
+                    .show();
+                me.isEdited = false;
+            }, 5000);
         }
 
         if(me.isMaskEdited){
-            me._applyBackgroundImage(
-                {
-                    backgroundImage: 'url(' + params.url + ')'
-                }
-                , me.$imgMask
-            );
-            me.isMaskEdited = false;
+            setTimeout(function(){
+                me._applyBackgroundImage(
+                    {
+                        backgroundImage: 'url(' + params.url + ')'
+                    }
+                    , me.$imgMask
+                );
+                me.isMaskEdited = false;
+            }, 5000);
         }
     }
 

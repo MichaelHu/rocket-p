@@ -9,7 +9,7 @@ var TextSubView = RectSubView.extend({
     events: {
     }
 
-    , texttpl: [
+    , textTpl: [
         '<div class="text"></div>'
     ].join('')
 
@@ -50,6 +50,21 @@ var TextSubView = RectSubView.extend({
 
         me._super();
 
+        if(me._isRelease) return;
+
+        if(me._isPartialEdit && !me._isLocked){
+            me.$el.on('click', function(e){
+                e.stopPropagation();
+                e.preventDefault();
+                me.gec.trigger('clear.global', {target: me});
+                // Make sure it can response to `imagechange` event
+                me.isSelected = true;
+                me.isEdited = true;
+                me.gec.trigger('beforeedit.global', {text: me.$text.html()});
+            });
+            me.showBorder();
+        }
+
         me.$editButton.on('touchstart', function(e){
             e.stopPropagation();
             e.preventDefault();
@@ -88,6 +103,8 @@ var TextSubView = RectSubView.extend({
         var me = this, 
             ec = me.ec,
             gec = me.gec;
+
+        if(me._isRelease) return;
 
         me.$editButton.off();
         ec.off('pagebeforechange', me.onpagebeforechange, me);
