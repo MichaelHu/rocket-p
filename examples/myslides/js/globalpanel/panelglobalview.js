@@ -187,6 +187,7 @@ var PanelGlobalView = Rocket.GlobalView.extend({
                 slidesConfig = {
                     order: me.gec.pageOrder
                     , views: {}
+                    , images: []
                     , isRelease: action == 'release' ? true : false
                     , editMode: action == 'save4partialedit'
                         ? 'PARTIALEDIT' 
@@ -201,7 +202,7 @@ var PanelGlobalView = Rocket.GlobalView.extend({
             }
             me.gec
                 .trigger('clear.global')
-                .trigger(action + '.global', slidesConfig.views);
+                .trigger(action + '.global', slidesConfig.views, slidesConfig.images);
             console.log(JSON.stringify(slidesConfig));
         }
 

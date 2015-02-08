@@ -91,6 +91,7 @@ var ImageSubView = RectSubView.extend({
         ec.on('pagebeforechange', me.onpagebeforechange, me);
         gec.on('textalign.global', me.ontextalign, me);
         gec.on('imagechange.global', me.onimagechange, me);
+        gec.on('release.global save4partialedit.global save.global', me.onrelease, me);
 
         me.$editButton.on('touchstart', function(e){
             e.stopPropagation();
@@ -138,6 +139,7 @@ var ImageSubView = RectSubView.extend({
         ec.off('pagebeforechange', me.onpagebeforechange, me);
         gec.off('textalign.global', me.ontextalign, me);
         gec.off('imagechange.global', me.onimagechange, me);
+        gec.off('release.global save4partialedit.global save.global', me.onrelease, me);
         me.$editButton.off();
         me.$innerPanel.off();
         me._super();
@@ -152,6 +154,11 @@ var ImageSubView = RectSubView.extend({
                 .show();
             me.isEdited = false;
         }, 5000);
+    }
+
+    , onrelease: function(views, images){
+        var me = this;
+        images.push(me.$img.attr('src'));
     }
 
     , onpagebeforechange: function(options){

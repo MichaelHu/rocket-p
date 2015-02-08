@@ -100,6 +100,18 @@ var ImageWithMaskSubView = ImageSubView.extend({
         }
     }
 
+    , onrelease: function(views, images){
+        var me = this, 
+            url = me.$imgMask.css('background-image')
+                    .replace(/url\("?|"?\)/g, '');
+
+        me._super(views, images);
+        // Except none background image
+        if(url != 'none'){
+            images.push(url);
+        }
+    }
+
     , enableImageMaskDrag: function(){
         var me = this;
 
