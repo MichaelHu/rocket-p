@@ -1,12 +1,3 @@
-define(function(require){
-
-var $$ = require('jquery');
-var $ = require('zepto');
-var PopupSubView = require('popupsubview');
-require('spectrum'); 
-
-var undef = void 0;
-
 var PopupSlideConfigSubView = PopupSubView.extend({
 
     init: function(options){
@@ -70,9 +61,5 @@ var PopupSlideConfigSubView = PopupSubView.extend({
             }
         });
     }
-
-});
-
-return PopupSlideConfigSubView;
 
 });

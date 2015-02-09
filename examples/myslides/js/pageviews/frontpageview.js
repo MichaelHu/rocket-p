@@ -1,8 +1,3 @@
-define(function(require){
-
-var PlainPageView = require('plainpageview');
-var TextSubView = require('textsubview');
-
 var FrontPageView = PlainPageView.extend({
 
     events: {
@@ -50,9 +45,5 @@ var FrontPageView = PlainPageView.extend({
             );
         }
     }
-
-});
-
-return FrontPageView;
 
 });

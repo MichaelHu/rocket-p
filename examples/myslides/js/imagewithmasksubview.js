@@ -1,10 +1,3 @@
-define(function(require){
-
-var undef = void 0;
-
-var $ = require('zepto');
-var ImageSubView = require('imagesubview');
-
 var ImageWithMaskSubView = ImageSubView.extend({
 
     maskImageTpl: [
@@ -144,10 +137,6 @@ var ImageWithMaskSubView = ImageSubView.extend({
         me._super(params);
         me.$imgMask.disableDrag();
     }
-
-});
-
-return ImageWithMaskSubView;
 
 });
 

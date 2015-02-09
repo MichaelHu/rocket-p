@@ -1,8 +1,3 @@
-define(function(require){
-
-var $ = require('zepto');
-var PopupSubView = require('popupsubview');
-
 var PopupEditSubView = PopupSubView.extend({
 
     init: function(options){
@@ -62,8 +57,4 @@ var PopupEditSubView = PopupSubView.extend({
     }
     
     
-});
-
-return PopupEditSubView;
-
 });

@@ -5,21 +5,13 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=320.1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
     <meta name="format-detection" content="telephone=no" />
-    <link rel="stylesheet" type="text/css" href="./css/iconfont.css" />
-    <link rel="stylesheet" type="text/css" href="./css/slides.css" />
-    <link rel="stylesheet" type="text/css" href="./css/popup.css" />
-    <link rel="stylesheet" type="text/css" href="./css/rect.css" />
-    <link rel="stylesheet" type="text/css" href="./css/image.css" />
-    <link rel="stylesheet" type="text/css" href="./css/global-tip.css" />
-    <link rel="stylesheet" type="text/css" href="./css/global-panel.css" />
-    <link rel="stylesheet" type="text/css" href="./vendor/spectrum.css" />
-    <link rel="stylesheet" type="text/css" href="../../src/animation/animations.css" />
+    <link rel="stylesheet" type="text/css" href="css/myslides-aio.css" />
 </head>
 <body>
     <div id="wrapper"></div>
 </body>
 </html>
-<script type="text/javascript" data-main="js/slides" src="../../test/vendor/require.js"></script>
+<script type="text/javascript" src="/static/news/myslides/vendor/require.js"></script>
 <script>
 
 // config
@@ -28,41 +20,18 @@ global_land_page = 'http://172.22.185.165:8300/examples/myslides/land.html';
 global_land_page = 'http://test.baidu.com:8300/examples/myslides/land.html';
 
     require.config({
-        paths: {
-            'zepto': '../../../test/vendor/zepto-amd'
-            , 'zepto-draggable': 'draggable'
-            , 'underscore': '../../../test/vendor/underscore'
-            , 'rocket': '../../../dist/rocket-p'
-            , 'disable-bounce': 'disable-bounce'
-            , 'disable-scrolling': 'disable-scrolling'
-
-            , 'baseslidepageview': 'pageviews/baseslidepageview'
-            , 'plainpageview': 'pageviews/plainpageview'
-            , 'frontpageview': 'pageviews/frontpageview'
-            , 'panelglobalview': 'globalpanel/panelglobalview'
-
-            , 'settingsutilsinterface': 'interfaces/settingsutils'
-            , 'boxsettingsinterface': 'interfaces/boxsettings'
-            , 'commonsettingsinterface': 'interfaces/commonsettings'
-
-            , 'popupsubview': 'globalpanel/popupsubview'
-            , 'popupeditsubview': 'globalpanel/popupeditsubview'
-            , 'popupimagesubview': 'globalpanel/popupimagesubview'
-            , 'popupfontcolorsubview': 'globalpanel/popupfontcolorsubview'
-            , 'popupslidenewsubview': 'globalpanel/popupslidenewsubview'
-            , 'popupslideconfigsubview': 'globalpanel/popupslideconfigsubview'
-            , 'imageurlsubview': 'globalpanel/subviews/imageurlsubview'
-            , 'imageuploadsubview': 'globalpanel/subviews/imageuploadsubview'
-
-            , 'rectsubview': 'rectsubview'
-            , 'textsubview': 'textsubview'
-            , 'imagesubview': 'imagesubview'
-            , 'imagewithmasksubview': 'imagewithmasksubview'
-
-            , 'jquery': '../../../test/vendor/jquery'
-            , 'spectrum': '../vendor/spectrum'
-            , 'iscroll': '../vendor/iscroll'
-            , 'hammer': '../vendor/hammer'
+        baseUrl: '/static/news/myslides/vendor'
+        , paths: {
+            'zepto': 'zepto-amd'
+            , 'underscore': 'underscore'
+            , 'rocket': 'rocket-p'
+            , 'jquery': 'jquery'
+            , 'spectrum': 'spectrum'
+            , 'iscroll': 'iscroll'
+            , 'rocket-ppt': '../js/rocket-ppt'
+            , 'main': '../main'
         }
     });
+
+    require(['main'], function(){});
 </script>

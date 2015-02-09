@@ -1,10 +1,3 @@
-define(function(require){
-
-var undef = void 0;
-
-var $ = require('zepto');
-var SettingsUtilsInterface = require('settingsutilsinterface');
-
 var BoxSettingsInterface = {
 
     _getPos: function($el){
@@ -225,7 +218,3 @@ var BoxSettingsInterface = {
 };
 
 $.extend(BoxSettingsInterface, SettingsUtilsInterface);
-
-return BoxSettingsInterface;
-
-});

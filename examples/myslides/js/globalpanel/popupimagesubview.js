@@ -1,10 +1,3 @@
-define(function(require){
-
-var $ = require('zepto');
-var PopupSubView = require('popupsubview');
-var ImageUrlSubView = require('imageurlsubview');
-var ImageUploadSubView = require('imageuploadsubview');
-
 var PopupImageSubView = PopupSubView.extend({
 
     init: function(options){
@@ -144,8 +137,4 @@ var PopupImageSubView = PopupSubView.extend({
     }
     
     
-});
-
-return PopupImageSubView;
-
 });

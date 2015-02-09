@@ -1,8 +1,3 @@
-define(function(require){
-
-var undef = void 0;
-var $ = require('zepto');
-
 var SettingsUtilsInterface = {
 
     _getSettings: function(dataKey, jsonKey, $el){
@@ -33,7 +28,3 @@ var SettingsUtilsInterface = {
     }
 
 };
-
-return SettingsUtilsInterface;
-
-});

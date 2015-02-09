@@ -1,12 +1,3 @@
-define(function(require){
-
-var $ = require('zepto');
-var Rocket = require('rocket');
-var TextSubView = require('textsubview');
-var ImageSubView = require('imagesubview');
-var ImageWithMaskSubView = require('imagewithmasksubview');
-var CommonSettingsInterface = require('commonsettingsinterface');
-
 var BaseSlidePageView = Rocket.PageView.extend({
 
     className: 'slide'
@@ -45,10 +36,10 @@ var BaseSlidePageView = Rocket.PageView.extend({
 
         me.$el.children().each(function(index, item){
             var viewClass = $(item).data('view_class');
-            if(viewClass && Utils.isFunction(RocketPPT.subViewClasses[viewClass])){
+            if(viewClass && Utils.isFunction(subViewClasses[viewClass])){
                 me.append(
                     new ( 
-                        RocketPPT.subViewClasses[viewClass].extend({el: item}) 
+                        subViewClasses[viewClass].extend({el: item}) 
                     ) ({isSetup: true}, me)
                     , true
                 );
@@ -213,7 +204,3 @@ var BaseSlidePageView = Rocket.PageView.extend({
 });
 
 $.extend(BaseSlidePageView.prototype, CommonSettingsInterface);
-
-return BaseSlidePageView;
-
-});

@@ -1,11 +1,3 @@
-define(function(require){
-
-var $ = require('zepto');
-var PopupSubView = require('popupsubview');
-
-var PlainPageView = require('plainpageview');
-var FrontPageView = require('frontpageview');
-
 var PopupSlideNewSubView = PopupSubView.extend({
 
     init: function(options){
@@ -97,9 +89,5 @@ var PopupSlideNewSubView = PopupSubView.extend({
         }
         return ++me._uniqueSlideID;
     }
-
-});
-
-return PopupSlideNewSubView;
 
 });

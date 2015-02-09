@@ -1,11 +1,3 @@
-define(function(require){
-
-var Rocket = require('rocket');
-var $ = require('zepto');
-var BoxSettingsInterface = require('boxsettingsinterface');
-require('zepto-draggable');
-var undef = void 0;
-
 var RectSubView = Rocket.SubView.extend({
 
     events: {
@@ -325,6 +317,3 @@ var RectSubView = Rocket.SubView.extend({
 
 $.extend(RectSubView.prototype, BoxSettingsInterface);
 
-return RectSubView;
-
-});

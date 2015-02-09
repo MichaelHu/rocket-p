@@ -1,8 +1,3 @@
-define(function(require){
-
-var $ = require('zepto');
-var Rocket = require('rocket');
-
 var PopupSubView = Rocket.SubView.extend({
 
     className: 'popup'
@@ -43,9 +38,5 @@ var PopupSubView = Rocket.SubView.extend({
     , toggle: function(){
         this.$el.toggle();
     }
-
-});
-
-return PopupSubView;
 
 });

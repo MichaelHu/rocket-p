@@ -1,6 +1,4 @@
-define(function(require){
-
-var $ = require('zepto');
+(function(require){
 
 // Disable scrolling bounce under iOS
 var firstTouch = {},
@@ -28,4 +26,4 @@ $(document).on('touchstart', function(e){
     }
 });
 
-});
+})();

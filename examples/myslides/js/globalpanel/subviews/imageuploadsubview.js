@@ -1,8 +1,3 @@
-define(function(require){
-
-var $ = require('zepto');
-var Rocket = require('rocket');
-
 var ImageUploadSubView = Rocket.SubView.extend({
 
     className: 'image-upload-container'
@@ -107,10 +102,6 @@ var ImageUploadSubView = Rocket.SubView.extend({
     }
     
     
-});
-
-return ImageUploadSubView;
-
 });
 
 

@@ -1,19 +1,3 @@
-define(function(require){
-
-var $ = require('zepto');
-var Rocket = require('rocket');
-
-var PopupEditSubView = require('popupeditsubview');
-var PopupImageSubView = require('popupimagesubview');
-var PopupFontColorSubView = require('popupfontcolorsubview');
-var PopupSlideNewSubView = require('popupslidenewsubview');
-var PopupSlideConfigSubView = require('popupslideconfigsubview');
-
-// window.IScroll
-require('iscroll');
-
-var undef = void 0;
-
 var PanelGlobalView = Rocket.GlobalView.extend({
 
     className: 'global-panel'
@@ -305,9 +289,5 @@ var PanelGlobalView = Rocket.GlobalView.extend({
         }
     }
 
-
-});
-
-return PanelGlobalView;
 
 });

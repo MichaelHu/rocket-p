@@ -1,6 +1,4 @@
-define(function(require){
-
-var $ = require('zepto');
+(function(){
 
 function enableDrag(el, options){
     var $el = $(el),
@@ -55,6 +53,4 @@ $.fn.disableDrag = function(){
     disableDrag(this[0]);
 };
 
-return $;
-
-});
+})();

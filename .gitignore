@@ -3,5 +3,5 @@
 .svn
 *.bak
 
-/output/
+output/
 /node_modules/

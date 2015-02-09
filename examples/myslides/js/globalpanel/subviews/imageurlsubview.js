@@ -1,8 +1,3 @@
-define(function(require){
-
-var $ = require('zepto');
-var Rocket = require('rocket');
-
 var ImageUrlSubView = Rocket.SubView.extend({
 
     className: 'image-url-container'
@@ -92,9 +87,5 @@ var ImageUrlSubView = Rocket.SubView.extend({
     }
     
     
-});
-
-return ImageUrlSubView;
-
 });
 

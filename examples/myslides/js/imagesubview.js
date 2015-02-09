@@ -1,11 +1,3 @@
-define(function(require){
-
-var undef = void 0;
-
-var $ = require('zepto');
-var CommonSettingsInterface = require('commonsettingsinterface');
-var RectSubView = require('rectsubview');
-
 var ImageSubView = RectSubView.extend({
 
     events: {
@@ -246,8 +238,4 @@ var ImageSubView = RectSubView.extend({
 });
 
 $.extend(ImageSubView.prototype, CommonSettingsInterface);
-
-return ImageSubView;
-
-});
 
