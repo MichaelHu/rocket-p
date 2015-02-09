@@ -18,6 +18,8 @@ var PanelGlobalView = Rocket.GlobalView.extend({
         ,     '<span class="slide-config icon-shezhi"></span>'
         ,     '<span class="text-new icon-wenbenshuru"></span>'
         ,     '<span class="image-new icon-tupian"></span>'
+        ,     '<span class="share-new icon-fenxiang"></span>'
+        ,     '<span class="button-new icon-anonymous-iconfont"></span>'
         ,     '<span class="boxalign-left icon-juzuo"></span>'
         ,     '<span class="boxalign-center icon-juzhong"></span>'
         ,     '<span class="boxalign-right icon-juyou"></span>'
@@ -55,6 +57,7 @@ var PanelGlobalView = Rocket.GlobalView.extend({
         me.ec.on('routechange', me.onroutechange, me);
         me.gec.on('beforeedit.global', me.onbeforeedit, me);
         me.gec.on('beforeimageedit.global', me.onbeforeimageedit, me);
+        me.gec.on('release.releasebutton.global', me.onreleasefromreleasebutton, me);
     }
 
     , render: function(){
@@ -150,9 +153,16 @@ var PanelGlobalView = Rocket.GlobalView.extend({
             me.gec.trigger('newtext.global');
         }
         else if(/image-new/.test(cls)){
-            // me.gec.trigger('newimage.global');
             me.clearState();
             me.togglePopupImagePanel();
+        }
+        else if(/button-new/.test(cls)){
+            me.clearState();
+            me.gec.trigger('newbutton.global');
+        }
+        else if(/share-new/.test(cls)){
+            me.clearState();
+            me.gec.trigger('newshare.global');
         }
         else if(/font-color/.test(cls)){
             me.toggleFontColorPanel();
@@ -167,29 +177,43 @@ var PanelGlobalView = Rocket.GlobalView.extend({
             me.previewSlides();
         }
         else if(/save4partialedit|release|save/.test(cls)){
-            var action = RegExp['$&'],
-                slidesConfig = {
-                    order: me.gec.pageOrder
-                    , views: {}
-                    , images: []
-                    , isRelease: action == 'release' ? true : false
-                    , editMode: action == 'save4partialedit'
-                        ? 'PARTIALEDIT' 
-                        : action == 'save'
-                            ? 'FULLEDIT'
-                            : 'RELEASE'
-                };
-
-            if(!me.isPreviewed){
-                me.tip('Please preview first.');
-                return;
-            }
-            me.gec
-                .trigger('clear.global')
-                .trigger(action + '.global', slidesConfig.views, slidesConfig.images);
-            console.log(JSON.stringify(slidesConfig));
+            var action = RegExp['$&'];
+            me.onsave(action);
         }
 
+    }
+
+    , onsave: function(action){
+        var me = this,
+            slidesConfig = {
+                order: me.gec.pageOrder
+                , views: {}
+                , images: []
+                , isRelease: action == 'release' ? true : false
+                , editMode: action == 'save4partialedit'
+                    ? 'PARTIALEDIT' 
+                    : action == 'save'
+                        ? 'FULLEDIT'
+                        : 'RELEASE'
+            };
+
+        if(!me.isPreviewed){
+            me.tip('Please preview first.');
+            setTimeout(function(){
+                me.previewSlides(function(){
+                    me.onsave(action);
+                });
+            }, 1000);
+            return;
+        }
+        me.gec
+            .trigger('clear.global')
+            .trigger(action + '.global', slidesConfig.views, slidesConfig.images);
+        me.saveSlides(slidesConfig, action);
+    }
+
+    , onreleasefromreleasebutton: function(){
+        this.onsave('release');
     }
 
     , onbeforeedit: function(params){
@@ -269,7 +293,7 @@ var PanelGlobalView = Rocket.GlobalView.extend({
         }
     }
 
-    , previewSlides: function(){
+    , previewSlides: function(callback){
         var me = this
             , order = me.gec.pageOrder
             , i = 0;
@@ -285,8 +309,74 @@ var PanelGlobalView = Rocket.GlobalView.extend({
             }
             else{
                 me.tip('Preview finish.');
+                setTimeout(function(){
+                    callback && callback();
+                }, 1000);
             }
         }
+    }
+
+    , saveSlides: function(config, mode){
+        var me = this;
+        console.log(JSON.stringify(config));
+        me.ensureSendForm();
+        me.$inputContent.val(JSON.stringify(config));
+        me.$form.submit();
+        window.__cardAsyncCallback__ = function(opt){
+            if(opt && !opt.cardid) return;
+            switch(mode){
+                case 'save4partialedit':
+                    location.href = './partialedit.html?cardid=' + opt.cardid;
+                    break;
+                case 'release':
+                    location.href = './index.html?cardid=' + opt.cardid
+                        + '&x=0&y=0&w=400&h=300';
+                    break;
+                case 'save':
+                    location.href = './fulledit.html?cardid=' + opt.cardid;
+                    break;
+            }
+        };
+    }
+
+    , ensureSendForm: function(){
+        var me = this,
+            $form = me.$form,
+            formTpl = [
+                  '<form action="' + global_greetingcard_server + '"' 
+                ,     ' method="POST" target="__hidden_iframe__">'
+                ,     '<input name="action" type="hidden" value="add">'
+                ,     '<input name="cuid" type="hidden" value="cuid">'
+                ,     '<input name="redirect" type="hidden"'
+                ,         ' value="' + global_land_page + '">'
+                ,     '<input name="maxwidth" type="hidden" value="800">'
+                ,     '<input name="name" type="hidden" value="name">'
+                ,     '<input name="title" type="hidden" value="title">'
+                ,     '<input name="template" type="hidden" value="template">'
+                ,     '<input name="content" type="hidden" value="content">'
+                ,     '<input name="img_url" type="hidden" value="http://myslides.baidu.com">'
+                ,     '<input name="img_width" type="hidden" value="1200">'
+                ,     '<input name="img_height" type="hidden" value="600">'
+                , '</form>'
+            ].join('');
+
+        if(!$form){
+            me._ensureHiddenIFrame();
+            $form = me.$form = $(formTpl).appendTo('body').hide();
+            me.$inputName = $form.find('input[name="name"]'); 
+            me.$inputTitle = $form.find('input[name="title"]'); 
+            me.$inputContent = $form.find('input[name="content"]'); 
+            me.$inputImgUrl = $form.find('input[name="img_url"]'); 
+            me.$inputImgWidth = $form.find('input[name="img_width"]'); 
+            me.$inputImgHeight = $form.find('input[name="img_height"]'); 
+        }
+    }
+
+    , _ensureHiddenIFrame: function(){
+        if($('#__hidden_iframe__').length) return;
+        $(
+            '<iframe id="__hidden_iframe__" name="__hidden_iframe__" style="display:none;"></iframe>'
+        ).appendTo('body');
     }
 
 

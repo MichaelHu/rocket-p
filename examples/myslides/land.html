@@ -21,10 +21,14 @@ function getQuery(name){
 var imgUrl = getQuery('imgurl'),
     cardId = getQuery('cardid'),
     errno = getQuery('errno'),
+    w = getQuery('w'),
+    h = getQuery('h'),
     opt = {
         imgurl: imgUrl
         , cardid: cardId
         , errno: errno
+        , w: w
+        , h: h
     };
 
 parent.__cardAsyncCallback__(opt);

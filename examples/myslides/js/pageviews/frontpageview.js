@@ -9,8 +9,8 @@ var FrontPageView = PlainPageView.extend({
         '<h2 style="margin-top:80px; color: #f00; font-size:32px;">FrontPageView</h2>'
     ].join('')
 
-    , init: function(){
-        this._super();
+    , init: function(options){
+        this._super(options);
         this.viewClass = 'FrontPageView';
         this.render();
     }

@@ -19,7 +19,7 @@ var ImageUploadSubView = Rocket.SubView.extend({
     , tpl: [
           '<form action="' + global_greetingcard_server + '"' 
         ,     ' enctype="multipart/form-data"'
-        ,     ' method="POST" target="__image_upload__">'
+        ,     ' method="POST" target="__hidden_iframe__">'
         ,     '<input name="image" type="file" accept="image/gif,image/jpeg,image/jpg">'
         ,     '<input name="action" type="hidden" value="uploadimg">'
         ,     '<input name="redirect" type="hidden"'
@@ -37,9 +37,9 @@ var ImageUploadSubView = Rocket.SubView.extend({
     }
 
     , ensureHiddenIFrame: function(){
-        if($('#__image_upload__').length) return;
+        if($('#__hidden_iframe__').length) return;
         $(
-            '<iframe id="__image_upload__" name="__image_upload__" style="display:none;"></iframe>'
+            '<iframe id="__hidden_iframe__" name="__hidden_iframe__" style="display:none;"></iframe>'
         ).appendTo('body');
     }
 
@@ -62,12 +62,10 @@ var ImageUploadSubView = Rocket.SubView.extend({
     , onchange: function(e){
         var me = this;     
         me.$form.submit();
-        if(!window.__cardAsyncCallback__){
-            window.__cardAsyncCallback__ = function(opt){
-                if(opt && !opt.imgurl) return;
-                me._parent.trigger('confirm', {url: opt.imgurl});
-            };
-        }
+        window.__cardAsyncCallback__ = function(opt){
+            if(opt && !opt.imgurl) return;
+            me._parent.trigger('confirm', {url: opt.imgurl});
+        };
     }
 
     , ontypechange: function(params){

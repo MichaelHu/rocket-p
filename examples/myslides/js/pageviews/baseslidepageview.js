@@ -2,9 +2,9 @@ var BaseSlidePageView = Rocket.PageView.extend({
 
     className: 'slide'
 
-    , init: function(){
+    , init: function(options){
         var me = this;
-        me._super();
+        me._super(options);
         me.setupSubViews();
         setTimeout(function(){
             if( !me.viewClass || !Utils.isString(me.viewClass) ){
@@ -17,18 +17,24 @@ var BaseSlidePageView = Rocket.PageView.extend({
         var me = this, gec = me.gec;
         gec.on('slideoperation.global', me.onslideoperation, me);
         gec.on('slidebgcolor.global', me.onslidebgcolor, me);
-        gec.on('release.global save4partialedit.global save.global', me.onrelease, me);
+        gec.on('release.global', me.onrelease, me);
+        gec.on('save4partialedit.global', me.onsave4partialedit, me);
+        gec.on('save.global', me.onsave, me);
         gec.on('newtext.global', me.onnewtext, me);
         gec.on('newimage.global', me.onnewimage, me);
+        gec.on('newbutton.global', me.onnewbutton, me);
     }
 
     , unregisterEvents: function(){
         var me = this, gec = me.gec;
         gec.off('slideoperation.global', me.onslideoperation, me);
         gec.off('slidebgcolor.global', me.onslidebgcolor, me);
-        gec.off('release.global save4partialedit.global save.global', me.onrelease, me);
+        gec.off('release.global', me.onrelease, me);
+        gec.off('save4partialedit.global', me.onsave4partialedit, me);
+        gec.off('save.global', me.onsave, me);
         gec.off('newtext.global', me.onnewtext, me);
         gec.off('newimage.global', me.onnewimage, me);
+        gec.off('newbutton.global', me.onnewbutton, me);
     }
 
     , setupSubViews: function(){
@@ -75,7 +81,7 @@ var BaseSlidePageView = Rocket.PageView.extend({
         }
     }
 
-    , onrelease: function(params){
+    , onsave: function(params){
         var me = this;
         
         params[me.action] = {
@@ -84,6 +90,14 @@ var BaseSlidePageView = Rocket.PageView.extend({
             , 'html': me.$el.prop('outerHTML')
                         .replace(/style="display: block;"/, '')
         };
+    }
+
+    , onrelease: function(params){
+        this.onsave(params);
+    }
+
+    , onsave4partialedit: function(params){
+        this.onsave(params);
     }
 
     , onnewtext: function(){
@@ -107,6 +121,36 @@ var BaseSlidePageView = Rocket.PageView.extend({
                         , color: '#fff'
                         , textAlign: 'center'
                         , fontSize: '26px'
+                    }
+                }
+                , me
+            )
+            , true
+        );
+
+    }
+
+    , onnewbutton: function(){
+        var me = this;
+
+        if(!me.isActivePage()) return;
+        
+        me.append(
+            new ReleaseButtonSubView(
+                {
+                    pos: {
+                        top: 100
+                        , left: 50
+                    }
+                    , size: {
+                        height: 30
+                        , width: 160
+                    }
+                    , text: {
+                        lineHeight: '30px'
+                        , color: '#fff'
+                        , textAlign: 'center'
+                        , fontSize: '18px'
                     }
                 }
                 , me

@@ -10,7 +10,7 @@ fis.config.merge({
                 release : "/static/news/myslides$&"
             },
             {
-                reg : /^\/(main|js\/rocket-ppt)\.js$/i,
+                reg : /^\/(main.*|js\/rocket-ppt)\.js$/i,
                 release : "/static/news/myslides$&"
             },
             {

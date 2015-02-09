@@ -13,6 +13,10 @@ var PopupSlideNewSubView = PopupSubView.extend({
         ,         '<div class="tpl-thumbnail"></div>'
         ,         '<div class="tpl-info">空白页</div>'
         ,     '</div>'
+        ,     '<div class="tpl-cont" data-type="editonly">'
+        ,         '<div class="tpl-thumbnail"></div>'
+        ,         '<div class="tpl-info">仅编辑</div>'
+        ,     '</div>'
         ,     '<div class="tpl-cont" data-type="front">'
         ,         '<div class="tpl-thumbnail"></div>'
         ,         '<div class="tpl-info">贺卡页</div>'
@@ -52,6 +56,9 @@ var PopupSlideNewSubView = PopupSubView.extend({
                 break;
             case 'front':
                 PageView = FrontPageView;
+                break;
+            case 'editonly':
+                PageView = EditOnlyPlainPageView;
                 break;
 
             default:

@@ -7,9 +7,9 @@ var undef = void 0;
 var subViewClasses = {};
 
 // window.IScroll
-require('iscroll');
+// require('iscroll');
 // Spectrum
-require('spectrum'); 
+// require('spectrum'); 
 
 __inline('disable-scrolling.js')
 __inline('draggable.js')
@@ -31,11 +31,13 @@ __inline('interfaces/commonsettings.js')
 __inline('pageviews/baseslidepageview.js')
 __inline('pageviews/plainpageview.js')
 __inline('pageviews/frontpageview.js')
+__inline('pageviews/editonlyplainpageview.js')
 
 __inline('rectsubview.js')
 __inline('textsubview.js')
 __inline('imagesubview.js')
 __inline('imagewithmasksubview.js')
+__inline('releasebuttonsubview.js')
 
 
 
@@ -46,6 +48,7 @@ $.extend(
         , TextSubView: TextSubView
         , ImageSubView: ImageSubView
         , ImageWithMaskSubView: ImageWithMaskSubView
+        , ReleaseButtonSubView: ReleaseButtonSubView
     }
 );
 
@@ -54,6 +57,7 @@ return {
     PanelGlobalView: PanelGlobalView  
     , PlainPageView: PlainPageView 
     , FrontPageView: FrontPageView 
+    , EditOnlyPlainPageView: EditOnlyPlainPageView 
 };
 
 });
