@@ -1,8 +1,6 @@
-define(function(require){
-
-var $ = require('zepto');
-var Rocket = require('rocket');
-var RocketPPT = require('rocket-ppt');
+define(
+    ['require', 'zepto', 'rocket', 'rocket-ppt']
+    , function(require, $, Rocket, RocketPPT){
 
 function getQuery(name){
     var qstr = location.search,
@@ -30,7 +28,7 @@ else{
             , h: 300
             , maxwidth: 1000
             , ratio: 1
-            , detail: 0
+            , detail: 1
         } 
         , timeout: 5000
         , success: function(resp){

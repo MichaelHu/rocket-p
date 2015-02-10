@@ -1,8 +1,7 @@
-define(function(require){
+define(
+    ['require', 'jquery', 'zepto', 'rocket']
+    , function(require, $$, $, Rocket){
 
-var $$ = require('jquery');
-var $ = require('zepto');
-var Rocket = require('rocket');
 var undef = void 0;
 var subViewClasses = {};
 
