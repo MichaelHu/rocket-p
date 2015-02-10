@@ -2,7 +2,7 @@ fis.config.merge({
     roadmap : {
         path : [
             {
-                reg : /^\/css\/.+-aio\.csss$/i,
+                reg : /^\/css\/.+-aio\.css$/i,
                 release : "/static/news/myslides$&"
             },
             {
