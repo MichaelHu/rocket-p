@@ -6,6 +6,10 @@ fis.config.merge({
                 release : "/static/news/myslides$&"
             },
             {
+                reg : /^\/css\/.+\.(eot|woff|ttf)$/i,
+                release : "/static/news/myslides$&"
+            },
+            {
                 reg : /^\/vendor\/.+\.js$/i,
                 release : "/static/news/myslides$&"
             },
