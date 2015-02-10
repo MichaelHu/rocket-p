@@ -100,13 +100,22 @@ var BaseSlidePageView = Rocket.PageView.extend({
         this.onsave(params);
     }
 
-    , onnewtext: function(){
-        var me = this;
+    , onnewtext: function(params){
+        var me = this, textClass;
+
+        switch(params.type){
+            case 'topnewsimagetext':
+                textClass = TopNewsImageTextSubView; 
+                break;
+            default:
+                textClass = TextSubView; 
+                break;
+        }
 
         if(!me.isActivePage()) return;
         
         me.append(
-            new TextSubView(
+            new textClass(
                 {
                     pos: {
                         top: 100
@@ -161,12 +170,25 @@ var BaseSlidePageView = Rocket.PageView.extend({
     }
 
     , onnewimage: function(params){
-        var me = this;
+        var me = this,
+            ImageClass;
+
+        switch(params.type){
+            case 'imagewithmask':
+                ImageClass = ImageWithMaskSubView;
+                break;
+            case 'topnewsimagewithmask':
+                ImageClass = TopNewsImageWithMaskSubView;
+                break;
+
+            default:
+                ImageClass = ImageSubView;
+        }
 
         if(!me.isActivePage() || !params.url) return;
         
         me.append(
-            new ImageWithMaskSubView(
+            new ImageClass(
                 {
                     pos: {
                         top: 160
@@ -181,6 +203,8 @@ var BaseSlidePageView = Rocket.PageView.extend({
                     }
                     , data: {
                         url: params.url
+                        , w: params.w
+                        , h: params.h
                     }
                 }
                 , me

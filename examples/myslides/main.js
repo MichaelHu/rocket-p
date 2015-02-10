@@ -22,10 +22,10 @@ else{
         , data: { 
             action: 'get'
             , cardid: getQuery('cardid') 
-            , x: 0
-            , y: 0
-            , w: 400
-            , h: 300
+            , x: getQuery('cut_x') || 0
+            , y: getQuery('cut_y') || 0
+            , w: getQuery('cut_w') || 640
+            , h: getQuery('cut_h') || 400
             , maxwidth: 1000
             , ratio: 1
             , detail: 1

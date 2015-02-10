@@ -17,7 +17,10 @@ var PanelGlobalView = Rocket.GlobalView.extend({
         ,     '<span class="slide-next icon-xiangyou2"></span>'
         ,     '<span class="slide-config icon-shezhi"></span>'
         ,     '<span class="text-new icon-wenbenshuru"></span>'
+        ,     '<span class="topnewsimagetext-new icon-wenbenshuru"></span>'
         ,     '<span class="image-new icon-tupian"></span>'
+        ,     '<span class="imagewithmask-new icon-tupian"></span>'
+        ,     '<span class="topnewsimagewithmask-new icon-tupian"></span>'
         ,     '<span class="share-new icon-fenxiang"></span>'
         ,     '<span class="button-new icon-anonymous-iconfont"></span>'
         ,     '<span class="boxalign-left icon-juzuo"></span>'
@@ -148,13 +151,15 @@ var PanelGlobalView = Rocket.GlobalView.extend({
             var action = RegExp.$1;
             me.gec.trigger('layer.global', {action: action});
         }
-        else if(/text-new/.test(cls)){
+        else if(/(text|topnewsimagetext)-new/.test(cls)){
+            var action = RegExp.$1;
             me.clearState();
-            me.gec.trigger('newtext.global');
+            me.gec.trigger('newtext.global', {type: action});
         }
-        else if(/image-new/.test(cls)){
+        else if(/(topnewsimagewithmask|imagewithmask|image)-new/.test(cls)){
+            var action = RegExp.$1;
             me.clearState();
-            me.togglePopupImagePanel();
+            me.togglePopupImagePanel({imageType: action});
         }
         else if(/button-new/.test(cls)){
             me.clearState();
@@ -189,6 +194,7 @@ var PanelGlobalView = Rocket.GlobalView.extend({
                 order: me.gec.pageOrder
                 , views: {}
                 , images: []
+                , topNewsImage: {}
                 , isRelease: action == 'release' ? true : false
                 , editMode: action == 'save4partialedit'
                     ? 'PARTIALEDIT' 
@@ -208,7 +214,13 @@ var PanelGlobalView = Rocket.GlobalView.extend({
         }
         me.gec
             .trigger('clear.global')
-            .trigger(action + '.global', slidesConfig.views, slidesConfig.images);
+            .trigger(
+                action + '.global'
+                , slidesConfig.views
+                , slidesConfig.images
+                , slidesConfig.topNewsImage
+            );
+
         me.saveSlides(slidesConfig, action);
     }
 
@@ -317,25 +329,36 @@ var PanelGlobalView = Rocket.GlobalView.extend({
     }
 
     , saveSlides: function(config, mode){
-        var me = this;
+        var me = this, topImage = config.topNewsImage;
+
         console.log(JSON.stringify(config));
         me.ensureSendForm();
         me.$inputContent.val(JSON.stringify(config));
+        me.$inputImgUrl.val(topImage.img_url); 
+        me.$inputImgWidth.val(topImage.img_width); 
+        me.$inputImgHeight.val(topImage.img_height); 
+        me.$inputTitle.val(topImage.title); 
         me.$form.submit();
         window.__cardAsyncCallback__ = function(opt){
+            var href;
             if(opt && !opt.cardid) return;
             switch(mode){
                 case 'save4partialedit':
-                    location.href = './partialedit.html?cardid=' + opt.cardid;
+                    href = './partialedit.html';
                     break;
                 case 'release':
-                    location.href = './index.html?cardid=' + opt.cardid
-                        + '&x=0&y=0&w=400&h=300';
+                    href = './index.html';
                     break;
                 case 'save':
-                    location.href = './fulledit.html?cardid=' + opt.cardid;
+                    href = './fulledit.html';
                     break;
             }
+            location.href = href
+                + '?cardid=' + opt.cardid
+                + '&cut_x=' + topImage.x
+                + '&cut_y=' + topImage.y
+                + '&cut_w=' + topImage.w
+                + '&cut_h=' + topImage.h;
         };
     }
 

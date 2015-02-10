@@ -36,6 +36,8 @@ __inline('rectsubview.js')
 __inline('textsubview.js')
 __inline('imagesubview.js')
 __inline('imagewithmasksubview.js')
+__inline('topnewsimagewithmasksubview.js')
+__inline('topnewsimagetextsubview.js')
 __inline('releasebuttonsubview.js')
 
 
@@ -47,6 +49,8 @@ $.extend(
         , TextSubView: TextSubView
         , ImageSubView: ImageSubView
         , ImageWithMaskSubView: ImageWithMaskSubView
+        , TopNewsImageWithMaskSubView: TopNewsImageWithMaskSubView
+        , TopNewsImageTextSubView: TopNewsImageTextSubView
         , ReleaseButtonSubView: ReleaseButtonSubView
     }
 );

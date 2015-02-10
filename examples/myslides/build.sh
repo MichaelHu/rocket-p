@@ -15,8 +15,7 @@ fi
 OPTIMIZE="-o --md5 2"
 if [ "$1" == "debug" ]; then
     # OPTIMIZE="--md5 1"
-# OPTIMIZE=""
-    OPTIMIZE="-o --md5 2"
+    OPTIMIZE=""
 fi
 
 fis release -d output $OPTIMIZE

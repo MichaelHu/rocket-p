@@ -59,7 +59,10 @@ var PopupImageSubView = PopupSubView.extend({
             me.isEditing = false;
         }
         else{
-            me.gec.trigger('newimage.global', params);
+            me.gec.trigger(
+                'newimage.global'
+                , $.extend(params, {type: me.imageType})
+            );
         }
 
         me.close();
@@ -111,6 +114,8 @@ var PopupImageSubView = PopupSubView.extend({
     , toggle: function(params){
         var me = this;
         me._super(params);
+
+        if(params.imageType) me.imageType = params.imageType;
 
         if(params && params.isEditing){
             me.isEditing = true;

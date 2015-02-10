@@ -70,15 +70,9 @@ var ImageWithMaskSubView = ImageSubView.extend({
     , onimagechange: function(params){
         var me = this;
 
-        if(!params || !params.url || !me.isSelected) return;
+        me._super(params);
 
-        if(me.isEdited){
-            setTimeout(function(){
-                me.$img.attr('src', params.url)
-                    .show();
-                me.isEdited = false;
-            }, 5000);
-        }
+        if(!params || !params.url || !me.isSelected) return;
 
         if(me.isMaskEdited){
             setTimeout(function(){
@@ -88,6 +82,8 @@ var ImageWithMaskSubView = ImageSubView.extend({
                     }
                     , me.$imgMask
                 );
+                params.w && me.$imgMask.data('natural-width', params.w);
+                params.h && me.$imgMask.data('natural-height', params.h);
                 me.isMaskEdited = false;
             }, 5000);
         }

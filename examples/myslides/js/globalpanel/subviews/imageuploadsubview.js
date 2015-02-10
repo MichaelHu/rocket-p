@@ -2,10 +2,6 @@ var ImageUploadSubView = Rocket.SubView.extend({
 
     className: 'image-upload-container'
 
-    , events: {
-        'click .confirm': 'onconfirmclick'
-    }
-
     , init: function(options){
         var me = this;
 
@@ -54,17 +50,19 @@ var ImageUploadSubView = Rocket.SubView.extend({
         });
     }
 
-    , onconfirmclick: function(){
-        var me = this;
-        me._parent.trigger('confirm', {url: me.$text.val()});
-    }
-
     , onchange: function(e){
         var me = this;     
         me.$form.submit();
         window.__cardAsyncCallback__ = function(opt){
             if(opt && !opt.imgurl) return;
-            me._parent.trigger('confirm', {url: opt.imgurl});
+            me._parent.trigger(
+                'confirm'
+                , {
+                    url: opt.imgurl
+                    , w: opt.w
+                    , h: opt.h
+                }
+            );
         };
     }
 

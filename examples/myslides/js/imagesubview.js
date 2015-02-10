@@ -52,8 +52,10 @@ var ImageSubView = RectSubView.extend({
         var me = this;
         if(options.data && options.data.url){
             setTimeout(function(){ 
-                me.$img.attr('src', options.data.url);
-                me.$img.show(); 
+                var params = options.data;
+                me.$img.attr('src', params.url).show();
+                params.w && me.$img.data('natural-width', params.w);
+                params.h && me.$img.data('natural-height', params.h);
             }, 5000);
         }
     }
@@ -141,11 +143,15 @@ var ImageSubView = RectSubView.extend({
         var me = this;
         if(!params || !params.url || !me.isSelected) return;
 
-        setTimeout(function(){
-            me.$img.attr('src', params.url)
-                .show();
-            me.isEdited = false;
-        }, 5000);
+        if(me.isEdited){
+            setTimeout(function(){
+                me.$img.attr('src', params.url)
+                    .show();
+                params.w && me.$img.data('natural-width', params.w);
+                params.h && me.$img.data('natural-height', params.h);
+                me.isEdited = false;
+            }, 5000);
+        }
     }
 
     , onrelease: function(views, images){
