@@ -75,7 +75,11 @@ var ImageWithMaskSubView = ImageSubView.extend({
         if(!params || !params.url || !me.isSelected) return;
 
         if(me.isMaskEdited){
+            setTimeout(function(){me.$loading.show();}, 0);
             setTimeout(function(){
+                var img = new Image();
+                img.src = params.url;
+                img.onload = function(){me.$loading.hide();};
                 me._applyBackgroundImage(
                     {
                         backgroundImage: 'url(' + params.url + ')'

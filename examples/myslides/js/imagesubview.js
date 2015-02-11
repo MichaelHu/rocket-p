@@ -12,6 +12,7 @@ var ImageSubView = RectSubView.extend({
         ,     '<span data-btn-type="img-zoom-in">放大</span>'
         ,     '<span data-btn-type="img-zoom-out">缩小</span>'
         , '</div>'
+        , '<div class="loading-layer"></div>'
     ].join('')
 
     , init: function(options){
@@ -30,9 +31,11 @@ var ImageSubView = RectSubView.extend({
         me.$image = me.$('.image');
         me.$img = me.$('img');
         me.$editButton = me.$('.edit');
+        me.$loading = me.$('.loading-layer');
         me.initImage(options);
 
         me.$innerPanel = me.$('.inner-panel');
+        me.$imgMove = me.$innerPanel.find('.img-move').removeClass('on');
         if(me._isRelease
             || me._isPartialEdit && me._isLocked){
             me.$innerPanel.hide();
@@ -51,9 +54,11 @@ var ImageSubView = RectSubView.extend({
     , initImage: function(options){
         var me = this;
         if(options.data && options.data.url){
+            setTimeout(function(){me.$loading.show();}, 0);
             setTimeout(function(){ 
                 var params = options.data;
-                me.$img.attr('src', params.url).show();
+                me.$img.attr('src', params.url).show()
+                    .on('load', function(){me.$loading.hide();});
                 params.w && me.$img.data('natural-width', params.w);
                 params.h && me.$img.data('natural-height', params.h);
             }, 5000);
@@ -144,9 +149,11 @@ var ImageSubView = RectSubView.extend({
         if(!params || !params.url || !me.isSelected) return;
 
         if(me.isEdited){
+            setTimeout(function(){me.$loading.show();}, 0);
             setTimeout(function(){
                 me.$img.attr('src', params.url)
-                    .show();
+                    .show()
+                    .on('load', function(){me.$loading.hide();});
                 params.w && me.$img.data('natural-width', params.w);
                 params.h && me.$img.data('natural-height', params.h);
                 me.isEdited = false;
