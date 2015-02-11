@@ -8,6 +8,8 @@ var RectSubView = Rocket.SubView.extend({
         ,     '<span class="lock icon-jiesuo"></span>'
         ,     '<span class="delete icon-shanchu"></span>'
         ,     '<span class="resize icon-daxiao"></span>'
+        ,     '<span class="rotate icon-zhongzuo"></span>'
+        ,     '<span class="counter-rotate icon-chexiao"></span>'
         , '</div>'
     ].join('')
 
@@ -35,6 +37,8 @@ var RectSubView = Rocket.SubView.extend({
         me.$resizeButton = me.$('.resize');
         me.$deleteButton = me.$('.delete');
         me.$lockButton = me.$('.lock');
+        me.$rotateButton = me.$('.rotate');
+        me.$counterRotateButton = me.$('.counter-rotate');
 
         // Maybe not existed
         me.$resizeHandle = me.$('.resize-handle');
@@ -71,6 +75,7 @@ var RectSubView = Rocket.SubView.extend({
             // Mainly for newly created items
             me._applyPos(me._getPos());
             me._applySize(me._getSize());
+            me._applyRotate(me._getRotate());
 
             me._applyBoxAlign(me._getBoxAlign());
             me._applyZIndex(
@@ -176,6 +181,14 @@ var RectSubView = Rocket.SubView.extend({
 
         });
 
+        me.$rotateButton.on('touchstart', function(e){
+            me.onRotate();
+        });
+
+        me.$counterRotateButton.on('touchstart', function(e){
+            me.onCounterRotate();
+        });
+
     }
     
     , unregisterEvents: function(){
@@ -193,6 +206,7 @@ var RectSubView = Rocket.SubView.extend({
         me.$deleteButton.off();
         me.$lockButton.off();
         me.$resizeHandle.disableDrag();
+        me.$rotateButton.off();
     }
 
     , onpagebeforechange: function(options){
@@ -310,6 +324,21 @@ var RectSubView = Rocket.SubView.extend({
         var me = this;
         me._clearBoxAlignAll();
         me._applyBoxAlign({boxAlignRight: 1});
+    }
+
+    , onRotate: function(isCounter){
+        var me = this,
+            flag = isCounter ? -1 : 1,
+            delta = flag * 3,
+            opt = me._getRotate();
+
+        opt.rotate = ( ( opt.rotate || 0 ) - 0 + delta ) % 360;
+        me._applyRotate(opt);
+    }
+
+    , onCounterRotate: function(){
+        var me = this;
+        me.onRotate(1);
     }
 
 

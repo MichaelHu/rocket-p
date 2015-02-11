@@ -7,10 +7,12 @@ var ImageSubView = RectSubView.extend({
           '<div class="image">'
         ,     '<img>'
         , '</div>'
-        , '<div class="inner-panel">'
-        ,     '<span class="img-move" data-btn-type="img-move">移动</span>'
-        ,     '<span data-btn-type="img-zoom-in">放大</span>'
-        ,     '<span data-btn-type="img-zoom-out">缩小</span>'
+        , '<div class="inner-panel iconfont">'
+        ,     '<span class="img-move icon-yidong" data-btn-type="img-move"></span>'
+        ,     '<span data-btn-type="img-zoom-in" class="icon-fangda"></span>'
+        ,     '<span data-btn-type="img-zoom-out" class="icon-suoxiao"></span>'
+        ,     '<span data-btn-type="img-rotate" class="icon-zhongzuo"></span>'
+        ,     '<span data-btn-type="img-counter-rotate" class="icon-chexiao"></span>'
         , '</div>'
         , '<div class="loading-layer"></div>'
     ].join('')
@@ -124,6 +126,12 @@ var ImageSubView = RectSubView.extend({
                 case 'img-zoom-out':
                     me.imgZoomOut();
                     break;
+                case 'img-rotate':
+                    me.imgRotate();
+                    break;
+                case 'img-counter-rotate':
+                    me.imgCounterRotate();
+                    break;
             }
         });
     }
@@ -225,6 +233,21 @@ var ImageSubView = RectSubView.extend({
             width = me.$img.width(),
             opt = {width: width * 0.9};
         me._applySize(opt, me.$img);
+    }
+
+    , imgRotate: function(isCounter){
+        var me = this,
+            flag = isCounter ? -1 : 1,
+            delta = flag * 3,
+            opt = me._getRotate(me.$img);
+
+        opt.rotate = ( ( opt.rotate || 0 ) - 0 + delta ) % 360;
+        me._applyRotate(opt, me.$img);
+    }
+
+    , imgCounterRotate: function(){
+        var me = this;
+        me.imgRotate(1);
     }
 
     , onclear: function(params){

@@ -9,8 +9,8 @@ var PanelGlobalView = Rocket.GlobalView.extend({
     , contTpl: [
           '<div class="panel-wrapper">'
         ,   '<div class="panel iconfont">'
-        ,     '<span class="panel-bottom icon-xiangxia2"></span>'
-        ,     '<span class="panel-top icon-xiangshang3"></span>'
+        ,     '<span class="panel-bottom icon-xiangxia"></span>'
+        ,     '<span class="panel-top icon-xiangshang1"></span>'
         ,     '<span class="slide-new icon-jia1"></span>'
         ,     '<span class="slide-delete icon-jian1"></span>'
         ,     '<span class="slide-prev icon-xiangzuo2"></span>'
@@ -22,7 +22,7 @@ var PanelGlobalView = Rocket.GlobalView.extend({
         ,     '<span class="imagewithmask-new icon-tupian"></span>'
         ,     '<span class="topnewsimagewithmask-new icon-tupian"></span>'
         ,     '<span class="share-new icon-fenxiang"></span>'
-        ,     '<span class="button-new icon-anonymous-iconfont"></span>'
+        ,     '<span class="button-new icon-fenxiang"></span>'
         ,     '<span class="boxalign-left icon-juzuo"></span>'
         ,     '<span class="boxalign-center icon-juzhong"></span>'
         ,     '<span class="boxalign-right icon-juyou"></span>'
@@ -355,10 +355,10 @@ var PanelGlobalView = Rocket.GlobalView.extend({
             }
             location.href = href
                 + '?cardid=' + opt.cardid
-                + '&cut_x=' + topImage.x
-                + '&cut_y=' + topImage.y
-                + '&cut_w=' + topImage.w
-                + '&cut_h=' + topImage.h;
+                + '&cut_x=' + ( topImage.x || 0 )
+                + '&cut_y=' + ( topImage.y || 0 )
+                + '&cut_w=' + ( topImage.w || 640 )
+                + '&cut_h=' + ( topImage.h || 400 );
         };
     }
 

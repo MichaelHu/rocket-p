@@ -33,6 +33,13 @@ var BoxSettingsInterface = {
         return me._getSettings('layer_zindex', 'zIndex', $el);
     }
 
+    , _getRotate: function($el){
+        var me = this;
+
+        $el = $el || me.$el;
+        return me._getSettings('transform_rotate', 'rotate', $el);
+    }
+
     , _getLockTag: function($el){
         var me = this;
 
@@ -86,6 +93,13 @@ var BoxSettingsInterface = {
 
         $el = $el || me.$el;
         return me._setSettings(layer, 'layer_zindex', 'zIndex', $el);
+    }
+
+    , _setRotate: function(rotate, $el){
+        var me = this;
+
+        $el = $el || me.$el;
+        return me._setSettings(rotate, 'transform_rotate', 'rotate', $el);
     }
 
     , _setLockTag: function(lock, $el){
@@ -197,6 +211,13 @@ var BoxSettingsInterface = {
         $el = $el || this.$el;
         $el.css(layer);
         this._setZIndex(layer, $el);
+    }
+
+    , _applyRotate: function(rotate, $el){
+        if(Utils.isEmpty(rotate)) return;
+        $el = $el || this.$el;
+        $el.css('-webkit-transform', 'rotate(' + rotate.rotate + 'deg)');
+        this._setRotate(rotate, $el);
     }
 
     , _applyLockTag: function(lock, $el){
