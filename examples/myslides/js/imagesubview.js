@@ -224,14 +224,14 @@ var ImageSubView = RectSubView.extend({
     , imgZoomIn: function(){
         var me = this,
             width = me.$img.width(),
-            opt = {width: width * 1.1};
+            opt = {width: width * 1.02};
         me._applySize(opt, me.$img);
     }
 
     , imgZoomOut: function(){
         var me = this,
             width = me.$img.width(),
-            opt = {width: width * 0.9};
+            opt = {width: width * 0.98};
         me._applySize(opt, me.$img);
     }
 
