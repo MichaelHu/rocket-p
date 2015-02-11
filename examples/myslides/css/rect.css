@@ -1,7 +1,6 @@
 .control-panel {
     position: absolute;
     z-index: 1;
-    min-width: 220px;
     height: 26px;
     right: 0px;
     top: -25px;

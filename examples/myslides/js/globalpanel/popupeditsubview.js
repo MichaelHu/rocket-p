@@ -29,7 +29,7 @@ var PopupEditSubView = PopupSubView.extend({
 
     , setValue: function(val){
         if(val !== void 0){
-            this.$text.val(val);
+            this.$text.val(this._encodeText(val));
         }
     }
 
@@ -49,11 +49,25 @@ var PopupEditSubView = PopupSubView.extend({
         this.setValue(val);
     }
 
+    , _encodeText: function(text){
+        return text.replace(/<br *\/?>/g, '\n')
+            .replace(/&nbsp;/g, ' ')
+            ;
+    }
+
+    , _decodeText: function(text){
+        console.log(text);
+        return text.replace(/\n/g, '<br>')
+            .replace(/ /g, '&nbsp;')
+            .replace(/(法|fa).*(轮|lun).*(大法)*|习近平|李克强|(六|liu|6)(四|si|4)/g, '*')
+            ;
+    }
+
     , close: function(){
         var me = this;
 
         me._super();
-        me.gec.trigger('afteredit.global', {text: me.$text.val()});
+        me.gec.trigger('afteredit.global', {text: me._decodeText(me.$text.val())});
     }
     
     

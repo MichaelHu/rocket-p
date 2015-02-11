@@ -17,7 +17,6 @@ var PopupImageSubView = PopupSubView.extend({
         ,     '<div class="tab">'
         ,         '<div class="tab-item" data-type="url">图片地址</div>'
         ,         '<div class="tab-item" data-type="local">本地上传</div>'
-        ,         '<div class="tab-item" data-type="select">选取已有</div>'
         ,     '</div>'
         , '</div>'
     ].join('')
