@@ -45,15 +45,23 @@ else{
 }
 
 
+function clearLoading(){
+    $('#cover-loading')
+        .animate({opacity: 0}, 1000, 'ease-in', function(){$(this).hide();});   
+}
 
 
 function start(initConfig){
+
     if(initConfig && initConfig.images){
         loadImages(initConfig.images, function(){
-            $('#cover-loading')
-                .animate({opacity: 0}, 1000, 'ease-in', function(){$(this).hide();});   
+            clearLoading();
         });
     }
+    else{
+        clearLoading();
+    }
+
     initSlides(initConfig);
 }
 
