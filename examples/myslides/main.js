@@ -1,6 +1,6 @@
 define(
-    ['require', 'zepto', 'rocket', 'rocket-ppt']
-    , function(require, $, Rocket, RocketPPT){
+    ['require', 'zepto', 'rocket', 'rocket-ppt', 'cover-loading']
+    , function(require, $, Rocket, RocketPPT, CoverLoading){
 
 function getQuery(name){
     var qstr = location.search,
@@ -13,7 +13,7 @@ function getQuery(name){
 }
 
 if(!getQuery('cardid')){
-    initSlides();
+    start();
 }
 else{
     $.ajax({
@@ -35,13 +35,26 @@ else{
             var config;
             if(resp && resp.data && resp.data.content){
                 config = JSON.parse(resp.data.content);
-                initSlides(config);
+                start(config);
             }
         }
         , error: function(){
             console.log(arguments);
         }
     });
+}
+
+
+
+
+function start(initConfig){
+    if(initConfig && initConfig.images){
+        loadImages(initConfig.images, function(){
+            $('#cover-loading')
+                .animate({opacity: 0}, 1000, 'ease-in', function(){$(this).hide();});   
+        });
+    }
+    initSlides(initConfig);
 }
 
 
@@ -135,6 +148,31 @@ function initSlides(initConfig){
 
     appRouter.start();
 
+}
+
+function loadImages(images, callback){
+    if(!images || !images.length) {
+        callback && callback();
+        return;
+    } 
+    var len = images.length, 
+        i = 0,
+        finished = 0,
+        img;
+    
+    while(i < len){
+        img = new Image();
+        img.src = images[i++];
+        img.onload = img.onabort 
+            = img.onerror 
+            = function(){
+                finished++; 
+                CoverLoading(Math.ceil(100 * finished / len));
+                if(finished >= len){
+                    callback && callback();
+                }
+            };
+    } 
 }
 
 });
