@@ -109,11 +109,13 @@ var RectSubView = Rocket.SubView.extend({
     }
 
     , showBorder: function(){
-        this.$el.css('border', '1px dotted #fff');
+        this.$el.css('border', '1px dotted #fff')
+            .css('box-shadow', '0px 0px 9px #000');
     }
 
     , hideBorder: function(){
-        this.$el.css('border', '1px dotted transparent');
+        this.$el.css('border', '1px dotted transparent')
+            .css('box-shadow', 'none');
     }
 
     , registerEvents: function(){
