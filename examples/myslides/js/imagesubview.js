@@ -114,6 +114,9 @@ var ImageSubView = RectSubView.extend({
             e.preventDefault();
             e.stopPropagation();
 
+            if(me.innerPanelLocked) return;
+            me.innerPanelLocked = true;
+
             var $target = $(e.target).closest('span');
 
             switch($target.data('btn-type')){
@@ -133,6 +136,9 @@ var ImageSubView = RectSubView.extend({
                     me.imgCounterRotate();
                     break;
             }
+            setTimeout(function(){
+                me.innerPanelLocked = false;
+            }, 300);
         });
     }
 
