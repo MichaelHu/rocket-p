@@ -12,7 +12,8 @@ elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]; then
     SED_REGEX_EXTEND=r
 fi
 
-OPTIMIZE="-o --md5 2"
+# OPTIMIZE="-o --md5 2"
+OPTIMIZE="-o --md5 0"
 if [ "$1" == "debug" ]; then
     # OPTIMIZE="--md5 1"
     OPTIMIZE=""
