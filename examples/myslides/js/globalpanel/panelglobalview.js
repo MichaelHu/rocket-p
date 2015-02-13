@@ -18,17 +18,26 @@ var PanelGlobalView = Rocket.GlobalView.extend({
         ,     '<span class="slide-config icon-shezhi"></span>'
         ,     '<span class="text-new icon-wenbenshuru"></span>'
         ,     '<span class="topnewsimagetext-new icon-wenbenshuru"></span>'
+
         ,     '<span class="image-new icon-tupian"></span>'
-        ,     '<span class="imagewithmask-new icon-tupian"></span>'
-        ,     '<span class="topnewsimagewithmask-new icon-tupian"></span>'
-        ,     '<span class="share-new icon-fenxiang"></span>'
-        ,     '<span class="button-new icon-fenxiang"></span>'
+        ,     '<span class="image-withmask-new icon-tupian"></span>'
+        ,     '<span class="image-topnews-withmask-new icon-tupian"></span>'
+        ,     '<span class="image-button-new">图</span>'
+
+        ,     '<span class="button-share-new">享</span>'
+        ,     '<span class="button-release-new">发</span>'
+        ,     '<span class="button-link-new">链</span>'
+        ,     '<span class="button-link-1-new">链</span>'
+
         ,     '<span class="boxalign-left icon-juzuo"></span>'
         ,     '<span class="boxalign-center icon-juzhong"></span>'
         ,     '<span class="boxalign-right icon-juyou"></span>'
+        ,     '<span class="boxalign-bottom">底</span>'
         ,     '<span class="boxalign-left-a icon-juzuo"></span>'
         ,     '<span class="boxalign-center-a icon-juzhong"></span>'
         ,     '<span class="boxalign-right-a icon-juyou"></span>'
+        ,     '<span class="boxalign-bottom-a">底</span>'
+
         ,     '<span class="layer-up icon-xiangshang"></span>'
         ,     '<span class="layer-down icon-paixu"></span>'
         ,     '<span class="align-left icon-juzuo"></span>'
@@ -99,7 +108,7 @@ var PanelGlobalView = Rocket.GlobalView.extend({
             var $item = $(item);
             totalWidth += $item.width();
         });
-        totalWidth += 12 * parseInt(me.$('.boxalign-center').css('margin-left'));
+        totalWidth += 16 * parseInt(me.$('.boxalign-center').css('margin-left'));
         setTimeout(function(){
             $panel.width(totalWidth );
             setTimeout(function(){
@@ -130,7 +139,7 @@ var PanelGlobalView = Rocket.GlobalView.extend({
             var align = RegExp.$1;
             me.gec.trigger('textalign.global', {textAlign: align});
         }
-        else if(/^boxalign-((left|right|center)(-a)?)/.test(cls)){
+        else if(/^boxalign-((left|right|center|bottom)(-a)?)/.test(cls)){
             me.gec.trigger('boxalign.global', {type: RegExp.$1});
         }
         else if(/panel-(bottom|top)/.test(cls)){
@@ -159,18 +168,15 @@ var PanelGlobalView = Rocket.GlobalView.extend({
             me.clearState();
             me.gec.trigger('newtext.global', {type: action});
         }
-        else if(/(topnewsimagewithmask|imagewithmask|image)-new/.test(cls)){
+        else if(/image-(|withmask|topnews-withmask|button)-?new/.test(cls)){
             var action = RegExp.$1;
             me.clearState();
             me.togglePopupImagePanel({imageType: action});
         }
-        else if(/button-new/.test(cls)){
+        else if(/button-(release|share|image|link|link-1)-new/.test(cls)){
+            var action = RegExp.$1;
             me.clearState();
-            me.gec.trigger('newbutton.global');
-        }
-        else if(/share-new/.test(cls)){
-            me.clearState();
-            me.gec.trigger('newshare.global');
+            me.gec.trigger('newbutton.global', {type: action});
         }
         else if(/font-color/.test(cls)){
             me.toggleFontColorPanel();
@@ -287,6 +293,7 @@ var PanelGlobalView = Rocket.GlobalView.extend({
                 = new PopupEditSubView(null, me);
             me.appendTo(panel, 'body'); 
         }
+        console.log(111);
         panel.toggle(params && params.text || {}.text);
     }
 

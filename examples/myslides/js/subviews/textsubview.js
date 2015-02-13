@@ -50,11 +50,7 @@ var TextSubView = RectSubView.extend({
             me.$el.on('click', function(e){
                 e.stopPropagation();
                 e.preventDefault();
-                me.gec.trigger('clear.global', {target: me});
-                // Make sure it can response to `imagechange` event
-                me.isSelected = true;
-                me.isEdited = true;
-                me.gec.trigger('beforeedit.global', {text: me.$text.html()});
+                me.onActivatedUnderPartialEdit();
             });
             // me.showBorder();
         }
@@ -158,6 +154,15 @@ var TextSubView = RectSubView.extend({
         me._applyLineHeight(opt || me._getLineHeight());
         me._applyColor(opt || me._getColor());
         me._applyTextAlign(opt || me._getTextAlign());
+    }
+
+    , onActivatedUnderPartialEdit: function(){
+        var me = this;
+        me.gec.trigger('clear.global', {target: me});
+        // Make sure it can response to `imagechange` event
+        me.isSelected = true;
+        me.isEdited = true;
+        me.gec.trigger('beforeedit.global', {text: me.$text.html()});
     }
 
 });

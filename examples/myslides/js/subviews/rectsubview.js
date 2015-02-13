@@ -174,7 +174,7 @@ var RectSubView = Rocket.SubView.extend({
         me.$lockButton.on('touchstart', function(e){
             var $lock = me.$lockButton;
 
-            if($lock.hasClass('icon-jiesuo')) {
+            if($lock.hasClass('unlocked')) {
                 me._applyLockTag({lock: 'lock'});
             }
             else {
@@ -307,9 +307,11 @@ var RectSubView = Rocket.SubView.extend({
             case 'left': me.positionLeft(); break;
             case 'right': me.positionRight(); break;
             case 'center': me.positionCenter(); break;
+            case 'bottom': me.positionBottom(); break;
             case 'left-a': me.positionLeftA(); break;
             case 'right-a': me.positionRightA(); break;
             case 'center-a': me.positionCenterA(); break;
+            case 'bottom-a': me.positionBottomA(); break;
         }
     }
 
@@ -329,6 +331,12 @@ var RectSubView = Rocket.SubView.extend({
         var me = this;
         me._clearBoxAlignAll();
         me._applyBoxAlign({boxAlignRight: 1});
+    }
+
+    , positionBottom: function(){
+        var me = this;
+        me._clearBoxAlignAll(null, 1);
+        me._applyBoxAlign({boxAlignBottom: 1});
     }
 
     , positionCenterA: function(){
@@ -365,9 +373,23 @@ var RectSubView = Rocket.SubView.extend({
             right = slideWidth - width - left, 
             dist = 0 - right;
 
-        console.log(dist);
         me._clearBoxAlignAll();
         me._applyBoxAlign({boxAlignRightA: dist});
+    }
+
+    , positionBottomA: function(){
+        var me = this,
+            height = parseInt(me.$el.css('height')) + 2
+                || me.$el.prop('offsetHeight') + 2,
+            top = parseInt(me.$el.css('top')) 
+                || me.$el.prop('offsetTop')
+                || 0,
+            slideHeight = me.ec.$el.height(),
+            bottom = slideHeight - height - top, 
+            dist = 0 - bottom;
+
+        me._clearBoxAlignAll(null, 1);
+        me._applyBoxAlign({boxAlignBottomA: dist});
     }
 
 

@@ -32,13 +32,21 @@ __inline('pageviews/plainpageview.js')
 __inline('pageviews/frontpageview.js')
 __inline('pageviews/editonlyplainpageview.js')
 
-__inline('rectsubview.js')
-__inline('textsubview.js')
-__inline('imagesubview.js')
-__inline('imagewithmasksubview.js')
-__inline('topnewsimagewithmasksubview.js')
-__inline('topnewsimagetextsubview.js')
-__inline('releasebuttonsubview.js')
+__inline('subviews/rectsubview.js')
+
+__inline('subviews/imagesubview.js')
+__inline('subviews/imagewithmasksubview.js')
+__inline('subviews/topnewsimagewithmasksubview.js')
+__inline('subviews/imagebuttonsubview.js')
+
+__inline('subviews/textsubview.js')
+__inline('subviews/releaseonlybuttonsubview.js')
+__inline('subviews/partialeditonlybuttonsubview.js')
+__inline('subviews/releasebuttonsubview.js')
+__inline('subviews/sharebuttonsubview.js')
+__inline('subviews/linkbuttonsubview.js')
+__inline('subviews/linkreleaseonlybuttonsubview.js')
+__inline('subviews/topnewsimagetextsubview.js')
 
 
 
@@ -46,12 +54,19 @@ $.extend(
     subViewClasses
     , {
         RectSubView: RectSubView
-        , TextSubView: TextSubView
         , ImageSubView: ImageSubView
         , ImageWithMaskSubView: ImageWithMaskSubView
         , TopNewsImageWithMaskSubView: TopNewsImageWithMaskSubView
+        , ImageButtonSubView: ImageButtonSubView
+
+        , TextSubView: TextSubView
+        , PartialEditOnlyButtonSubView: PartialEditOnlyButtonSubView
+        , ReleaseOnlyButtonSubView: ReleaseOnlyButtonSubView
         , TopNewsImageTextSubView: TopNewsImageTextSubView
         , ReleaseButtonSubView: ReleaseButtonSubView
+        , LinkButtonSubView: LinkButtonSubView
+        , LinkReleaseOnlyButtonSubView: LinkReleaseOnlyButtonSubView
+        , ShareButtonSubView: ShareButtonSubView
     }
 );
 

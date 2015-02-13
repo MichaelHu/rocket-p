@@ -55,9 +55,11 @@ var BoxSettingsInterface = {
             , me._getSettings('pos_boxalign_center', 'boxAlignCenter', $el)
             , me._getSettings('pos_boxalign_left', 'boxAlignLeft', $el)
             , me._getSettings('pos_boxalign_right', 'boxAlignRight', $el)
+            , me._getSettings('pos_boxalign_bottom', 'boxAlignBottom', $el)
             , me._getSettings('pos_boxalign_center_a', 'boxAlignCenterA', $el)
             , me._getSettings('pos_boxalign_left_a', 'boxAlignLeftA', $el)
             , me._getSettings('pos_boxalign_right_a', 'boxAlignRightA', $el)
+            , me._getSettings('pos_boxalign_bottom_a', 'boxAlignBottomA', $el)
         );
 
         return align;
@@ -89,9 +91,11 @@ var BoxSettingsInterface = {
         me._setSettings(align, 'pos_boxalign_center', 'boxAlignCenter', $el)
         me._setSettings(align, 'pos_boxalign_left', 'boxAlignLeft', $el)
         me._setSettings(align, 'pos_boxalign_right', 'boxAlignRight', $el)
+        me._setSettings(align, 'pos_boxalign_bottom', 'boxAlignBottom', $el)
         me._setSettings(align, 'pos_boxalign_center_a', 'boxAlignCenterA', $el)
         me._setSettings(align, 'pos_boxalign_left_a', 'boxAlignLeftA', $el)
         me._setSettings(align, 'pos_boxalign_right_a', 'boxAlignRightA', $el)
+        me._setSettings(align, 'pos_boxalign_bottom_a', 'boxAlignBottomA', $el)
     }
 
     , _setZIndex: function(layer, $el){
@@ -126,26 +130,39 @@ var BoxSettingsInterface = {
         me._clearSettings(align, 'pos_boxalign_center', 'boxAlignCenter', $el)
         me._clearSettings(align, 'pos_boxalign_left', 'boxAlignLeft', $el)
         me._clearSettings(align, 'pos_boxalign_right', 'boxAlignRight', $el)
+        me._clearSettings(align, 'pos_boxalign_bottom', 'boxAlignBottom', $el)
         me._clearSettings(align, 'pos_boxalign_center_a', 'boxAlignCenterA', $el)
         me._clearSettings(align, 'pos_boxalign_left_a', 'boxAlignLeftA', $el)
         me._clearSettings(align, 'pos_boxalign_right_a', 'boxAlignRightA', $el)
+        me._clearSettings(align, 'pos_boxalign_bottom_a', 'boxAlignBottomA', $el)
     }
 
-    , _clearBoxAlignAll: function($el){
+    , _clearBoxAlignAll: function($el, isVertical){
         var me = this;
 
         $el = $el || me.$el;
-        me._clearBoxAlign(
-            {
-                'boxAlignCenter': 1
-                , 'boxAlignRight': 1
-                , 'boxAlignLeft': 1
-                , 'boxAlignCenterA': 1
-                , 'boxAlignRightA': 1
-                , 'boxAlignLeftA': 1
-            }
-            , $el
-        );
+        if(isVertical){
+            me._clearBoxAlign(
+                {
+                    'boxAlignBottom': 1
+                    , 'boxAlignBottomA': 1
+                }
+                , $el
+            );
+        }
+        else{
+            me._clearBoxAlign(
+                {
+                    'boxAlignCenter': 1
+                    , 'boxAlignRight': 1
+                    , 'boxAlignLeft': 1
+                    , 'boxAlignCenterA': 1
+                    , 'boxAlignRightA': 1
+                    , 'boxAlignLeftA': 1
+                }
+                , $el
+            );
+        }
     }
 
     , _clearLockTag: function(lock, $el){
@@ -155,7 +172,9 @@ var BoxSettingsInterface = {
         $el = $el || me.$el;
         me._clearSettings(lock, 'lock', 'lock', $el);
         me._isLocked = false;
-        me.$lockButton.html('&#xf0195;');
+        me.$lockButton.html('&#xf0195;')
+            .removeClass('locked')
+            .addClass('unlocked');
     }
 
 
@@ -212,6 +231,12 @@ var BoxSettingsInterface = {
                     , left: 'auto'
                 });
             }
+            else if(align.boxAlignBottom){
+                me._applyPos({
+                    bottom: 0
+                    , top: 'auto'
+                });
+            }
             else if(align.boxAlignCenterA != undef){
                 var slideWidth = me.ec.$el.width(),
                     dist = parseInt(align.boxAlignCenterA);
@@ -237,6 +262,15 @@ var BoxSettingsInterface = {
                     , left: 'auto'
                 });
             }
+            else if(align.boxAlignBottomA != undef){
+                var dist = parseInt(align.boxAlignBottomA);
+
+                me._applyPos({
+                    bottom: 0 - dist
+                    , top: 'auto'
+                });
+            }
+
 
 
             me._setBoxAlign(align);
@@ -267,7 +301,9 @@ var BoxSettingsInterface = {
         else{
             me._isLocked = true;
             me._setLockTag(lock, $el);
-            me.$lockButton.html('&#xf012b;');
+            me.$lockButton.html('&#xf00c9;')
+                .removeClass('unlocked')
+                .addClass('locked');
         }
     }
 

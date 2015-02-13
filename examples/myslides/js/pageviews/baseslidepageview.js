@@ -103,6 +103,8 @@ var BaseSlidePageView = Rocket.PageView.extend({
     , onnewtext: function(params){
         var me = this, textClass;
 
+        if(!me.isActivePage()) return;
+        
         switch(params.type){
             case 'topnewsimagetext':
                 textClass = TopNewsImageTextSubView; 
@@ -112,8 +114,6 @@ var BaseSlidePageView = Rocket.PageView.extend({
                 break;
         }
 
-        if(!me.isActivePage()) return;
-        
         me.append(
             new textClass(
                 {
@@ -139,13 +139,30 @@ var BaseSlidePageView = Rocket.PageView.extend({
 
     }
 
-    , onnewbutton: function(){
-        var me = this;
+    , onnewbutton: function(params){
+        var me = this, buttonClass;
 
         if(!me.isActivePage()) return;
+
+        switch(params.type){
+            case 'release':
+                buttonClass = ReleaseButtonSubView; 
+                break;
+            case 'share':
+                buttonClass = ShareButtonSubView; 
+                break;
+            case 'link-1':
+                buttonClass = LinkReleaseOnlyButtonSubView; 
+                break;
+
+            default:
+                buttonClass = LinkButtonSubView; 
+                break;
+        }
+
         
         me.append(
-            new ReleaseButtonSubView(
+            new buttonClass(
                 {
                     pos: {
                         top: 100
@@ -157,7 +174,7 @@ var BaseSlidePageView = Rocket.PageView.extend({
                     }
                     , text: {
                         lineHeight: '30px'
-                        , color: '#fff'
+                        , color: '#666'
                         , textAlign: 'center'
                         , fontSize: '18px'
                     }
@@ -171,13 +188,18 @@ var BaseSlidePageView = Rocket.PageView.extend({
 
     , onnewimage: function(params){
         var me = this,
-            ImageClass;
+            ImageClass,
+            size = {height: 100, width: 150};
 
         switch(params.type){
-            case 'imagewithmask':
+            case 'withmask':
                 ImageClass = ImageWithMaskSubView;
                 break;
-            case 'topnewsimagewithmask':
+            case 'button':
+                ImageClass = ImageButtonSubView;
+                size.height = 50;
+                break;
+            case 'topnews-withmask':
                 ImageClass = TopNewsImageWithMaskSubView;
                 break;
 
@@ -194,10 +216,7 @@ var BaseSlidePageView = Rocket.PageView.extend({
                         top: 160
                         , left: 50
                     }
-                    , size: {
-                        height: 100
-                        , width: 150
-                    }
+                    , size: size 
                     , text: {
                         textAlign: 'center'
                     }

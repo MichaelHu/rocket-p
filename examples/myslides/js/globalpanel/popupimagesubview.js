@@ -6,7 +6,7 @@ var PopupImageSubView = PopupSubView.extend({
         me._super(options);
         me.$popupImage = me.$('.popup-image-subview');
         me.$tab = me.$('.tab');
-        type = me.defaultType = me.options.defaultType || 'url';
+        type = me.defaultType = me.options.defaultType || 'local';
 
         me.updateTab(type)
             .openSubPanel(type);

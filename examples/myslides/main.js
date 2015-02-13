@@ -168,6 +168,8 @@ function loadImages(images, callback){
         finished = 0,
         img;
     
+    CoverLoading(30);
+
     while(i < len){
         img = new Image();
         img.src = images[i++];
@@ -175,9 +177,11 @@ function loadImages(images, callback){
             = img.onerror 
             = function(){
                 finished++; 
-                CoverLoading(Math.ceil(100 * finished / len));
+                CoverLoading(Math.ceil(70 * finished / len + 30));
                 if(finished >= len){
-                    callback && callback();
+                    setTimeout(function(){
+                        callback && callback();
+                    }, 100);
                 }
             };
     } 

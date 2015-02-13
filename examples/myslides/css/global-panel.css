@@ -35,8 +35,10 @@
 .global-panel .panel span.boxalign-left ,
 .global-panel .panel span.boxalign-right ,
 .global-panel .panel span.boxalign-center ,
+.global-panel .panel span.boxalign-bottom ,
 .global-panel .panel span.boxalign-left-a ,
 .global-panel .panel span.boxalign-right-a ,
+.global-panel .panel span.boxalign-bottom-a ,
 .global-panel .panel span.boxalign-center-a {
     padding: 0;
     margin: 0 10px;
