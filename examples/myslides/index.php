@@ -62,9 +62,9 @@ if(!Rewrite::match($path)){
                             'tiff' => 'image/tiff',
                              'txt' => 'text/plain',
 
-                             'eot' => 'text/plain',
-                             'woff' => 'text/plain',
-                             'ttf' => 'text/plain',
+                             'eot' => 'application/octet-stream',
+                             'woff' => 'application/octet-stream',
+                             'ttf' => 'application/octet-stream',
 
                              'vml' => 'text/xml',
                             'vxml' => 'text/xml',
