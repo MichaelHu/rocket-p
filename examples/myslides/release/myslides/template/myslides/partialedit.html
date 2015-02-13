@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>上百度新闻头条，派送贺卡</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=320.1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="stylesheet" type="text/css" href="/static/news/myslides/css/myslides-aio.css" />
+</head>
+<body>
+    <div id="cover-loading">
+        <div class="box">
+            <canvas></canvas>
+            <img>
+            <div class="info">
+                <span class="percent">2</span>
+                <span class="text">%</span>
+            </div>
+        </div>
+    </div>
+    <div id="wrapper"></div>
+</body>
+</html>
+<script type="text/javascript" src="/static/news/myslides/vendor/require.js"></script>
+<script>
+
+// config
+global_greetingcard_server = 'http://db-news-rddev0.vm.baidu.com:8081/ajax/greetingcard';
+global_greetingcard_server = 'http://baijia.baidu.com/ajax/greetingcard';
+global_land_page = 'http://172.22.185.165:8300/template/myslides/land.html';
+global_land_page = 'http://test.baidu.com:8300/template/myslides/land.html';
+// global_land_page = 'http://db-news-fe2.vm.baidu.com:8098/myslides/land.html';
+global_land_page = 'http://m.baidu.com/static/news/myslides/land.html';
+
+    require.config({
+        baseUrl: '/static/news/myslides/vendor'
+        , waitSeconds: 0
+        , paths: {
+            'zepto': 'zepto-amd'
+            , 'underscore': 'underscore'
+            , 'rocket': 'rocket-p'
+            , 'jquery': 'jquery'
+            , 'spectrum': 'spectrum'
+            , 'iscroll': 'iscroll'
+            , 'canvas': 'Canvas'
+            , 'cover-loading': '../cover-loading'
+            , 'rocket-ppt': '../js/rocket-ppt'
+            , 'main': '../main'
+        }
+    });
+
+    require(['spectrum', 'iscroll', 'main'], function(){});
+</script>
