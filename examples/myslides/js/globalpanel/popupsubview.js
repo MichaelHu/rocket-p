@@ -15,8 +15,7 @@ var PopupSubView = Rocket.SubView.extend({
             , left: 0
             , bottom: 0
             , right: 0
-            , 'background-color': '#000'
-            , opacity: 0.7
+            , 'background-color': 'rgba(0,0,0,0.7)'
         });
     }
 
