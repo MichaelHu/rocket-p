@@ -12,6 +12,7 @@
 }
 
 .popupfontcolor .color ,
+.popupfontcolor .line-height ,
 .popupfontcolor .font-size {
     margin: 10px 0;
 }
@@ -23,11 +24,13 @@
 }
 
 .popupfontcolor .color input ,
+.popupfontcolor .line-height div span,
 .popupfontcolor .font-size div span {
     float: left;
     padding-right: 6px;
 }
 
+.popupfontcolor .line-height > div ,
 .popupfontcolor .font-size > div {
     margin-left: 52px;
     height: 50px;

@@ -8,11 +8,11 @@ var ImageSubView = RectSubView.extend({
         ,     '<img>'
         , '</div>'
         , '<div class="inner-panel iconfont">'
-        ,     '<span class="img-move icon-yidong" data-btn-type="img-move"></span>'
-        ,     '<span data-btn-type="img-zoom-in" class="icon-fangda"></span>'
-        ,     '<span data-btn-type="img-zoom-out" class="icon-suoxiao"></span>'
-        ,     '<span data-btn-type="img-rotate" class="icon-zhongzuo"></span>'
-        ,     '<span data-btn-type="img-counter-rotate" class="icon-chexiao"></span>'
+        ,     '<span class="img-move" data-btn-type="img-move">&#xf01b6;</span>'
+        ,     '<span data-btn-type="img-zoom-in">&#xf01b9;</span>'
+        ,     '<span data-btn-type="img-zoom-out">&#xf01b8;</span>'
+        ,     '<span data-btn-type="img-rotate">&#xf013b;</span>'
+        ,     '<span data-btn-type="img-counter-rotate">&#xf013a;</span>'
         , '</div>'
         , '<div class="loading-layer"></div>'
     ].join('')
@@ -27,7 +27,7 @@ var ImageSubView = RectSubView.extend({
 
         if(!me._isSetup){
             me.$el.append(me.tpl);
-            me.$panel.append('<span class="edit icon-bianji"></span>');
+            me.$panel.append('<span class="edit">&#xf0022;</span>');
         }
 
         me.$image = me.$('.image');

@@ -90,6 +90,7 @@ var TextSubView = RectSubView.extend({
         gec.on('textalign.global', me.ontextalign, me);
         gec.on('color.global', me.oncolor, me);
         gec.on('fontsize.global', me.onfontsize, me);
+        gec.on('lineheight.global', me.onlineheight, me);
         gec.on('afteredit.global', me.onafteredit, me);
     }
 
@@ -105,6 +106,7 @@ var TextSubView = RectSubView.extend({
         gec.off('textalign.global', me.ontextalign, me);
         gec.off('color.global', me.oncolor, me);
         gec.off('fontsize.global', me.onfontsize, me);
+        gec.off('lineheight.global', me.onlineheight, me);
         gec.off('afteredit.global', me.onafteredit, me);
         me._super();
     }
@@ -126,6 +128,12 @@ var TextSubView = RectSubView.extend({
         var me = this;
         if(me.isSelected){
             me._applyFontSize(params);
+        }
+    }
+
+    , onlineheight: function(params){
+        var me = this;
+        if(me.isSelected){
             me._applyLineHeight(params);
         }
     }

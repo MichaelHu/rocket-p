@@ -5,11 +5,11 @@ var RectSubView = Rocket.SubView.extend({
 
     , panelTpl: [
           '<div class="iconfont control-panel">'
-        ,     '<span class="lock icon-jiesuo"></span>'
-        ,     '<span class="delete icon-shanchu"></span>'
-        ,     '<span class="resize icon-daxiao"></span>'
-        ,     '<span class="rotate icon-zhongzuo"></span>'
-        ,     '<span class="counter-rotate icon-chexiao"></span>'
+        ,     '<span class="lock">&#xf0195;</span>'
+        ,     '<span class="delete">&#xf013f;</span>'
+        ,     '<span class="resize">&#xf0005;</span>'
+        ,     '<span class="rotate">&#xf013b;</span>'
+        ,     '<span class="counter-rotate">&#xf013a;</span>'
         , '</div>'
     ].join('')
 
@@ -103,7 +103,7 @@ var RectSubView = Rocket.SubView.extend({
     , ensureResizeHandle: function(){
         var me = this;
         if(!me.$resizeHandle.length){
-            me.$el.append('<div class="iconfont resize-handle icon-jia"></div>')
+            me.$el.append('<div class="iconfont resize-handle">&#xf0154;</div>')
             me.$resizeHandle = me.$('.resize-handle').hide();
         }
     }
@@ -307,6 +307,9 @@ var RectSubView = Rocket.SubView.extend({
             case 'left': me.positionLeft(); break;
             case 'right': me.positionRight(); break;
             case 'center': me.positionCenter(); break;
+            case 'left-a': me.positionLeftA(); break;
+            case 'right-a': me.positionRightA(); break;
+            case 'center-a': me.positionCenterA(); break;
         }
     }
 
@@ -327,6 +330,46 @@ var RectSubView = Rocket.SubView.extend({
         me._clearBoxAlignAll();
         me._applyBoxAlign({boxAlignRight: 1});
     }
+
+    , positionCenterA: function(){
+        var me = this;
+            left = parseInt(me.$el.css('left')) 
+                || me.$el.prop('offsetLeft') 
+                || 0,
+            slideWidth = me.ec.$el.width(),
+            dist = slideWidth / 2 - left;
+
+        me._clearBoxAlignAll();
+        me._applyBoxAlign({boxAlignCenterA: dist});
+    }
+
+    , positionLeftA: function(){
+        var me = this,
+            left = parseInt(me.$el.css('left')) 
+                || me.$el.prop('offsetLeft')
+                || 0,
+            dist = 0 - left;
+
+        me._clearBoxAlignAll();
+        me._applyBoxAlign({boxAlignLeftA: dist});
+    }
+
+    , positionRightA: function(){
+        var me = this,
+            width = parseInt(me.$el.css('width')) + 2
+                || me.$el.prop('offsetWidth') + 2,
+            left = parseInt(me.$el.css('left')) 
+                || me.$el.prop('offsetLeft')
+                || 0,
+            slideWidth = me.ec.$el.width(),
+            right = slideWidth - width - left, 
+            dist = 0 - right;
+
+        console.log(dist);
+        me._clearBoxAlignAll();
+        me._applyBoxAlign({boxAlignRightA: dist});
+    }
+
 
     , onRotate: function(isCounter){
         var me = this,

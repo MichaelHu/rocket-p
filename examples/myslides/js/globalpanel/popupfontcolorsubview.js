@@ -38,6 +38,35 @@ var PopupFontColorSubView = PopupSubView.extend({
         ,              '<span>120px</span>'
         ,          '</div>'
         ,      '</div>'
+        ,      '<div class="line-height">'
+        ,          '<b>行高</b>'
+        ,          '<div>'
+        ,              '<span>12px</span>'
+        ,              '<span>14px</span>'
+        ,              '<span>16px</span>'
+        ,              '<span>18px</span>'
+        ,              '<span>20px</span>'
+        ,              '<span>22px</span>'
+        ,              '<span>24px</span>'
+        ,              '<span>26px</span>'
+        ,              '<span>28px</span>'
+        ,              '<span>30px</span>'
+        ,              '<span>32px</span>'
+        ,              '<span>34px</span>'
+        ,              '<span>36px</span>'
+        ,              '<span>38px</span>'
+        ,              '<span>40px</span>'
+        ,              '<span>42px</span>'
+        ,              '<span>48px</span>'
+        ,              '<span>56px</span>'
+        ,              '<span>64px</span>'
+        ,              '<span>72px</span>'
+        ,              '<span>80px</span>'
+        ,              '<span>90px</span>'
+        ,              '<span>100px</span>'
+        ,              '<span>120px</span>'
+        ,          '</div>'
+        ,      '</div>'
         , '</div>'
     ].join('')
 
@@ -49,7 +78,18 @@ var PopupFontColorSubView = PopupSubView.extend({
         if(( $span = $target.closest('span') ).length){
             me.gec.trigger('fontsize.global', {
                 fontSize: $span.html()
-                , lineHeight: $span.html()
+            });
+        }
+    }
+
+    , onlineheightclick: function(e){
+        var me = this, 
+            $target = $(e.target),
+            $span;
+
+        if(( $span = $target.closest('span') ).length){
+            me.gec.trigger('lineheight.global', {
+                lineHeight: $span.html()
             });
         }
     }
@@ -72,6 +112,10 @@ var PopupFontColorSubView = PopupSubView.extend({
 
         me.$('.font-size').on('click', function(e){
             me.onfontsizeclick(e);
+        });
+
+        me.$('.line-height').on('click', function(e){
+            me.onlineheightclick(e);
         });
     }
 

@@ -34,7 +34,7 @@ else{
         , success: function(resp){
             var config;
             if(resp && resp.data && resp.data.content){
-                config = JSON.parse(resp.data.content);
+                config = JSON.parse(unescape(resp.data.content));
                 start(config);
             }
         }

@@ -55,6 +55,9 @@ var BoxSettingsInterface = {
             , me._getSettings('pos_boxalign_center', 'boxAlignCenter', $el)
             , me._getSettings('pos_boxalign_left', 'boxAlignLeft', $el)
             , me._getSettings('pos_boxalign_right', 'boxAlignRight', $el)
+            , me._getSettings('pos_boxalign_center_a', 'boxAlignCenterA', $el)
+            , me._getSettings('pos_boxalign_left_a', 'boxAlignLeftA', $el)
+            , me._getSettings('pos_boxalign_right_a', 'boxAlignRightA', $el)
         );
 
         return align;
@@ -86,6 +89,9 @@ var BoxSettingsInterface = {
         me._setSettings(align, 'pos_boxalign_center', 'boxAlignCenter', $el)
         me._setSettings(align, 'pos_boxalign_left', 'boxAlignLeft', $el)
         me._setSettings(align, 'pos_boxalign_right', 'boxAlignRight', $el)
+        me._setSettings(align, 'pos_boxalign_center_a', 'boxAlignCenterA', $el)
+        me._setSettings(align, 'pos_boxalign_left_a', 'boxAlignLeftA', $el)
+        me._setSettings(align, 'pos_boxalign_right_a', 'boxAlignRightA', $el)
     }
 
     , _setZIndex: function(layer, $el){
@@ -120,6 +126,9 @@ var BoxSettingsInterface = {
         me._clearSettings(align, 'pos_boxalign_center', 'boxAlignCenter', $el)
         me._clearSettings(align, 'pos_boxalign_left', 'boxAlignLeft', $el)
         me._clearSettings(align, 'pos_boxalign_right', 'boxAlignRight', $el)
+        me._clearSettings(align, 'pos_boxalign_center_a', 'boxAlignCenterA', $el)
+        me._clearSettings(align, 'pos_boxalign_left_a', 'boxAlignLeftA', $el)
+        me._clearSettings(align, 'pos_boxalign_right_a', 'boxAlignRightA', $el)
     }
 
     , _clearBoxAlignAll: function($el){
@@ -131,6 +140,9 @@ var BoxSettingsInterface = {
                 'boxAlignCenter': 1
                 , 'boxAlignRight': 1
                 , 'boxAlignLeft': 1
+                , 'boxAlignCenterA': 1
+                , 'boxAlignRightA': 1
+                , 'boxAlignLeftA': 1
             }
             , $el
         );
@@ -143,8 +155,7 @@ var BoxSettingsInterface = {
         $el = $el || me.$el;
         me._clearSettings(lock, 'lock', 'lock', $el);
         me._isLocked = false;
-        me.$lockButton.removeClass('icon-suoding')
-            .addClass('icon-jiesuo');
+        me.$lockButton.html('&#xf0195;');
     }
 
 
@@ -201,6 +212,32 @@ var BoxSettingsInterface = {
                     , left: 'auto'
                 });
             }
+            else if(align.boxAlignCenterA != undef){
+                var slideWidth = me.ec.$el.width(),
+                    dist = parseInt(align.boxAlignCenterA);
+
+                me._applyPos({
+                    left: slideWidth / 2 - dist
+                    , right: 'auto'
+                });
+            }
+            else if(align.boxAlignLeftA != undef){
+                var dist = parseInt(align.boxAlignLeftA);
+
+                me._applyPos({
+                    left: 0 - dist
+                    , right: 'auto'
+                });
+            }
+            else if(align.boxAlignRightA != undef){
+                var dist = parseInt(align.boxAlignRightA);
+
+                me._applyPos({
+                    right: 0 - dist
+                    , left: 'auto'
+                });
+            }
+
 
             me._setBoxAlign(align);
         }
@@ -230,8 +267,7 @@ var BoxSettingsInterface = {
         else{
             me._isLocked = true;
             me._setLockTag(lock, $el);
-            me.$lockButton.removeClass('icon-jiesuo')
-                .addClass('icon-suoding');
+            me.$lockButton.html('&#xf012b;');
         }
     }
 

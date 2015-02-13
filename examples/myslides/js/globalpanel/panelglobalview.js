@@ -26,6 +26,9 @@ var PanelGlobalView = Rocket.GlobalView.extend({
         ,     '<span class="boxalign-left icon-juzuo"></span>'
         ,     '<span class="boxalign-center icon-juzhong"></span>'
         ,     '<span class="boxalign-right icon-juyou"></span>'
+        ,     '<span class="boxalign-left-a icon-juzuo"></span>'
+        ,     '<span class="boxalign-center-a icon-juzhong"></span>'
+        ,     '<span class="boxalign-right-a icon-juyou"></span>'
         ,     '<span class="layer-up icon-xiangshang"></span>'
         ,     '<span class="layer-down icon-paixu"></span>'
         ,     '<span class="align-left icon-juzuo"></span>'
@@ -96,7 +99,7 @@ var PanelGlobalView = Rocket.GlobalView.extend({
             var $item = $(item);
             totalWidth += $item.width();
         });
-        totalWidth += 6 * parseInt(me.$('.boxalign-center').css('margin-left'));
+        totalWidth += 12 * parseInt(me.$('.boxalign-center').css('margin-left'));
         setTimeout(function(){
             $panel.width(totalWidth );
             setTimeout(function(){
@@ -127,7 +130,7 @@ var PanelGlobalView = Rocket.GlobalView.extend({
             var align = RegExp.$1;
             me.gec.trigger('textalign.global', {textAlign: align});
         }
-        else if(/^boxalign-(left|right|center)/.test(cls)){
+        else if(/^boxalign-((left|right|center)(-a)?)/.test(cls)){
             me.gec.trigger('boxalign.global', {type: RegExp.$1});
         }
         else if(/panel-(bottom|top)/.test(cls)){
@@ -331,9 +334,9 @@ var PanelGlobalView = Rocket.GlobalView.extend({
     , saveSlides: function(config, mode){
         var me = this, topImage = config.topNewsImage;
 
-        console.log(JSON.stringify(config));
+        console.log(escape(JSON.stringify(config)));
         me.ensureSendForm();
-        me.$inputContent.val(JSON.stringify(config));
+        me.$inputContent.val(escape(JSON.stringify(config)));
         me.$inputImgUrl.val(topImage.img_url); 
         me.$inputImgWidth.val(topImage.img_width); 
         me.$inputImgHeight.val(topImage.img_height); 
