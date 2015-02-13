@@ -70,7 +70,11 @@ function start(initConfig){
 
 function initSlides(initConfig){
 
-    var slidesConfig = initConfig || {
+    var localConfig = null;
+    
+    var localConfig = JSON.parse(unescape(localConfig));
+
+    var slidesConfig = initConfig || localConfig || {
         order: ['index']
         , views: {
             'index': {
