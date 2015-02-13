@@ -199,6 +199,10 @@ var BaseSlidePageView = Rocket.PageView.extend({
                 ImageClass = ImageButtonSubView;
                 size.height = 50;
                 break;
+            case 'button-1':
+                ImageClass = ImageReleaseOnlyButtonSubView;
+                size.height = 50;
+                break;
             case 'topnews-withmask':
                 ImageClass = TopNewsImageWithMaskSubView;
                 break;

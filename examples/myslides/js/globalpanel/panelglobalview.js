@@ -23,6 +23,7 @@ var PanelGlobalView = Rocket.GlobalView.extend({
         ,     '<span class="image-withmask-new icon-tupian"></span>'
         ,     '<span class="image-topnews-withmask-new icon-tupian"></span>'
         ,     '<span class="image-button-new">图</span>'
+        ,     '<span class="image-button-1-new">图</span>'
 
         ,     '<span class="button-share-new">享</span>'
         ,     '<span class="button-release-new">发</span>'
@@ -168,7 +169,7 @@ var PanelGlobalView = Rocket.GlobalView.extend({
             me.clearState();
             me.gec.trigger('newtext.global', {type: action});
         }
-        else if(/image-(|withmask|topnews-withmask|button)-?new/.test(cls)){
+        else if(/image-(|withmask|topnews-withmask|button|button-1)-?new/.test(cls)){
             var action = RegExp.$1;
             me.clearState();
             me.togglePopupImagePanel({imageType: action});
