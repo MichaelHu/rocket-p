@@ -56,7 +56,7 @@ var TextSubView = RectSubView.extend({
                 me.isEdited = true;
                 me.gec.trigger('beforeedit.global', {text: me.$text.html()});
             });
-            me.showBorder();
+            // me.showBorder();
         }
 
         me.$editButton.on('touchstart', function(e){

@@ -86,7 +86,7 @@ var ImageSubView = RectSubView.extend({
                 me.isEdited = true;
                 me.gec.trigger('beforeimageedit.global', {url: me.$img.attr('src')});
             });
-            me.showBorder();
+            // me.showBorder();
         }
 
         ec.on('pagebeforechange', me.onpagebeforechange, me);
