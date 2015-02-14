@@ -9,6 +9,7 @@ var ImageSubView = RectSubView.extend({
         , '</div>'
         , '<div class="inner-panel iconfont">'
         ,     '<span class="img-move" data-btn-type="img-move">&#xf01b6;</span>'
+        ,     '<span class="img-upload" data-btn-type="img-upload">&#xf0024;</span>'
         ,     '<span data-btn-type="img-zoom-in">&#xf01b9;</span>'
         ,     '<span data-btn-type="img-zoom-out">&#xf01b8;</span>'
         ,     '<span data-btn-type="img-rotate">&#xf013b;</span>'
@@ -37,7 +38,7 @@ var ImageSubView = RectSubView.extend({
         me.initImage(options);
 
         me.$innerPanel = me.$('.inner-panel');
-        me.$imgMove = me.$innerPanel.find('.img-move').removeClass('on');
+        me.$imgMove = me.$innerPanel.find('.img-move').removeClass('on').show();
         if(me._isRelease
             || me._isPartialEdit && me._isLocked){
             me.$innerPanel.hide();
@@ -63,7 +64,7 @@ var ImageSubView = RectSubView.extend({
                     .on('load', function(){me.$loading.hide();});
                 params.w && me.$img.data('natural-width', params.w);
                 params.h && me.$img.data('natural-height', params.h);
-            }, 5000);
+            }, 3000);
         }
     }
 
@@ -77,14 +78,13 @@ var ImageSubView = RectSubView.extend({
         if(me._isRelease) return;
 
         if(me._isPartialEdit && !me._isLocked){
+            // Default draggable when partial edit, it's infeasible up to now.
+            // me.enableImageDrag();
+
             me.$el.on('click', function(e){
                 e.stopPropagation();
                 e.preventDefault();
-                me.gec.trigger('clear.global', {target: me});
-                // Make sure it can response to `imagechange` event
-                me.isSelected = true;
-                me.isEdited = true;
-                me.gec.trigger('beforeimageedit.global', {url: me.$img.attr('src')});
+                me.uploadImage();
             });
             // me.showBorder();
         }
@@ -122,6 +122,9 @@ var ImageSubView = RectSubView.extend({
             switch($target.data('btn-type')){
                 case 'img-move':
                     me.toggleImageMove($target);
+                    break;
+                case 'img-upload':
+                    me.uploadImage();
                     break;
                 case 'img-zoom-in':
                     me.imgZoomIn();
@@ -171,7 +174,7 @@ var ImageSubView = RectSubView.extend({
                 params.w && me.$img.data('natural-width', params.w);
                 params.h && me.$img.data('natural-height', params.h);
                 me.isEdited = false;
-            }, 5000);
+            }, 3000);
         }
     }
 
@@ -197,6 +200,15 @@ var ImageSubView = RectSubView.extend({
     , applyTextSettings: function(opt){
         var me = this;
         me._applyTextAlign(opt || me._getTextAlign());
+    }
+
+    , uploadImage: function(){
+        var me = this;
+        me.gec.trigger('clear.global', {target: me});
+        // Make sure it can response to `imagechange` event
+        me.isSelected = true;
+        me.isEdited = true;
+        me.gec.trigger('beforeimageedit.global', {url: me.$img.attr('src')});
     }
 
     , enableImageDrag: function(){

@@ -18,12 +18,12 @@ var ImageUploadSubView = Rocket.SubView.extend({
         ,     ' method="POST" target="__hidden_iframe__">'
         ,     '<input class="file-input" name="image" type="file" accept="image/gif,image/jpeg,image/jpg">'
         ,     '<div class="fake-file-input">点击拍照或上传图片</div>'
+        ,     '<div class="cancel">取消</div>'
         ,     '<input name="action" type="hidden" value="uploadimg">'
         ,     '<input name="redirect" type="hidden"'
         ,         ' value="' + global_land_page + '">'
         ,     '<input name="maxwidth" type="hidden" value="800">'
         , '</form>'
-        , '<div class="confirm">确定</div>'
     ].join('')
 
     , render: function(){

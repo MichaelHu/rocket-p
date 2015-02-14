@@ -5,11 +5,13 @@ var PopupEditSubView = PopupSubView.extend({
         me._super(options);
         me.$popupEdit = me.$('.popup-edit-subview');
         me.$text = me.$('textarea');
+        me.$confirmButton = me.$('.confirm');
     }
 
     , popupEditTpl: [
           '<div class="popup-edit-subview">'
         ,     '<textarea></textarea>'
+        ,     '<div class="confirm">确定</div>'
         , '</div>'
     ].join('')
 
@@ -25,6 +27,13 @@ var PopupEditSubView = PopupSubView.extend({
         me.$popupEdit.on('click', function(e){
             e.stopPropagation();
         });
+        me.$confirmButton.on('click', function(e){
+            e.stopPropagation();
+            me.gec.trigger('afteredit.global', {
+                text: me._decodeText(me.$text.val())
+            });
+            me.close();
+        })
     }
 
     , setValue: function(val){
@@ -63,12 +72,5 @@ var PopupEditSubView = PopupSubView.extend({
             ;
     }
 
-    , close: function(){
-        var me = this;
-
-        me._super();
-        me.gec.trigger('afteredit.global', {text: me._decodeText(me.$text.val())});
-    }
-    
     
 });

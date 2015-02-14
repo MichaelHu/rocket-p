@@ -135,6 +135,17 @@ function initSlides(initConfig){
         // , defaultPageTransition: 'slidescaleupTB'
 
         // , defaultPageTransition: 'rotatefoldmovefadeTB'
+
+        , isAllPageOpened: function(){
+            var me = this, 
+                views = me.views,
+                actions = me.pageOrder;
+            for(var i=0; i<actions.length; i++){
+                if(views[actions[i]]) continue;
+                else return false;
+            }
+            return true;
+        }
     });
 
     var appRouter = new AppRouter();

@@ -89,7 +89,7 @@ var ImageWithMaskSubView = ImageSubView.extend({
                 params.w && me.$imgMask.data('natural-width', params.w);
                 params.h && me.$imgMask.data('natural-height', params.h);
                 me.isMaskEdited = false;
-            }, 5000);
+            }, 3000);
         }
     }
 

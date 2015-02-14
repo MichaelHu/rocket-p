@@ -1,25 +1,20 @@
-var ReleaseOnlyButtonSubView = TextSubView.extend({
+var ImageEditOnlyButtonSubView = ImageButtonSubView.extend({
 
     init: function(options){
         var me = this;
         
         options || (options = {});
-
-        // Parent method first
         me._super(options);
 
-        me.viewClass = 'ReleaseOnlyButtonSubView';
-        if(!me._isSetup){
-            me.$text.html('仅发布模式可见');
-        }
+        me.viewClass = 'ImageEditOnlyButtonSubView';
 
         // Hidden in partial edit mode 
         if(me._isPartialEdit){
-            me.$el.hide();
+            me.$el.show();
         } 
         // Maybe hidden in partial edit mode, show it forcely.
         else if(me._isRelease){
-            me.$el.show();
+            me.$el.hide();
         }
     }
 

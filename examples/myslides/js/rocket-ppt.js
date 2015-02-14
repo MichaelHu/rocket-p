@@ -39,6 +39,7 @@ __inline('subviews/imagewithmasksubview.js')
 __inline('subviews/topnewsimagewithmasksubview.js')
 __inline('subviews/imagebuttonsubview.js')
 __inline('subviews/imagereleaseonlybuttonsubview.js')
+__inline('subviews/imageeditonlybuttonsubview.js')
 
 __inline('subviews/textsubview.js')
 __inline('subviews/releaseonlybuttonsubview.js')
@@ -60,6 +61,7 @@ $.extend(
         , TopNewsImageWithMaskSubView: TopNewsImageWithMaskSubView
         , ImageButtonSubView: ImageButtonSubView
         , ImageReleaseOnlyButtonSubView: ImageReleaseOnlyButtonSubView
+        , ImageEditOnlyButtonSubView: ImageEditOnlyButtonSubView
 
         , TextSubView: TextSubView
         , PartialEditOnlyButtonSubView: PartialEditOnlyButtonSubView

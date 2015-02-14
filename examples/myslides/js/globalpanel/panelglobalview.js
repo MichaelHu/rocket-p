@@ -24,6 +24,7 @@ var PanelGlobalView = Rocket.GlobalView.extend({
         ,     '<span class="image-topnews-withmask-new icon-tupian"></span>'
         ,     '<span class="image-button-new">图</span>'
         ,     '<span class="image-button-1-new">图</span>'
+        ,     '<span class="image-button-2-new">图</span>'
 
         ,     '<span class="button-share-new">享</span>'
         ,     '<span class="button-release-new">发</span>'
@@ -69,11 +70,12 @@ var PanelGlobalView = Rocket.GlobalView.extend({
     }
 
     , registerEvents: function(){
-        var me = this;
-        me.ec.on('routechange', me.onroutechange, me);
-        me.gec.on('beforeedit.global', me.onbeforeedit, me);
-        me.gec.on('beforeimageedit.global', me.onbeforeimageedit, me);
-        me.gec.on('release.releasebutton.global', me.onreleasefromreleasebutton, me);
+        var me = this,
+            gec = me.gec;
+        gec.on('routechange', me.onroutechange, me);
+        gec.on('beforeedit.global', me.onbeforeedit, me);
+        gec.on('beforeimageedit.global', me.onbeforeimageedit, me);
+        gec.on('release.releasebutton.global', me.onreleasefromreleasebutton, me);
     }
 
     , render: function(){
@@ -169,7 +171,7 @@ var PanelGlobalView = Rocket.GlobalView.extend({
             me.clearState();
             me.gec.trigger('newtext.global', {type: action});
         }
-        else if(/image-(|withmask|topnews-withmask|button|button-1)-?new/.test(cls)){
+        else if(/image-(|withmask|topnews-withmask|button|button-\d)-?new/.test(cls)){
             var action = RegExp.$1;
             me.clearState();
             me.togglePopupImagePanel({imageType: action});
@@ -213,7 +215,7 @@ var PanelGlobalView = Rocket.GlobalView.extend({
                         : 'RELEASE'
             };
 
-        if(!me.isPreviewed){
+        if(!me.isPreviewed && !me.gec.isAllPageOpened){
             me.tip('Please preview first.');
             setTimeout(function(){
                 me.previewSlides(function(){
@@ -359,11 +361,16 @@ var PanelGlobalView = Rocket.GlobalView.extend({
                     break;
                 case 'release':
                     href = './index.html';
+                    // Goto webapp when partial edit
+                    if(me.gec.editMode == 'PARTIALEDIT'){
+                        href = 'http://m.baidu.com/news';
+                    }
                     break;
                 case 'save':
                     href = './fulledit.html';
                     break;
             }
+
             location.href = href
                 + '?cardid=' + opt.cardid
                 + '&cut_x=' + ( topImage.x || 0 )

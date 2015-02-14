@@ -8,6 +8,13 @@ var PopupImageSubView = PopupSubView.extend({
         me.$tab = me.$('.tab');
         type = me.defaultType = me.options.defaultType || 'local';
 
+        if(me.gec.editMode == 'FULLEDIT'){
+            me.$tab.show();
+        }
+        else {
+            me.$tab.hide();
+        }
+
         me.updateTab(type)
             .openSubPanel(type);
     }

@@ -26,7 +26,9 @@ var ShareButtonSubView = ReleaseOnlyButtonSubView.extend({
             me.$el.off()
                 // then bind new click event handler.
                 .on('click', function(e){
-                    gec.trigger('share.sharebutton.global');
+                    // gec.trigger('share.sharebutton.global');
+                    location.href = 'http://m.baidu.com/news'
+                        + location.search;
                 });
             return;
         };
@@ -38,7 +40,7 @@ var ShareButtonSubView = ReleaseOnlyButtonSubView.extend({
             ec = me.ec,
             gec = me.gec;
 
-        if(me._isPartialEdit) {
+        if(me._isRelease) {
             me.$el.off();
         }
 
