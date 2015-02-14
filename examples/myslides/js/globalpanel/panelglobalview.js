@@ -215,7 +215,7 @@ var PanelGlobalView = Rocket.GlobalView.extend({
                         : 'RELEASE'
             };
 
-        if(!me.isPreviewed && !me.gec.isAllPageOpened){
+        if(!me.isPreviewed && !me.gec.isAllPagesOpened()){
             me.tip('Please preview first.');
             setTimeout(function(){
                 me.previewSlides(function(){

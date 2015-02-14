@@ -136,7 +136,7 @@ function initSlides(initConfig){
 
         // , defaultPageTransition: 'rotatefoldmovefadeTB'
 
-        , isAllPageOpened: function(){
+        , isAllPagesOpened: function(){
             var me = this, 
                 views = me.views,
                 actions = me.pageOrder;
