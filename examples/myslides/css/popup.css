@@ -170,6 +170,7 @@
     opacity: 0;
 }
 
+.popup-image-subview .image-upload-container form .cancel,
 .popup-image-subview .image-upload-container form .fake-file-input,
 .popup-image-subview .image-upload-container form .file-input{
     position: absolute;
@@ -179,6 +180,7 @@
     height: 30px;
 }
 
+.popup-image-subview .image-upload-container form .cancel,
 .popup-image-subview .image-upload-container form .fake-file-input{
     box-shadow: 0px 0px 2px #000;
     border-radius: 3px;
@@ -186,6 +188,10 @@
     font-size: 16px;
     line-height: 30px;
     text-align: center;
+}
+
+.popup-image-subview .image-upload-container form .cancel{
+    top: 40px;
 }
 
 

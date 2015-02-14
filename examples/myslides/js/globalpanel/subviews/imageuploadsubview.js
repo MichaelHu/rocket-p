@@ -9,7 +9,7 @@ var ImageUploadSubView = Rocket.SubView.extend({
         me.render();
         me.$form = me.$('form');
         me.$file = me.$('input');
-        me.$confirm = me.$('.confirm');
+        me.$cancelButton = me.$('.cancel');
     }
 
     , tpl: [
@@ -48,6 +48,9 @@ var ImageUploadSubView = Rocket.SubView.extend({
         pec.on('typechange', me.ontypechange, me);
         me.$file.on('change', function(e){
             me.onchange();
+        });
+        me.$cancelButton.on('click', function(e){
+            pec.close();
         });
     }
 
