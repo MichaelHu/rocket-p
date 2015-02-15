@@ -19,6 +19,7 @@ var ImageUploadSubView = Rocket.SubView.extend({
         ,     '<input class="file-input" name="image" type="file" accept="image/gif,image/jpeg,image/jpg">'
         ,     '<div class="fake-file-input">点击拍照或上传图片</div>'
         ,     '<div class="cancel">取消</div>'
+        ,     '<div class="tip">如果没有反应，可能是手机系统或应用不支持哦...</div>'
         ,     '<input name="action" type="hidden" value="uploadimg">'
         ,     '<input name="redirect" type="hidden"'
         ,         ' value="' + global_land_page + '">'

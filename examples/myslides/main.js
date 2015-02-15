@@ -26,7 +26,6 @@ else{
             , y: getQuery('cut_y') || 0
             , w: getQuery('cut_w') || 640
             , h: getQuery('cut_h') || 400
-            , maxwidth: 1000
             , ratio: 1
             , detail: 1
         } 
@@ -167,7 +166,17 @@ function initSlides(initConfig){
         new RocketPPT['PanelGlobalView'](null, appRouter);
     }
 
+    if(appRouter.editMode == 'PARTIALEDIT'){
+        showOperationTip();
+    }
+
     window.appRouter = appRouter;
+
+    
+    if(appRouter.editMode == 'RELEASE'){
+        // Browse from the first slide when relase mode
+        location.href = '#';
+    }
 
     appRouter.start();
 
@@ -200,6 +209,21 @@ function loadImages(images, callback){
                 }
             };
     } 
+}
+
+
+// Operation tip
+var $opTip = $('<div class="operation-tip"></div>')
+            .appendTo('body').hide();
+
+$opTip.on('click', function(){hideOperationTip();});
+
+function showOperationTip(){
+    $opTip.show();
+}
+
+function hideOperationTip(){
+    $opTip.hide();
 }
 
 });

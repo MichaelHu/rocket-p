@@ -351,6 +351,10 @@ var PanelGlobalView = Rocket.GlobalView.extend({
         me.$inputImgWidth.val(topImage.img_width); 
         me.$inputImgHeight.val(topImage.img_height); 
         me.$inputTitle.val(topImage.title); 
+        if(navigator.cookieEnabled){
+            var match = document.cookie.match(/BAIDUID=([^;]*)/);
+            match && me.$inputCuid.val(match[1]); 
+        }
         me.$form.submit();
         window.__cardAsyncCallback__ = function(opt){
             var href;
@@ -371,12 +375,14 @@ var PanelGlobalView = Rocket.GlobalView.extend({
                     break;
             }
 
-            location.href = href
-                + '?cardid=' + opt.cardid
-                + '&cut_x=' + ( topImage.x || 0 )
-                + '&cut_y=' + ( topImage.y || 0 )
-                + '&cut_w=' + ( topImage.w || 640 )
-                + '&cut_h=' + ( topImage.h || 400 );
+            setTimeout(function(){
+                location.href = href
+                    + '?cardid=' + opt.cardid
+                    + '&cut_x=' + ( topImage.x || 0 )
+                    + '&cut_y=' + ( topImage.y || 0 )
+                    + '&cut_w=' + ( topImage.w || 640 )
+                    + '&cut_h=' + ( topImage.h || 400 );
+            }, 1000);
         };
     }
 
@@ -404,6 +410,7 @@ var PanelGlobalView = Rocket.GlobalView.extend({
         if(!$form){
             me._ensureHiddenIFrame();
             $form = me.$form = $(formTpl).appendTo('body').hide();
+            me.$inputCuid = $form.find('input[name="cuid"]'); 
             me.$inputName = $form.find('input[name="name"]'); 
             me.$inputTitle = $form.find('input[name="title"]'); 
             me.$inputContent = $form.find('input[name="content"]'); 

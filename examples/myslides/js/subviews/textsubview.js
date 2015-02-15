@@ -21,7 +21,9 @@ var TextSubView = RectSubView.extend({
             me.$panel.append('<span class="edit icon-bianji"></span>');
         }
 
-        me.$text = me.$('.text');
+        me.$text = me.$('.text')
+            .css({'height': '100%', 'overflow': 'hidden'})
+            ;
         me.$editButton = me.$('.edit');
 
         if(!me._isSetup){

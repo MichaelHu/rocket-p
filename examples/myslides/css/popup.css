@@ -170,6 +170,7 @@
     opacity: 0;
 }
 
+.popup-image-subview .image-upload-container form .tip,
 .popup-image-subview .image-upload-container form .cancel,
 .popup-image-subview .image-upload-container form .fake-file-input,
 .popup-image-subview .image-upload-container form .file-input{
@@ -194,6 +195,14 @@
     top: 40px;
 }
 
+.popup-image-subview .image-upload-container form .tip {
+    top: 80px;
+    height: auto;
+    text-align: center;
+    color: #fff;
+    font-size: 14px;
+    line-height: 20px;
+}
 
 .popup .slidenewpanel {
     position: absolute;
