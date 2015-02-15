@@ -33,7 +33,7 @@
 .inner-panel span {
     display: block;
     float: left;
-    margin: 0 4px;
+    margin: 4px;
     padding: 0 5px;
     border-radius: 18px;
     background-color: rgba(0,0,0,0.6);
