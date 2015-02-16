@@ -4,11 +4,16 @@ var PopupSlideConfigSubView = PopupSubView.extend({
         var me = this;
         me._super(options);
         me.$panel = me.$('.popupslideconfig');
+        me.$templateInfo = me.$('.template-info')
+            .val(me.gec.templateName || 'default');
     }
 
     , popupSlideConfigTpl: [
           '<div class="popupslideconfig">'
-        ,      '<div class="color"><b>背景颜色</b><input></div>'
+        ,      '<div class="color"><b>背景颜色</b><input class="color-picker"></div>'
+        ,      '<div class="template"><b>贺卡模板</b>'
+        ,           '<input class="template-info" type="text" value="default">'
+        ,      '</div>'
         , '</div>'
     ].join('')
 
@@ -23,9 +28,14 @@ var PopupSlideConfigSubView = PopupSubView.extend({
 
     , registerEvents: function(){
         var me = this;
+
         me._super();
         me.$panel.on('click', function(e){
             e.stopPropagation();
+        });
+
+        me.$templateInfo.on('change', function(){
+            me.ec.trigger('templateinfochange', {'template': this.value});
         });
     }
 
@@ -34,7 +44,7 @@ var PopupSlideConfigSubView = PopupSubView.extend({
             // Must be 6 hex digits
             initialColor = '#67890a';
 
-        $$(me.$('input')[0]).css('color', initialColor).spectrum({
+        $$(me.$('.color-picker')[0]).css('color', initialColor).spectrum({
             color: initialColor
             , showInput: true
             // , showButtons: false

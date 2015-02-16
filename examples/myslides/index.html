@@ -38,12 +38,23 @@
 (function(){
 
 // config
-global_greetingcard_server = 'http://db-news-rddev0.vm.baidu.com:8081/ajax/greetingcard';
 global_greetingcard_server = 'http://baijia.baidu.com/ajax/greetingcard';
-global_land_page = 'http://172.22.185.165:8300/template/myslides/land.html';
-global_land_page = 'http://test.baidu.com:8300/template/myslides/land.html';
-// global_land_page = 'http://db-news-fe2.vm.baidu.com:8098/myslides/land.html';
-global_land_page = 'http://m.baidu.com/static/news/myslides/land.html';
+
+var host = location.host,
+    path;
+
+if(/(m|wap)\.baidu\.com/.test(host)){
+    path = 'static/news'; 
+}
+else if(/test\.baidu\.com/.test(host)){
+    path = 'template'; 
+}
+
+global_land_page = 'http://'
+    + host + '/' + path + '/myslides/land.html';
+
+
+
 
 var links = document.getElementsByTagName('link'),
     mods = {}, link; 

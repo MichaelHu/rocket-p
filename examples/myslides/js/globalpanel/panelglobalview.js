@@ -71,11 +71,13 @@ var PanelGlobalView = Rocket.GlobalView.extend({
 
     , registerEvents: function(){
         var me = this,
+            ec = me.ec,
             gec = me.gec;
         gec.on('routechange', me.onroutechange, me);
         gec.on('beforeedit.global', me.onbeforeedit, me);
         gec.on('beforeimageedit.global', me.onbeforeimageedit, me);
         gec.on('release.releasebutton.global', me.onreleasefromreleasebutton, me);
+        ec.on('templateinfochange', me.ontemplateinfochange, me);
     }
 
     , render: function(){
@@ -296,7 +298,6 @@ var PanelGlobalView = Rocket.GlobalView.extend({
                 = new PopupEditSubView(null, me);
             me.appendTo(panel, 'body'); 
         }
-        console.log(111);
         panel.toggle(params && params.text || {}.text);
     }
 
@@ -344,9 +345,13 @@ var PanelGlobalView = Rocket.GlobalView.extend({
     , saveSlides: function(config, mode){
         var me = this, topImage = config.topNewsImage;
 
-        console.log(escape(JSON.stringify(config)));
+        // console.log(escape(JSON.stringify(config)));
+        // var tmp;
+        // console.log((tmp = specialEncode(JSON.stringify(config))));
+        // console.log(unescape(tmp));
         me.ensureSendForm();
-        me.$inputContent.val(escape(JSON.stringify(config)));
+        me.$inputContent.val(specialEncode(JSON.stringify(config)));
+        me.$inputTemplate.val(me.gec.templateName);
         me.$inputImgUrl.val(topImage.img_url); 
         me.$inputImgWidth.val(topImage.img_width); 
         me.$inputImgHeight.val(topImage.img_height); 
@@ -413,6 +418,7 @@ var PanelGlobalView = Rocket.GlobalView.extend({
             me.$inputCuid = $form.find('input[name="cuid"]'); 
             me.$inputName = $form.find('input[name="name"]'); 
             me.$inputTitle = $form.find('input[name="title"]'); 
+            me.$inputTemplate = $form.find('input[name="template"]'); 
             me.$inputContent = $form.find('input[name="content"]'); 
             me.$inputImgUrl = $form.find('input[name="img_url"]'); 
             me.$inputImgWidth = $form.find('input[name="img_width"]'); 
@@ -427,5 +433,10 @@ var PanelGlobalView = Rocket.GlobalView.extend({
         ).appendTo('body');
     }
 
+    , ontemplateinfochange: function(params){
+        if(params && params.template){
+            this.gec.templateName = params.template;
+        }
+    }
 
 });

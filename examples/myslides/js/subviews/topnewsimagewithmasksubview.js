@@ -37,9 +37,11 @@ var TopNewsImageWithMaskSubView = ImageWithMaskSubView.extend({
         cut_w = Math.min( cut_w, naturalWidth );
         cut_h = cut_w / 1.6;
 
+        /*
         console.log([
             ratio, left, top, cut_x, cut_y, cut_w, cut_h, naturalWidth, naturalHeight
         ].join(', '));
+        */
 
         $.extend(
             topImages
@@ -54,7 +56,6 @@ var TopNewsImageWithMaskSubView = ImageWithMaskSubView.extend({
             }
         );
 
-        console.log(topImages);
     }
 
 });

@@ -65,7 +65,6 @@ var PopupEditSubView = PopupSubView.extend({
     }
 
     , _decodeText: function(text){
-        console.log(text);
         return text.replace(/\n/g, '<br>')
             .replace(/ /g, '&nbsp;')
             .replace(/(法|fa).*(轮|lun).*(大法)*|习近平|李克强|(六|liu|6)(四|si|4)/g, '*')

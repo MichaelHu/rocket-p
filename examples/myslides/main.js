@@ -2,6 +2,10 @@ define(
     ['require', 'zepto', 'rocket', 'rocket-ppt', 'cover-loading']
     , function(require, $, Rocket, RocketPPT, CoverLoading){
 
+
+var templateName = 'default';
+
+
 function getQuery(name){
     var qstr = location.search,
         rname = new RegExp(name + '=([^&]+)'),
@@ -33,6 +37,7 @@ else{
         , success: function(resp){
             var config;
             if(resp && resp.data && resp.data.content){
+                templateName = resp.data.template || templateName;
                 config = JSON.parse(unescape(resp.data.content));
                 start(config);
             }
@@ -92,6 +97,8 @@ function initSlides(initConfig){
         }
 
         , pageOrder: slidesConfig.order
+
+        , templateName: slidesConfig.template || templateName
 
         , isRelease: slidesConfig.isRelease
 
@@ -180,6 +187,11 @@ function initSlides(initConfig){
 
     appRouter.start();
 
+    _sendNSClickStat({
+        act: '2015postcard'
+        , act_data_1: appRouter.editMode
+        , act_data_2: appRouter.templateName
+    });
 }
 
 function loadImages(images, callback){
@@ -225,5 +237,67 @@ function showOperationTip(){
 function hideOperationTip(){
     $opTip.hide();
 }
+
+
+// Statistics
+function _sendStatData(url, params){
+
+    setTimeout(function(){
+
+        var $statLink = $('<link rel="stylesheet" />');
+        $('head').append($statLink);
+
+        $statLink.attr(
+            'href'
+            , [  
+                url + ( url.indexOf('?') >= 0 ? '' : '?' ) 
+                    + $.param(params) 
+                , (new Date()).getTime()
+            ].join('&')
+        );   
+
+        setTimeout(function(){
+            $statLink.remove();
+        }, 5000);
+
+    },0);
+
+}
+
+function _sendNSClickStat(params, instantly/*optional*/){
+    var url = 'http://nsclick.baidu.com/v.gif',
+        _params;
+
+    _params = $.extend(
+        {    
+            pid: 107
+            , wise: 1
+            , from: 'topic' 
+        }
+        , params
+    );
+
+    if(!instantly){
+        setTimeout(function(){
+            _sendStatData(url, _params);
+        }, 100);
+    }
+    else{
+        _sendStatData(url, _params);
+    }
+
+}
+
+// Minimize output size of escape. 
+// Note that it's not for general use.
+window.specialEncode = function(str){
+    return str.replace(/[\w\W]/g, function($0){
+        if($0.charCodeAt(0) > 255 || $0 == '%'){    
+            return escape($0);
+        }
+        return $0;
+    });
+}
+
 
 });
