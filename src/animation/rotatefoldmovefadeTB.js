@@ -25,7 +25,7 @@ function rotatefoldmovefadeTB(currentEle, nextEle, dir, callback) {
         inClass = 'pt-page-moveFromTopFade';
     }
 
-    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass, callback);
 
 };
 

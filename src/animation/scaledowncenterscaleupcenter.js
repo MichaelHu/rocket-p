@@ -20,7 +20,7 @@ function scaledowncenterscaleupcenter(currentEle, nextEle, dir, callback) {
         inClass = 'pt-page-scaleUpCenter pt-page-delay400'
         ;
 
-    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass, callback);
 
 };
 

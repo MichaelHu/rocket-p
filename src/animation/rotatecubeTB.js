@@ -25,7 +25,7 @@ function rotatecubeTB(currentEle, nextEle, dir, callback) {
         inClass = 'pt-page-rotateCubeBottomIn';
     }
 
-    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass, callback);
 
 };
 

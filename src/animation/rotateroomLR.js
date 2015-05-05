@@ -25,7 +25,7 @@ function rotateroomLR(currentEle, nextEle, dir, callback) {
         inClass = 'pt-page-rotateRoomRightIn';
     }
 
-    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass, callback);
 
 };
 

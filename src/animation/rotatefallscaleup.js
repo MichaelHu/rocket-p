@@ -20,7 +20,7 @@ function rotatefallscaleup(currentEle, nextEle, dir, callback) {
         inClass = 'pt-page-scaleUp'
         ;
 
-    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass, callback);
 
 };
 

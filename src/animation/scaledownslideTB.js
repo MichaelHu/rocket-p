@@ -25,7 +25,7 @@ function scaledownslideTB(currentEle, nextEle, dir, callback) {
         inClass = 'pt-page-moveFromTop pt-page-ontop';
     }
 
-    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass, callback);
 
 };
 

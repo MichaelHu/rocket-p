@@ -25,7 +25,7 @@ function fadeslideLR(currentEle, nextEle, dir, callback) {
         inClass = 'pt-page-moveFromLeft pt-page-ontop';
     }
 
-    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass, callback);
 
 };
 

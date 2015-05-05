@@ -20,7 +20,7 @@ function rotatenewspaper(currentEle, nextEle, dir, callback) {
         inClass = 'pt-page-rotateInNewspaper pt-page-delay500'
         ;
 
-    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass, callback);
 
 };
 

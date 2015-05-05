@@ -25,7 +25,7 @@ function slideTB(currentEle, nextEle, dir, callback) {
         inClass = 'pt-page-moveFromTop';
     }
 
-    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass, callback);
 
 };
 

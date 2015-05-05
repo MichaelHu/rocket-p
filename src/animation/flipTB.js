@@ -25,7 +25,7 @@ function flipTB(currentEle, nextEle, dir, callback) {
         inClass = 'pt-page-flipInTop pt-page-delay500';
     }
 
-    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass, callback);
 
 };
 

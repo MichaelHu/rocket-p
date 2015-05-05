@@ -25,7 +25,7 @@ function movefaderotateunfoldTB(currentEle, nextEle, dir, callback) {
         inClass = 'pt-page-rotateUnfoldTop';
     }
 
-    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass, callback);
 
 };
 

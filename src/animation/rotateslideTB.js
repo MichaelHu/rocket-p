@@ -25,7 +25,7 @@ function rotateslideTB(currentEle, nextEle, dir, callback) {
         inClass = 'pt-page-moveFromTop pt-page-delay200 pt-page-ontop';
     }
 
-    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass, callback);
 
 };
 

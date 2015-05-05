@@ -20,7 +20,7 @@ function get(name){
     return animations[name];
 }
 
-function pageTransition(inPage, outPage, inClass, outClass){
+function pageTransition(inPage, outPage, inClass, outClass, callback){
 
     var outPageEnd,
         inPageEnd,
@@ -90,6 +90,8 @@ function pageTransition(inPage, outPage, inClass, outClass){
             .off('webkitAnimationEnd');
 
         isAnimating = false;
+
+        callback && callback();
     }
 
 }

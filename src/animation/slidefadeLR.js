@@ -25,7 +25,7 @@ function slidefadeLR(currentEle, nextEle, dir, callback) {
         inClass = 'pt-page-moveFromLeftFade';
     }
 
-    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass, callback);
 
 };
 

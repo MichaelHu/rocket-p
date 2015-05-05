@@ -25,7 +25,7 @@ function flipLR(currentEle, nextEle, dir, callback) {
         inClass = 'pt-page-flipInLeft pt-page-delay500';
     }
 
-    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass, callback);
 
 };
 

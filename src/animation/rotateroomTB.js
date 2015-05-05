@@ -25,7 +25,7 @@ function rotateroomTB(currentEle, nextEle, dir, callback) {
         inClass = 'pt-page-rotateRoomBottomIn';
     }
 
-    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass, callback);
 
 };
 

@@ -25,7 +25,7 @@ function rotatecarouselLR(currentEle, nextEle, dir, callback) {
         inClass = 'pt-page-rotateCarouselRightIn';
     }
 
-    Animation.pageTransition(nextEle, currentEle, inClass, outClass);
+    Animation.pageTransition(nextEle, currentEle, inClass, outClass, callback);
 
 };
 
