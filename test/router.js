@@ -59,7 +59,7 @@ module('Router', {
     setup: function(){
         location = new Location('http://example.com');
         History.location = location;
-        Router.routes = null;
+        Router.clearRoutes();
         router = new newRouter({testing: 101});
         History.interval = 9;
         History.start({pushState: false}); 

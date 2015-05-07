@@ -1595,8 +1595,10 @@ Utils.extend(Router, {
         Router.viewClasses = {};
     }
 
+    , routes: {}
+
     , clearRoutes: function () {
-        delete Router.routes;
+        Router.routes = {};
     }
 
 });
