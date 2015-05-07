@@ -32,12 +32,24 @@ var escapeRegExp = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 var rParamName = /[:*](\w+)/g;
 var rDefaultHandler = /^(_defaultHandler):(\w+)$/;
 
+Utils.extend(Router, {
+
+    viewClasses: {}
+
+    , registerViewClass: function (action, viewClass){
+        if(Utils.isEmpty(action) || !Utils.isFunction(viewClass)) return;
+        Router.viewClasses[action] = viewClass;
+    }
+
+    , clearViewClasses: function () {
+        Router.viewClasses = {};
+    }
+
+});
+
 Utils.extend(Router.prototype, Events, {
 
     initialize: function(){
-        // References to Classes of Pageview
-        this.viewClasses = {};
-
         // References to instances of Pageview
         this.views = {};
 
@@ -213,12 +225,11 @@ Utils.extend(Router.prototype, Events, {
     }
 
     , _getViewClass: function(action){
-        return this.viewClasses[action];
+        return Router.viewClasses[action];
     }
 
     , registerViewClass: function(action, viewClass){
-        if(Utils.isEmpty(action) || !Utils.isFunction(viewClass)) return;
-        this.viewClasses[action] = viewClass;
+        Router.registerViewClass(action, viewClass);
         return this;
     }
 
@@ -332,6 +343,9 @@ Utils.extend(Router.prototype, Events, {
 
         if(!view){
             var cls = me._getViewClass(action);
+            if (!cls) {
+                throw new Error('Router.doAction: view class for action ' + action + ' not exist!');
+            }
             view = me.views[action]
                 = new cls(params, action, me);
         }
