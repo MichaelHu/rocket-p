@@ -1589,16 +1589,19 @@ Utils.extend(Router, {
     , registerViewClass: function (action, viewClass){
         if(Utils.isEmpty(action) || !Utils.isFunction(viewClass)) return;
         Router.viewClasses[action] = viewClass;
+        return Router;
     }
 
     , clearViewClasses: function () {
         Router.viewClasses = {};
+        return Router;
     }
 
     , routes: null
 
     , clearRoutes: function () {
         Router.routes = null;
+        return Router;
     }
 
 });
