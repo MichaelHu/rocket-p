@@ -3,7 +3,7 @@ var Router = (function(){
 
 var Router = function(options){
     options || (options = {});
-    if(options.routes) this.routes = options.routes;
+    this.routes = options.routes || Utils.result(this, 'routes') || Router.routes;
 
     this.history = options.history || this.history || History;
     this._bindRoutes();
@@ -45,10 +45,8 @@ Utils.extend(Router, {
         Router.viewClasses = {};
     }
 
-    , routes: {}
-
     , clearRoutes: function () {
-        Router.routes = {};
+        delete Router.routes;
     }
 
 });
@@ -177,7 +175,7 @@ Utils.extend(Router.prototype, Events, {
 
     , _bindRoutes: function(){
         if(!this.routes) return;
-        this.routes = Utils.result(this, 'routes') || Router.routes;
+        this.routes = Utils.result(this, 'routes');
         this.paramNames = {};
         var route, routes = Utils.keys(this.routes);
         while((route = routes.pop()) != null){

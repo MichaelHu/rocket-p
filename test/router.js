@@ -59,6 +59,7 @@ module('Router', {
     setup: function(){
         location = new Location('http://example.com');
         History.location = location;
+        Router.routes = null;
         router = new newRouter({testing: 101});
         History.interval = 9;
         History.start({pushState: false}); 
@@ -381,6 +382,40 @@ test("fires event when router doesn't have callback on it", 1, function() {
     router.on("route:noCallback", function(){ ok(true); });
     location.replace('http://example.com#noCallback');
     History.checkUrl();
+});
+
+test("Router.routes is valid when no routes specified", 2, function(){
+
+    History.stop();
+
+    var history = Utils.extend(new History.constructor, {location: location});
+    history.on('route', onRoute);
+
+    Router.routes = {
+        'index': 'index' 
+        , '*anything': '_defaultHandler:default'
+    };
+
+    var newRouter = Router.extend({
+        index: function(){
+            ok(true);
+        }
+
+        , doAction: function(){}
+    });
+
+    var router = new newRouter({
+        history: function() {
+            return history;
+        }
+    });
+
+
+    location.replace('http://example.com#index');
+    history.start();
+    location.replace('http://example.com#other/abc');
+    history.checkUrl();        
+    equal(lastRoute, 'default');
 });
 
 
