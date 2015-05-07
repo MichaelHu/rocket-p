@@ -1595,6 +1595,12 @@ Utils.extend(Router, {
         Router.viewClasses = {};
     }
 
+    , routes: null
+
+    , clearRoutes: function () {
+        Router.routes = null;
+    }
+
 });
 
 Utils.extend(Router.prototype, Events, {
@@ -1721,7 +1727,7 @@ Utils.extend(Router.prototype, Events, {
 
     , _bindRoutes: function(){
         if(!this.routes) return;
-        this.routes = Utils.result(this, 'routes');
+        this.routes = Utils.result(this, 'routes') || Router.routes;
         this.paramNames = {};
         var route, routes = Utils.keys(this.routes);
         while((route = routes.pop()) != null){
