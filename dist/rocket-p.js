@@ -1595,10 +1595,10 @@ Utils.extend(Router, {
         Router.viewClasses = {};
     }
 
-    , routes: null
+    , routes: {}
 
     , clearRoutes: function () {
-        Router.routes = null;
+        Router.routes = {};
     }
 
 });
